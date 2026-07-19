@@ -12,13 +12,13 @@ Reference:
   feasibility set collapses to the true key (Shannon's unicity).
 
 This file mechanizes the skeleton of that reduction on top of
-`Ste.Basic`.  Quantitative results (unicity distance, equivocation)
-are future work; see papers/notes.
+`Ste.Basic`.  The concrete counting and reduction results live in
+`Ste.Carlson.Counting` and `Ste.Carlson.Reduction`.
 -/
 import Mathlib.Data.Set.Lattice
 import Ste.Basic
 
-namespace STE
+namespace STE.Carlson
 
 /-- A cipher system: a keyed family of injective encryption maps from
 messages to ciphertexts.  Injectivity in the message argument is the
@@ -108,4 +108,4 @@ theorem feasibleKeys_antitone {Meaning : Set M} {obs : ι → C}
 
 end CipherSystem
 
-end STE
+end STE.Carlson
