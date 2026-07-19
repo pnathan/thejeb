@@ -1,0 +1,21 @@
+name: Lean
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Lean proofs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build the Ste library
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: lean
+          use-github-cache: true
