@@ -38,6 +38,7 @@ def FiniteConsistency (S : I → Set Ξ) : Prop :=
   ∀ u : Finset I, (⋂ i ∈ u, S i).Nonempty
 
 /-- Fair information is finitely consistent. -/
+omit [TopologicalSpace Ξ] in
 theorem FiniteConsistency.of_fair {S : I → Set Ξ} {h : Ξ} (hf : Fair S h) :
     FiniteConsistency S := by
   intro u

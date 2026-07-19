@@ -1,0 +1,159 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage[numbers,sort&compress]{natbib}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,breaklines=true,
+  frame=single,framesep=4pt,xleftmargin=4pt}
+
+\title{A Machine-Checked Core for Set Theoretic Estimation}
+\author{Project \texttt{thejeb}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We report a first, machine-checked formalization in Lean~4 / Mathlib of
+the core of set theoretic estimation (STE) as founded by
+\citet{combettes1993} and recast over topological spaces for decryption
+by \citet{carlson2012}. The formalization covers the feasibility set and
+its lattice-theoretic properties, the consistent / fair / ideal
+taxonomy, information monotonicity, an inconsistency-based
+invalid-information detector, closedness and compactness-based existence
+of estimates on topological spaces, convexity of the feasibility set,
+and a skeleton of Carlson's STE-decryption reduction. Every theorem
+stated here is verified by continuous integration on each push; nothing
+is asserted proven otherwise.
+\end{abstract}
+
+\section{Introduction}
+Set theoretic estimation abandons the search for an optimum in favor of
+\emph{feasibility}: an estimate is acceptable exactly when it is
+consistent with every available piece of information
+\citep{combettes1993}. This shifts the mathematical content from analysis
+of an objective function to the set algebra and topology of a family of
+constraint sets and their intersection. That content is a natural target
+for a proof assistant. We mechanize it in Lean~4 on Mathlib (pinned
+\texttt{v4.32.0}), adopting a strict discipline: a statement counts as
+established only when it type-checks in our library under the project's
+CI. This paper is the human-readable companion to that library; every
+displayed result names its Lean identifier.
+
+\section{The formal model}
+Let $\Xi$ be the solution space and $I$ an index set of information
+pieces. A \emph{property set family} is $S:I\to\mathcal P(\Xi)$; $S_i$
+holds the estimates consistent with information $i$. We mechanize the
+crisp case (Combettes's membership function $\Psi_i$ being
+$\{0,1\}$-valued, so $S_i$ is a subset).
+
+\begin{definition}[feasibility set; \texttt{STE.feasibilitySet}]
+$S \;=\; \bigcap_{i\in I} S_i$ (Combettes Eq.~4). A point of $S$ is a
+\emph{set theoretic estimate}.
+\end{definition}
+
+\begin{lstlisting}
+def feasibilitySet (S : I -> Set Xi) : Set Xi := iInter i, S i
+theorem mem_feasibilitySet : a in feasibilitySet S <-> forall i, a in S i
+\end{lstlisting}
+
+\section{Results (all machine-checked)}
+
+\paragraph{Refinement and monotonicity.}
+The feasibility set refines each constraint
+(\texttt{feasibilitySet\_subset}: $S\subseteq S_j$). Writing
+$S_J=\bigcap_{i\in J}S_i$ for the \emph{partial} feasibility set,
+enforcing more information shrinks it:
+\begin{proposition}[\texttt{partialFeasibilitySet\_antitone}]
+$J\subseteq K \implies S_K \subseteq S_J$.
+\end{proposition}
+\noindent This is the STE reading of ``more information never enlarges
+the acceptable set,'' and it descends to Carlson's key search as
+\texttt{feasibleKeys\_antitone}.
+
+\paragraph{Consistency, fairness, invalid information.}
+Call the family \emph{fair} for $h$ when $h\in S_i$ for all $i$
+(\texttt{STE.Fair}); this is exactly $h\in S$
+(\texttt{fair\_iff\_mem\_feasibilitySet}).
+\begin{theorem}[\texttt{feasibilitySet\_nonempty\_of\_fair}]
+Fair information is consistent: if the truth satisfies every piece of
+information then $S\ne\emptyset$.
+\end{theorem}
+Contrapositively, inconsistency is a certificate that some information is
+wrong:
+\begin{theorem}[\texttt{exists\_unfair\_of\_feasibilitySet\_eq\_empty}]
+If $S=\emptyset$ then for every candidate $h$ there is an $i$ with
+$h\notin S_i$.
+\end{theorem}
+
+\paragraph{Ideal information.}
+The family is \emph{ideal} for $h$ when $S=\{h\}$ (\texttt{STE.Ideal}).
+\begin{theorem}[\texttt{Ideal.eq\_of\_mem},
+\texttt{ideal\_iff\_fair\_and\_subsingleton}]
+Under ideal information every estimate equals the truth; and idealness is
+equivalent to fairness together with feasibility being a subsingleton.
+\end{theorem}
+
+\paragraph{Topology (Carlson's setting).}
+\begin{theorem}[\texttt{isClosed\_feasibilitySet},
+\texttt{feasibilitySet\_nonempty\_of\_compact}]
+If each $S_i$ is closed then $S$ is closed. If moreover $\Xi$ is compact
+and every finite subfamily is consistent (the finite intersection
+property, \texttt{FiniteConsistency}), then $S\ne\emptyset$.
+\end{theorem}
+\noindent The compactness result is the abstract reason STE is well posed
+on Carlson's finite key spaces (discrete $\Rightarrow$ compact;
+\texttt{isClosed\_feasibilitySet\_of\_discrete}) and on bounded closed
+convex constraint sets.
+
+\paragraph{Convexity (Combettes's Hilbert-space setting).}
+\begin{theorem}[\texttt{convex\_feasibilitySet}]
+If each $S_i$ is convex then $S$ (and every partial feasibility set) is
+convex.
+\end{theorem}
+\noindent This is the geometric precondition for the projection
+algorithms of \citet{youla1982,bauschke1996}, a planned extension.
+
+\paragraph{STE decryption skeleton (Carlson).}
+A \texttt{CipherSystem} is a keyed family of injective encryption maps.
+Observing a ciphertext $c$ induces the key property set
+$\{k \mid \exists m\in\mathrm{Meaning},\ \mathrm{enc}\,k\,m=c\}$; the
+feasible key set is the STE feasibility set of these.
+\begin{theorem}[\texttt{CipherSystem.fair\_of\_genuine},
+\texttt{feasibleKeys\_nonempty\_of\_genuine}]
+Genuine traffic (ciphertexts that really are encryptions of meaningful
+messages under a true key $k_0$) is fair for $k_0$; hence the feasible
+key set is nonempty.
+\end{theorem}
+\begin{theorem}[\texttt{Unicity.eq\_of\_feasible}]
+At unicity (feasible key set $=\{k_0\}$, i.e.\ ideal information) every
+feasible key is the true key: decryption succeeds by feasibility alone.
+\end{theorem}
+
+\section{Verification method}
+The environment used to author this work cannot download a Lean toolchain
+(egress policy). We therefore treat the GitHub Action as the trusted
+verifier: every push to \texttt{main} builds the \texttt{Ste} library
+with \texttt{leanprover/lean-action} against the pinned Mathlib cache. A
+result is considered established only once its build is green. This
+operationalizes the project's rule to distrust results that are not
+machine proven.
+
+\section{Future work}
+In increasing depth: Carlson's cipher counting (Lemma~4.1, Theorem~4.1);
+the reduction of all block ciphers to substitution ciphers (Theorem~5.2,
+Corollary~5.3); POCS convergence over Hilbert spaces; and Theorem~2.3,
+that property sets are AEP typical sets, placing information theory under
+STE. Targets and their open/proven status are tracked in the project
+\texttt{log/}.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}

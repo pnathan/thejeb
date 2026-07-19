@@ -1,0 +1,140 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+
+\title{Literature Review: Set Theoretic Estimation\\
+\large Working notes toward a Lean mechanization}
+\author{Project \texttt{thejeb}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Working notes reviewing set theoretic estimation (STE) from its unifying
+statement \citep{combettes1993} through its topological-space,
+cryptographic instantiation \citep{carlson2012}, oriented toward
+identifying which results are ripe for machine-checked formalization in
+Lean~4 / Mathlib. These notes are exploratory and cite the primary
+sources; only claims discharged in the CI-checked \texttt{Ste} library
+are asserted as proven.
+\end{abstract}
+
+\section{The set theoretic paradigm (Combettes 1993)}
+
+Conventional estimation optimizes an objective function; the solvability
+and realism of that optimization is a persistent difficulty
+\citep{combettes1993}. STE replaces optimization with \emph{feasibility}.
+
+Fix a \emph{solution space} $\Xi$ and a true object (estimandum) $h$.
+Each piece of information $i\in I$ is a proposition on $\Xi$; at a chosen
+confidence level it yields a \emph{property set}
+\begin{equation}
+  S_i = \{a\in\Xi \mid \Psi_i(a)\ge\psi_i\},
+  \qquad \Psi_i:\Xi\to[0,1],
+\end{equation}
+the set of estimates consistent with information $i$ (Combettes Eq.~3).
+The \emph{feasibility set} is their intersection,
+\begin{equation}
+  S = \bigcap_{i\in I} S_i \qquad\text{(Combettes Eq.~4).}
+\end{equation}
+Any $a\in S$ is a \emph{set theoretic estimate}. The formulation is
+\emph{consistent} if $S\ne\emptyset$, \emph{fair} if $h\in S$, and
+\emph{ideal} if $S=\{h\}$. When $\Xi$ is a real Hilbert space and each
+$S_i$ is closed and convex, $S$ is closed convex and can be reached by
+projection algorithms (POCS, \citealp{youla1982}; cyclic projections,
+\citealp{bregman1967}; survey \citealp{bauschke1996}).
+
+\paragraph{What we formalized.} The \emph{crisp} core --- where $\Psi_i$
+is $\{0,1\}$-valued so $S_i$ is an ordinary subset --- is machine-checked
+in \texttt{Ste.Basic}: feasibility set, membership, refinement of each
+constraint, information monotonicity, the fair/consistent link, the
+inconsistency$\Rightarrow$invalid-information self-diagnostic, and the
+ideal-information identification theorem. Convexity of the feasibility
+set is \texttt{Ste.Convex}. The graded/fuzzy case and the projection
+\emph{algorithms} (as opposed to the geometry) remain open.
+
+\section{Topological-space STE for decryption (Carlson 2012)}
+
+\citet{carlson2012} makes two moves. First, a \emph{spatial} move: prior
+STE works in a Hilbert / metric space and simplifies processing with
+Optimal Bounding Ellipsoid (OBE) algorithms, but an OBE is not confined
+to the original feasibility volume and can spuriously \emph{expand} the
+solution set. Carlson instead works in a \emph{topological space}, where
+property sets are static a~priori information that never expand, avoiding
+the OBE pathology. Second, an \emph{application} move: STE is applied to
+decryption for the first time.
+
+\paragraph{The decryption reduction.} The solution space is a finite key
+space $K$. Each intercepted ciphertext $c$ induces a property set of keys
+under which $c$ decrypts to a meaningful message; the feasible key set is
+the STE feasibility set of these property sets, and decryption succeeds
+when it collapses to the true key --- the set theoretic form of Shannon's
+unicity \citep{shannon1949}.
+
+\paragraph{Named results (extracted from the dissertation text).}
+\begin{itemize}
+\item \textbf{Lemma 2.1:} the error $e$ (number of keys lacking an
+  encryption property $\Phi_i$) is bounded, $0\le e\le|K|-1$.
+\item \textbf{Lemma 2.2:} property sets behave as independent variables
+  whose intersection is no larger than the smallest set; if
+  $\Phi_j\subseteq\Phi_k$ then $\Phi_k$ is subsumed.
+\item \textbf{Theorem 2.3:} each property set is an AEP typical set;
+  hence information theory falls under the STE umbrella.
+\item \textbf{Lemma 4.1:} a substitution ($S$) cipher on message $M$
+  admits $(|A|-|T|)!$ isomorphic (equivalent) keys, where $T$ is the set
+  of distinct symbols occurring in $M$.
+\item \textbf{Theorem 4.1:} a permutation ($P$) cipher admits
+  $\binom{|S_t|}{C}(|B|-|S_t|)!$ unique keys, $S_t$ the static-bit set.
+\item \textbf{Theorem 5.2:} a permutation encryption reduces to a
+  substitution encryption within a symbol's bit representation.
+\item \textbf{Corollary 5.3:} a boundary-aligned PSP cipher is idempotent
+  to a single $S$ cipher; therefore every block cipher is a block
+  substitution cipher, so one attack (BCBB) suffices.
+\end{itemize}
+
+\paragraph{What we formalized.} The topological substrate ---
+closedness and, via compactness and the finite intersection property,
+existence of feasible points --- is \texttt{Ste.Topology}; it specializes
+cleanly to Carlson's finite (discrete, hence compact) key spaces. The
+STE-decryption skeleton (cipher systems, key property sets, feasible
+keys, fairness of genuine traffic, unicity as ideal information,
+observation monotonicity) is \texttt{Ste.Cipher}.
+
+\section{Assessment: what is ripe to mechanize}
+
+\begin{enumerate}
+\item \textbf{Most tractable:} the cipher counting results (Lemma~4.1,
+  Theorem~4.1). These are finite combinatorics over \texttt{Fin}-indexed
+  symbol/bit alphabets; Mathlib's \texttt{Fintype.card\_perm}
+  ($|\mathrm{Perm}\,\alpha| = (\#\alpha)!$) and factorial API supply the
+  scaffolding.
+\item \textbf{Structural:} the reduction chain (Theorem~5.2,
+  Corollary~5.3) reducing all block ciphers to substitution ciphers ---
+  an algebraic argument once ciphers are modeled as keyed permutations.
+\item \textbf{Analytic:} POCS convergence (\citealp{youla1982,
+  bauschke1996}) atop \texttt{Ste.Convex}, using Mathlib's Hilbert-space
+  projection theory.
+\item \textbf{Deepest:} Theorem~2.3 (property sets as AEP typical sets),
+  which requires a probabilistic model and Mathlib's measure/information
+  theory.
+\end{enumerate}
+
+\section{Distrust discipline}
+Per project rule, no result here is asserted proven unless it compiles in
+the \texttt{Ste} library checked by CI on every push to \texttt{main}.
+The Carlson named results above are \emph{quoted from the source}, not
+yet independently verified; they are targets, and their statuses live in
+\texttt{log/2026-07-19-hypotheses-ste-core.md} (H9--H12, OPEN).
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}

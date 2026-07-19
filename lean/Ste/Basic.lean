@@ -6,11 +6,19 @@ Reference:
   Proceedings of the IEEE, vol. 81, no. 2, pp. 182-208, Feb. 1993.
   doi:10.1109/5.214546.
 
-Combettes, Section II: an estimation problem is specified by a solution
-space `Ξ`, an index set `I` of pieces of information, and for each piece
-of information a *property set* `S i ⊆ Ξ` consisting of the points of
-`Ξ` consistent with that piece of information.  The *feasibility set* is
-`S = ⋂ i, S i`, and a *set theoretic estimate* is any point of `S`.
+Combettes, Section II-C ("Set Theoretic Formulation"): an estimation
+problem is specified by a solution space `Ξ`, an index set `I` of pieces
+of information, and for each piece of information a *property set*
+`S i ⊆ Ξ` (Eq. (3): `Sᵢ = {a ∈ Ξ | Ψᵢ(a) ≥ ψᵢ}`) consisting of the
+estimates consistent with that piece of information.  The *feasibility
+set* (there called the solution set) is `S = ⋂ i, S i` (Eq. (4)), and a
+*set theoretic estimate* is any point of `S`.  A formulation is
+*consistent* if `S ≠ ∅`, *fair* if `h ∈ S`, and *ideal* if `S = {h}`,
+where `h` is the true object (estimandum).
+
+We mechanize the crisp case, where each `Ψᵢ` is `{0,1}`-valued so the
+property set is an ordinary subset of `Ξ`; the fuzzy/graded case
+(`Ψᵢ : Ξ → [0,1]`) is a natural generalization left as future work.
 -/
 import Mathlib.Data.Set.Lattice
 
@@ -20,7 +28,7 @@ variable {Ξ : Type*} {I : Type*}
 
 /-- The feasibility set of a family of property sets `S : I → Set Ξ`:
 the set of points consistent with every piece of information
-(Combettes 1993, §II-B, Eq. (12)). -/
+(Combettes 1993, §II-C, Eq. (4)). -/
 def feasibilitySet (S : I → Set Ξ) : Set Ξ :=
   ⋂ i, S i
 
@@ -50,10 +58,11 @@ theorem feasibilitySet_subset_partial (S : I → Set Ξ) (J : Set I) :
   intro i _
   exact mem_feasibilitySet.mp ha i
 
-/-- **Information monotonicity** (Combettes 1993, §II-B): acquiring more
-information can only shrink (never enlarge) the feasibility set.  Stated
-as antitonicity of the partial feasibility set in the enforced index
-set. -/
+/-- **Information monotonicity**: acquiring more information can only
+shrink (never enlarge) the feasibility set.  A direct consequence of the
+intersection structure of the feasibility set (Combettes 1993, §II-C,
+Eq. (4)), stated here as antitonicity of the partial feasibility set in
+the enforced index set. -/
 theorem partialFeasibilitySet_antitone (S : I → Set Ξ) {J K : Set I}
     (hJK : J ⊆ K) :
     partialFeasibilitySet S K ⊆ partialFeasibilitySet S J := by
@@ -88,14 +97,15 @@ theorem feasibilitySet_nonempty_of_fair {S : I → Set Ξ} {h : Ξ}
 
 /-- Contrapositive: an inconsistent problem (`S = ∅`) proves that at
 least one piece of information is unfair for every candidate truth.
-This is the set theoretic detection-of-invalid-information principle
-(Combettes 1993, §II-E). -/
+This is the set theoretic detection-of-invalid-information principle: an
+inconsistent formulation (Combettes 1993, §II-C, Fig. 1(a)) proves some
+property set is in error. -/
 theorem exists_unfair_of_feasibilitySet_eq_empty {S : I → Set Ξ}
     (hS : feasibilitySet S = ∅) (h : Ξ) :
     ∃ i, h ∉ S i := by
-  by_contra hcon
-  push_neg at hcon
-  have : h ∈ feasibilitySet S := mem_feasibilitySet.mpr hcon
+  rw [← not_forall]
+  intro hall
+  have : h ∈ feasibilitySet S := mem_feasibilitySet.mpr hall
   rw [hS] at this
   exact this
 

@@ -1,0 +1,125 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{enumitem}
+
+\title{Annotated Bibliography\\\large Set Theoretic Estimation and its Mechanization}
+\author{Project \texttt{thejeb}}
+\date{Compiled \today}
+
+\begin{document}
+\maketitle
+
+\noindent
+This bibliography tracks the sources underpinning the \texttt{thejeb}
+mechanization of set theoretic estimation (STE). Entries are annotated
+with (i) what the source establishes and (ii) its status for our Lean
+formalization: \textbf{seed} (a paper we are directly mechanizing),
+\textbf{foundational} (prior art we build on or cite), or
+\textbf{survey/future} (candidate for later mechanization). Every claim
+imported into the Lean development is cited back to a specific result
+here; results are trusted only once machine-checked.
+
+\section*{Seed papers}
+
+\paragraph{\citet{combettes1993} --- \emph{The Foundations of Set
+Theoretic Estimation}, Proc.\ IEEE 81(2):182--208.} \textbf{[seed]}
+The synthesizing reference for STE. It reframes estimation away from
+optimizing an objective function and toward \emph{feasibility}: a
+solution is acceptable iff it is consistent with all available
+information. Formally (\S II-C), each piece of information $i$ is a fuzzy
+proposition $\Psi_i:\Xi\to[0,1]$ on the solution space $\Xi$; at a
+confidence level $\psi_i$ it induces a \emph{property set}
+$S_i=\{a\in\Xi\mid\Psi_i(a)\ge\psi_i\}$ (Eq.~3), and the
+\emph{feasibility set} is $S=\bigcap_{i\in I}S_i$ (Eq.~4). A formulation
+is \emph{consistent} if $S\ne\emptyset$, \emph{fair} if the true object
+$h\in S$, and \emph{ideal} if $S=\{h\}$. \S III develops projection
+algorithms (POCS) when $\Xi$ is a Hilbert space and the $S_i$ are closed
+convex. \emph{Mechanization status:} the crisp core (property sets,
+feasibility set, consistent/fair/ideal, monotonicity, invalid-information
+detection) is machine-checked in \texttt{Ste.Basic}; the convex layer in
+\texttt{Ste.Convex}. The fuzzy/graded case and the projection algorithms
+are future work.
+
+\paragraph{\citet{carlson2012} --- \emph{Set Theoretic Estimation
+Applied to the Information Content of Ciphers and Decryption}, Ph.D.\
+dissertation, University of Idaho.} \textbf{[seed]}
+Recasts STE over a \emph{topological} solution space rather than the
+Hilbert space of prior work, avoiding the Optimal Bounding Ellipsoid
+(OBE) pathology whereby the bounding volume can spuriously expand the
+solution set. Applies STE to decryption: the solution space is a finite
+key space, each intercepted ciphertext induces a property set of keys
+under which it decodes to a meaningful message, and decryption succeeds
+when the feasible key set collapses (Shannon unicity). Named results we
+extracted (see \texttt{papers/notes}): Lemma~2.1 (error bound on
+spurious keys), Lemma~2.2 (property-set intersection no larger than the
+smallest set), Theorem~2.3 (property sets are AEP typical sets, tying
+information theory under STE), Lemma~4.1 (an $S$-cipher has
+$(|A|-|T|)!$ isomorphic keys), Theorem~4.1 (key count for a $P$-cipher),
+Theorem~5.1 (PS/SP product ciphers vs.\ block substitution unicity),
+Theorem~5.2 (a permutation cipher reduces to a substitution cipher
+within a symbol), Corollary~5.3 (a boundary-aligned PSP cipher is
+idempotent to an $S$-cipher; hence all block ciphers are block
+substitution ciphers). \emph{Mechanization status:} the STE-decryption
+skeleton (cipher systems, key property sets, feasible keys, fairness of
+genuine traffic, unicity as ideal information, observation monotonicity)
+is machine-checked in \texttt{Ste.Cipher}; the counting theorems
+(4.1, Lemma~4.1) are the most tractable next targets, the unicity/AEP
+results the deepest.
+
+\section*{Foundational}
+
+\paragraph{\citet{shannon1949} --- \emph{Communication Theory of Secrecy
+Systems}.} \textbf{[foundational]}
+Origin of unicity distance and key equivocation, which Carlson recasts
+in set theoretic terms. The set theoretic ``unicity'' we formalize
+(feasible key set $=\{k_0\}$) is the qualitative core of Shannon's
+quantitative unicity point.
+
+\paragraph{\citet{youla1982} --- \emph{Image Restoration by the Method
+of Convex Projections}.} \textbf{[foundational]}
+POCS: iterated projection onto closed convex constraint sets converges
+to a feasible point. The algorithmic engine behind Combettes~\S III and
+the natural sequel to \texttt{Ste.Convex}.
+
+\paragraph{\citet{bregman1967} --- relaxation / common point of convex
+sets.} \textbf{[foundational]}
+The cyclic-projection method predating POCS; the ancestor of convex
+feasibility solvers.
+
+\paragraph{\citet{schweppe1968} --- set-membership state estimation;
+\citet{deller1989} --- set-membership identification in DSP.}
+\textbf{[foundational]}
+Early ``unknown but bounded'' set-membership estimation---one of the
+scattered traditions Combettes unifies; the source of the OBE algorithms
+Carlson critiques.
+
+\section*{Survey / future mechanization}
+
+\paragraph{\citet{bauschke1996} --- \emph{On Projection Algorithms for
+Solving Convex Feasibility Problems}, SIAM Review.} \textbf{[survey]}
+The definitive survey of the convex feasibility problem
+$\text{find }x\in\bigcap_i C_i$. Its firmly-nonexpansive-operator
+framework is the target for a machine-checked convergence proof of POCS
+atop \texttt{Ste.Convex}; Mathlib already carries the requisite
+inner-product-space projection theory.
+
+\paragraph{\citet{combettes1993numerical} --- \emph{The Convex
+Feasibility Problem in Image Recovery}.} \textbf{[survey]}
+Companion to the seed paper; concrete constraint sets and numerical
+behavior for the convex STE instantiation.
+
+\section*{Tooling}
+
+\paragraph{\citet{moura2021} --- Lean 4; \citet{mathlib2020} ---
+Mathlib.} \textbf{[tooling]}
+The proof assistant and library in which every result in this project is
+machine-checked. We pin Mathlib \texttt{v4.32.0} (toolchain
+\texttt{leanprover/lean4:v4.32.0}).
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}
