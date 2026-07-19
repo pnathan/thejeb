@@ -129,8 +129,21 @@ def mustSetoid (D : Set Document) : Setoid Claim where
   r := M.MustSame D
   iseqv := M.mustSame_equivalence D
 
-/-- A canonical frame is a must-coreference class for the active corpus. -/
-abbrev CanonicalFrame (D : Set Document) := Quotient (M.mustSetoid D)
+/-- Restrict the safe quotient to claims whose source documents are active. -/
+def activeMustSetoid (D : Set Document) : Setoid (M.activeClaims D) where
+  r := fun c d => M.MustSame D c.1 d.1
+  iseqv := by
+    constructor
+    · intro c
+      exact M.mustSame_refl D c.1
+    · intro c d hcd
+      exact M.mustSame_symm D hcd
+    · intro c d e hcd hde
+      exact M.mustSame_trans D hcd hde
+
+/-- A canonical frame is a must-coreference class of active claims. -/
+abbrev CanonicalFrame (D : Set Document) :=
+  Quotient (M.activeMustSetoid D)
 
 /-- The claims forced into the same canonical frame as `c`. -/
 def mustCluster (D : Set Document) (c : Claim) : Set Claim :=
