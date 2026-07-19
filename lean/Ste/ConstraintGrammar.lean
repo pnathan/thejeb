@@ -13,7 +13,7 @@ filtering a fixed enriched universe of complete analyses) are not modeled by
 this equivalence; they require staged maps between universes.  The theorem below
 therefore verifies the precise isomorphism for the common algebraic core.
 -/
-import Ste.Basic
+import Ste.Algebra
 
 namespace STE.ConstraintGrammar
 
@@ -64,6 +64,14 @@ def grammarEquivSTE : Grammar Parse Rule ≃ (Rule → Set Parse) where
 
 @[simp] theorem parses_eq_feasibilitySet (G : Grammar Parse Rule) :
     parses G = STE.feasibilitySet (grammarEquivSTE G) :=
+  rfl
+
+/-- A fixed hard constraint grammar is a one-instance abstract STE algebra. -/
+def toAlgebra (G : Grammar Parse Rule) : STE.Algebra Unit Parse Rule :=
+  ⟨fun _ => G.accepts⟩
+
+@[simp] theorem parses_eq_algebra_feasibleSet (G : Grammar Parse Rule) :
+    parses G = (toAlgebra G).feasibleSet () :=
   rfl
 
 /-- A grammar is fair for the intended parse when every rule accepts it. -/

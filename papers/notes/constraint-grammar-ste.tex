@@ -48,6 +48,35 @@ karlsson1995constraint}; practical CG systems include richer operations and
 rule languages \citep{bick2015cg3}.  The proposed connection concerns the
 common hard-constraint core, not every operational feature of every parser.
 
+
+\section{Abstract STE algebra}
+The more general algebraic description is independent of parsing.  Let $B$ be a
+space of problem instances, $X$ a space of candidate solutions, and $C$ a space
+of criteria.  A crisp STE algebra is an interpretation map
+\[
+  \alpha : B \to C \to \mathcal P(X).
+\]
+For each problem instance $b\in B$, the criterion $c\in C$ denotes the property
+set $\alpha(b,c)$ of solutions satisfying that criterion.  The STE solution
+operator is the meet in the powerset lattice:
+\[
+  \operatorname{Sol}_\alpha(b) = \bigwedge_{c\in C} \alpha(b,c)
+  = \bigcap_{c\in C} \alpha(b,c).
+\]
+Thus an instance is STE-solvable when this meet is nonempty, and it is
+identified by $x\in X$ when the meet is the singleton $\{x\}$.  Soundness or
+fairness for a proposed true solution $x$ means $x\in\alpha(b,c)$ for every
+criterion $c$, which immediately implies solvability.
+
+The Lean module \texttt{Ste.Algebra} packages this as
+\texttt{STE.Algebra Problem Solution Criterion}.  It records the same structure
+as the curried map \texttt{Problem -> Criterion -> Set Solution}, proves the
+membership criterion for the meet, defines \texttt{Solvable}, \texttt{SoundFor},
+and \texttt{Identifies}, and reuses the STE theorems showing that soundness
+implies solvability and singleton feasibility implies uniqueness.  In this
+language, the CG result is simply the special case where the problem instance is
+a fixed sentence-analysis task and the criteria are hard rules.
+
 \section{The isomorphism for hard constraints}
 Let $P$ be a type or set of candidate parses and let $R$ be a type or set of
 rules.  A hard CG interpretation is a function
