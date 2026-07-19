@@ -110,9 +110,9 @@ def restrict (G : Grammar Parse Rule) (R : Set Rule) : Grammar Parse R :=
   ⟨fun r => G.accepts r⟩
 
 @[simp] theorem parses_restrict (G : Grammar Parse Rule) (R : Set Rule) :
-    parses (G.restrict R) = partialParses G R := by
+    parses (restrict G R) = partialParses G R := by
   ext p
-  simp [parses, restrict, partialParses, STE.feasibilitySet,
+  simp [restrict, parses, partialParses, STE.feasibilitySet,
     STE.partialFeasibilitySet]
 
 end STE.ConstraintGrammar
