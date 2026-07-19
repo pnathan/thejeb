@@ -56,15 +56,18 @@ theorem remainingAfter_eq_empty_of_contradictsCurrent
     {A : Algebra Problem Solution Criterion} {p : Problem}
     {C : Set Criterion} {c : Criterion}
     (h : A.ContradictsCurrent p C c) : A.remainingAfter p C c = ∅ := by
-  apply Set.eq_empty_iff_forall_not_mem.mpr
-  intro x hx
-  have hxCurrent : x ∈ A.partialFeasibleSet p C :=
-    A.remainingAfter_subset_current p C c hx
-  have hxCriterion : x ∈ A.propertySet p c := by
-    have hall : ∀ d ∈ insert c C, x ∈ A.propertySet p d :=
-      (Algebra.mem_partialFeasibleSet).mp hx
-    exact hall c (Set.mem_insert c C)
-  exact h x hxCurrent hxCriterion
+  ext x
+  constructor
+  · intro hx
+    have hxCurrent : x ∈ A.partialFeasibleSet p C :=
+      A.remainingAfter_subset_current p C c hx
+    have hxCriterion : x ∈ A.propertySet p c := by
+      have hall : ∀ d ∈ insert c C, x ∈ A.propertySet p d :=
+        (Algebra.mem_partialFeasibleSet).mp hx
+      exact hall c (Set.mem_insert c C)
+    exact False.elim (h x hxCurrent hxCriterion)
+  · intro hx
+    cases hx
 
 /-- Two criteria are incompatible on a problem instance if no solution can
 satisfy both.  This captures the malformed-constraint case where distinct
