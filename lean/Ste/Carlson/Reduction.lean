@@ -54,6 +54,33 @@ theorem permutation_reduces_to_substitution {n : ℕ} (ρ : Equiv.Perm (Fin n)) 
     ∃ s : Equiv.Perm (Fin n → Bool), s = coperm ρ :=
   ⟨coperm ρ, rfl⟩
 
+/-- **Carlson, Theorem 5.2, sharpened.**  The realization `coperm` of
+permutation-cipher keys as substitution-cipher keys is injective:
+distinct bit-position permutations induce distinct value permutations.
+`coperm ρ` acts by `f ↦ f ∘ ρ.symm` (`Equiv.arrowCongr` with the trivial
+`Bool` component), so positions are separated by the `Bool` indicator of
+a single coordinate.  Combined with
+`card_permutation_lt_card_substitution`, this makes the embedding a
+genuine non-surjective injection, so Lemma 5.1's non-reducibility is
+concrete for `coperm`. -/
+theorem coperm_injective {n : ℕ} : Function.Injective (coperm (n := n)) := by
+  intro ρ₁ ρ₂ h
+  have hsymm : ∀ x, ρ₁.symm x = ρ₂.symm x := by
+    intro x
+    have hx : (coperm ρ₁) (fun j => decide (j = ρ₁.symm x)) x
+            = (coperm ρ₂) (fun j => decide (j = ρ₁.symm x)) x := by rw [h]
+    have e1 : (coperm ρ₁) (fun j => decide (j = ρ₁.symm x)) x
+            = decide (ρ₁.symm x = ρ₁.symm x) := rfl
+    have e2 : (coperm ρ₂) (fun j => decide (j = ρ₁.symm x)) x
+            = decide (ρ₂.symm x = ρ₁.symm x) := rfl
+    rw [e1, e2] at hx
+    have hx' : ρ₂.symm x = ρ₁.symm x := by simpa using hx.symm
+    exact hx'.symm
+  have hs : ρ₁.symm = ρ₂.symm := Equiv.ext hsymm
+  calc ρ₁ = ρ₁.symm.symm := (ρ₁.symm_symm).symm
+    _ = ρ₂.symm.symm := by rw [hs]
+    _ = ρ₂ := ρ₂.symm_symm
+
 /-- On an `n`-bit block with `2 ≤ n`, there are strictly more
 substitution-cipher keys (`(2^n)!` permutations of the value space) than
 permutation-cipher keys could ever be (`n!` permutations of the bit
