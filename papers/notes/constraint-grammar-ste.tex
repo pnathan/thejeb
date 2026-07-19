@@ -145,6 +145,43 @@ A grammar is ideal for $p_\star$ when
 Then any surviving parse is the intended parse.  Ambiguity is simply nonempty,
 non-singleton feasibility; failure is empty feasibility.
 
+
+\section{Reduction, priority, and contradiction}
+Once STE is viewed as meet in a powerset lattice, every new property set has an
+exact set-valued reduction.  If $F_C$ is the current partial feasible set and a
+new criterion $c$ contributes property set $S_c$, then
+\[
+  F_{C\cup\{c\}} = F_C \cap S_c,
+  \qquad
+  R_c(F_C) = F_C \setminus (F_C\cap S_c).
+\]
+The reduction is nonnegative in the order-theoretic sense: the new feasible set
+is a subset of the old one, and the removed candidates are a subset of the old
+feasible set.  The engineer's question ``which criterion shrinks fastest?'' is
+therefore a question about choosing or estimating a score
+\[
+  r(b,c) \approx \operatorname{size}\bigl(R_c(F_C)\bigr).
+\]
+Depending on the application, $r$ might be a finite cardinality decrease, a
+measure decrease, an expected posterior reduction, an entropy estimate, or an
+AEP/typical-set estimate.  Carlson's AEP move can be read in exactly this way:
+use probabilistic typicality to identify property sets that should eliminate a
+large part of the key/message universe while preserving the true instance.
+
+The same accounting also distinguishes productive reduction from malformation.
+A strong criterion may shrink rapidly while remaining fair.  A malformed pair
+of criteria may be disjoint:
+\[
+  S_c \cap S_d = \varnothing.
+\]
+If both are enforced, the global meet is empty.  This is not successful
+identification; it is inconsistency.  In the algebra, emptiness means at least
+one criterion, candidate generator, or modeling assumption is wrong relative to
+the intended solution.  The Lean module \texttt{Ste.Reduction} reifies this by
+introducing exact \texttt{reductionSet}s, proving that adding a criterion
+shrinks the current partial feasible set, and proving that incompatible
+criteria imply non-solvability.
+
 \section{Where the isomorphism stops}
 The equivalence is intentionally limited to extensional hard constraints on a
 fixed universe.  Some CG implementations include operations such as add, map,
