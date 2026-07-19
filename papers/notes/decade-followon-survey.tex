@@ -1,0 +1,129 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+\title{Topological Set Theoretic Estimation:\\
+\large Follow-on Work of the Past Decade (2015--2026)}
+\author{Project \texttt{thejeb}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A targeted survey of work in the decade since Carlson's 2012
+topological-space recast of set theoretic estimation (STE)
+\citep{carlson2012}.  Two findings dominate.  First, the
+\emph{topological}, non-convex branch of STE is, as far as we can
+determine, an almost single-author thread: Carlson and his direct
+collaborators, with little independent uptake.  Second, no proof
+assistant has mechanized the multi-set feasibility machinery that STE
+sits on, which makes the present project's Lean development
+first-of-kind.  Claims below are attributed to primary sources; nothing
+here is asserted proven in our library unless it is machine-checked in
+\texttt{Ste}.
+\end{abstract}
+
+\section{Carlson's own program (2014--2026)}
+The dissertation grew into a sustained line of IEEE conference papers
+with a rotating co-author cluster (early on R.\,E.\ Hiromoto and
+R.\,B.\ Wells; later B.\ Ghosh, I.\,K.\ Dutta, M.\ Totaro,
+S.\,R.\ Mikkilineni, B.\ Williams, M.\ Singh, and others).  The
+consistent thesis: reduce every cipher to an equivalent \emph{substitution}
+cipher, then attack it with STE, the AEP, and unicity distance.
+\begin{itemize}
+\item \citet{carlson2014breaking} --- journal version of the
+  dissertation's known-ciphertext attack, with the original advisors.
+\item \citet{ghosh2021isomorphic} --- product ciphers reduce to a single
+  substitution cipher via a ``meta-alphabet'' construction.  This is the
+  published counterpart of what we mechanize in
+  \texttt{Ste.Carlson.Reduction} (Theorem~5.2, Corollary~5.3).
+\item \citet{carlson2021keyspace} --- uses the isomorph count (the
+  content of Carlson's Lemma~4.1, our \texttt{card\_consistent\_keys}) to
+  shrink the effective brute-force key space.
+\item \citet{carlson2022localentropy} --- the most substantive
+  information-theoretic follow-on: Shannon's global unicity distance is
+  an \emph{average}, not a lower bound, and a per-string \emph{local}
+  unicity is defined.  A natural (deep) future mechanization target.
+\item \citet{carlson2022equivalence} --- security implications of the
+  product-to-substitution equivalence.
+\item The mode-breaking series, culminating in
+  \citet{hiromoto2025ctr}, ``Breaking the Counter (CTR) Mode.''
+\item \citet{carlson2026entropy} --- a GoTech/University of Maryland
+  technical report, the closest thing to a Carlson self-survey.  It
+  restates STE (citing Combettes 1993 and Witsenhausen--Schweppe 1968),
+  ties STE explicitly to the AEP and unicity, and frames STE as ``a
+  precursor to the neural network.''  Notably it dates Carlson's
+  \emph{topological}-space STE idea to \textbf{2006}, predating the
+  dissertation.
+\end{itemize}
+We were unable to verify the patent portfolio attributed to Carlson in
+secondary sources, and therefore cite none; this is an explicit gap.
+
+\section{Independent uptake of topological STE}
+We found \textbf{no evidence} of anyone outside Carlson's immediate
+collaboration developing STE over topological (non-metric, non-convex)
+spaces in this decade.  The classical Hilbert-space, convex-feasibility
+STE lineage (Combettes 1993; see our companion survey) continues to be
+cited widely, but those citations remain within the convex-optimization
+tradition; none pivot to the topological generalization.  We record this
+as a genuine gap and opportunity rather than padding it with tangential
+citations.  (Absence of evidence from targeted search is not proof of
+absence, but multiple queries returned nothing.)
+
+\section{STE, the AEP, and unicity after 2012}
+Post-2012 work tying STE to information theory --- property sets as AEP
+typical sets, and unicity as feasibility collapse --- is substantial but
+lives entirely inside the Carlson cluster, most explicitly in
+\citet{carlson2022localentropy} and \citet{carlson2026entropy}.  We found
+no independent work connecting STE specifically to the AEP, unicity, or
+decryption in this window.
+
+\section{Adjacent topological / feasibility work}
+Being deliberately conservative: there is essentially no adjacent
+literature that is genuinely ``STE in spirit, topological in substance''
+outside Carlson's output.  Keyword-adjacent hits (e.g.\ constructions
+using connected components of a topological space for encryption) are
+cipher \emph{designs}, not estimation or feasibility methods, and we do
+not claim an STE connection for them.  We deliberately exclude
+persistent-homology / topological data analysis, a distinct mathematical
+tradition with no feasibility link to STE.
+
+\section{State of mechanization --- the opening}
+This is the decisive input for the project's direction.
+\begin{itemize}
+\item \textbf{Lean / Mathlib.}  The single-set \emph{Hilbert projection
+  theorem} is formalized (\texttt{Mathlib.Analysis.InnerProductSpace.\allowbreak
+  Projection}): the existence and uniqueness of the nearest point in a
+  nonempty complete convex set.  This is the base case of every
+  projection method --- but \emph{no} iterative multi-set feasibility
+  algorithm (alternating projections / POCS, Bregman cyclic projections,
+  Douglas--Rachford) is in Mathlib.
+\item \citet{li2024optlib} (Optlib) formalizes convex analysis,
+  subgradients, proximal operators, and first-order convergence \emph{rates}
+  on Hilbert spaces; \citet{cvxlean} (CvxLean) does convex problem
+  \emph{modeling}.  Neither is feasibility- or projection-framed.
+\item \textbf{Isabelle/HOL} (AFP) has strong Hilbert-space operator
+  theory built for quantum verification, but nothing on projection-method
+  convergence.  \textbf{Coq/Rocq} has convex polyhedra via the simplex
+  method (finite-dimensional LP only).
+\end{itemize}
+Net: no proof assistant has POCS, Douglas--Rachford, Bauschke--Combettes
+monotone-operator feasibility, or --- a fortiori --- topological STE.  The
+single-set projection theorem is exactly the base case we would build on.
+Our roadmap (POCS convergence over \texttt{Ste.Convex}, then the
+topological generalization) is therefore unclaimed ground.
+
+\section*{Method note}
+This survey is exploratory and, where negative, honest about it: several
+of the conclusions above are \emph{absence-of-evidence} findings from
+targeted search, flagged as such.  As always, no mathematical claim is
+treated as established for this project until it is machine-checked in the
+\texttt{Ste} library.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
