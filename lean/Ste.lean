@@ -9,4 +9,5 @@ import Ste.Reduction
 import Ste.Topology
 import Ste.Convex
 import Ste.ConstraintGrammar
+import Ste.DynamicFrame
 import Ste.Carlson
