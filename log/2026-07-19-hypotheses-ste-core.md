@@ -62,13 +62,31 @@ feasible key set nonempty (fair), and observation monotonicity holds;
 `feasibleKeys_nonempty_of_genuine`, `Unicity.eq_of_feasible`,
 `feasibleKeys_antitone` (`Ste.Cipher`).
 
+## H9 — Carlson Lemma 4.1: residual key ambiguity $(|A|-|T|)!$
+*Claim:* for a substitution cipher with true key $\sigma$ over alphabet
+$A$, the keys agreeing with $\sigma$ on the observed symbol set
+$T\subseteq A$ number $(|A|-|T|)!$ — the size of the STE feasible key set
+after one observation.
+*Status:* **PROVEN** — `STE.Carlson.card_consistent_keys`, reducing (by
+left-translation by $\sigma^{-1}$) to `STE.Carlson.card_perm_fixing`
+(permutations fixing $T$ pointwise $= (|A|-|T|)!$). Total key count
+`STE.Carlson.card_substitution_keys`: $\#(\mathrm{Perm}\,A) = |A|!$
+(`Ste.Carlson.Counting`). The general Theorem 4.1 with a chosen-symbol
+constraint ($\binom{|S_t|}{C}(|B|-|S_t|)!$) remains OPEN.
+
+## H10 — Carlson Theorem 5.2 / Lemma 5.1 / Corollary 5.3: cipher reduction
+*Claim:* every permutation cipher reduces to a substitution cipher; a
+substitution cipher does not necessarily reduce to a permutation cipher;
+every block cipher (PSP) is a block substitution cipher.
+*Status:* **PROVEN** — `STE.Carlson.permutation_reduces_to_substitution`
+and `STE.Carlson.coperm_injective` (injective embedding of position
+permutations as value permutations, `coperm ρ f x = f (ρ⁻¹ x)`);
+`STE.Carlson.card_permutation_lt_card_substitution` ($n! < (2^n)!$ for
+$n\ge 2$) and `STE.Carlson.substitution_not_reducible_to_permutation`
+(no injective realization is onto, quantified over every embedding);
+`STE.Carlson.psp_reduces_to_substitution` (`Ste.Carlson.Reduction`).
+
 ## OPEN targets (next sessions)
-- **H9** Carlson Lemma 4.1 / Theorem 4.1: exact key counts
-  $(|A|-|T|)!$ and $\binom{|S_t|}{C}(|B|-|S_t|)!$ — finite combinatorics,
-  most tractable next target; needs a Lean model of substitution/
-  permutation ciphers over `Fin`.
-- **H10** Carlson Theorem 5.2 / Corollary 5.3: cipher reduction and
-  "every block cipher is a block substitution cipher."
 - **H11** POCS convergence for closed convex $S_i$ in a Hilbert space
   (Youla–Webb; Bauschke–Borwein), atop `Ste.Convex`.
 - **H12** Carlson Theorem 2.3: property sets as AEP typical sets — the

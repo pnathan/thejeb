@@ -106,19 +106,39 @@ existence of feasible points --- is \texttt{Ste.Topology}; it specializes
 cleanly to Carlson's finite (discrete, hence compact) key spaces. The
 STE-decryption skeleton (cipher systems, key property sets, feasible
 keys, fairness of genuine traffic, unicity as ideal information,
-observation monotonicity) is \texttt{Ste.Cipher}.
+observation monotonicity) is \texttt{Ste.Carlson.Cipher} (namespace
+\texttt{STE.Carlson}). Beyond the skeleton, two of Carlson's named
+results are now \emph{proven} in the CI-checked library:
+\begin{itemize}
+\item \textbf{Lemma~4.1} (residual key ambiguity):
+  \texttt{STE.Carlson.card\_consistent\_keys} shows the keys of a
+  substitution cipher agreeing with the true key on the observed symbol
+  set $T\subseteq A$ number $(|A|-|T|)!$, i.e.\ the size of the STE
+  feasible key set after one observation (with
+  \texttt{card\_substitution\_keys}: $\#\mathrm{Perm}\,A=|A|!$). File
+  \texttt{Ste.Carlson.Counting}.
+\item \textbf{The reduction chain (Theorem~5.2 / Lemma~5.1 /
+  Corollary~5.3):} \texttt{permutation\_reduces\_to\_substitution} and
+  \texttt{coperm\_injective} embed permutation-cipher keys injectively
+  into substitution-cipher keys;
+  \texttt{card\_permutation\_lt\_card\_substitution} and
+  \texttt{substitution\_not\_reducible\_to\_permutation} show
+  $n!<(2^n)!$ for $n\ge 2$, so the embedding is non-surjective (a
+  substitution cipher need not be a permutation cipher); and
+  \texttt{psp\_reduces\_to\_substitution} shows every PSP composition is
+  a single substitution cipher. File \texttt{Ste.Carlson.Reduction}.
+\end{itemize}
 
 \section{Assessment: what is ripe to mechanize}
 
 \begin{enumerate}
-\item \textbf{Most tractable:} the cipher counting results (Lemma~4.1,
-  Theorem~4.1). These are finite combinatorics over \texttt{Fin}-indexed
-  symbol/bit alphabets; Mathlib's \texttt{Fintype.card\_perm}
-  ($|\mathrm{Perm}\,\alpha| = (\#\alpha)!$) and factorial API supply the
-  scaffolding.
-\item \textbf{Structural:} the reduction chain (Theorem~5.2,
-  Corollary~5.3) reducing all block ciphers to substitution ciphers ---
-  an algebraic argument once ciphers are modeled as keyed permutations.
+\item \textbf{Done (this revision):} the cipher counting Lemma~4.1 and
+  the reduction chain (Theorem~5.2 / Lemma~5.1 / Corollary~5.3), both
+  finite combinatorics/algebra over \texttt{Fin}-indexed symbol/bit
+  alphabets built on Mathlib's \texttt{Fintype.card\_perm}
+  ($|\mathrm{Perm}\,\alpha| = (\#\alpha)!$) and factorial API. Remaining
+  in this family: Carlson's general Theorem~4.1 (the
+  $\binom{|S_t|}{C}(|B|-|S_t|)!$ count).
 \item \textbf{Analytic:} POCS convergence (\citealp{youla1982,
   bauschke1996}) atop \texttt{Ste.Convex}, using Mathlib's Hilbert-space
   projection theory.
@@ -130,9 +150,10 @@ observation monotonicity) is \texttt{Ste.Cipher}.
 \section{Distrust discipline}
 Per project rule, no result here is asserted proven unless it compiles in
 the \texttt{Ste} library checked by CI on every push to \texttt{main}.
-The Carlson named results above are \emph{quoted from the source}, not
-yet independently verified; they are targets, and their statuses live in
-\texttt{log/2026-07-19-hypotheses-ste-core.md} (H9--H12, OPEN).
+Carlson's Lemma~4.1 (H9) and the reduction chain (H10) are now machine
+checked; the remaining named results (Theorem~4.1, Theorem~2.3) are
+\emph{quoted from the source} as targets. Statuses live in
+\texttt{log/2026-07-19-hypotheses-ste-core.md}.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs}

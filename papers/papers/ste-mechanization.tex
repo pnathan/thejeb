@@ -28,7 +28,9 @@ its lattice-theoretic properties, the consistent / fair / ideal
 taxonomy, information monotonicity, an inconsistency-based
 invalid-information detector, closedness and compactness-based existence
 of estimates on topological spaces, convexity of the feasibility set,
-and a skeleton of Carlson's STE-decryption reduction. Every theorem
+a skeleton of Carlson's STE-decryption reduction, and --- new in this
+revision --- Carlson's key-counting Lemma~4.1 and the cipher-reduction
+chain (Theorem~5.2, Lemma~5.1, Corollary~5.3). Every theorem
 stated here is verified by continuous integration on each push; nothing
 is asserted proven otherwise.
 \end{abstract}
@@ -124,16 +126,67 @@ algorithms of \citet{youla1982,bauschke1996}, a planned extension.
 A \texttt{CipherSystem} is a keyed family of injective encryption maps.
 Observing a ciphertext $c$ induces the key property set
 $\{k \mid \exists m\in\mathrm{Meaning},\ \mathrm{enc}\,k\,m=c\}$; the
-feasible key set is the STE feasibility set of these.
-\begin{theorem}[\texttt{CipherSystem.fair\_of\_genuine},
-\texttt{feasibleKeys\_nonempty\_of\_genuine}]
+feasible key set is the STE feasibility set of these. The cipher module
+now lives in the \texttt{STE.Carlson} namespace.
+\begin{theorem}[\texttt{STE.Carlson.CipherSystem.fair\_of\_genuine},
+\texttt{STE.Carlson.CipherSystem.feasibleKeys\_nonempty\_of\_genuine}]
 Genuine traffic (ciphertexts that really are encryptions of meaningful
 messages under a true key $k_0$) is fair for $k_0$; hence the feasible
 key set is nonempty.
 \end{theorem}
-\begin{theorem}[\texttt{Unicity.eq\_of\_feasible}]
+\begin{theorem}[\texttt{STE.Carlson.CipherSystem.Unicity.eq\_of\_feasible}]
 At unicity (feasible key set $=\{k_0\}$, i.e.\ ideal information) every
 feasible key is the true key: decryption succeeds by feasibility alone.
+\end{theorem}
+
+\paragraph{Cipher key counting (Carlson, Lemma~4.1; new).}
+Model a substitution cipher over a finite alphabet $A$ by its key space
+$\mathrm{Perm}\,A$. Given a message whose distinct symbols form
+$T\subseteq A$, two keys decrypt it identically exactly when they agree
+on $T$; Carlson's Lemma~4.1 counts the keys equivalent to the true key.
+\begin{theorem}[\texttt{STE.Carlson.card\_consistent\_keys}]
+For a substitution cipher with true key $\sigma$ over $A$ and observed
+symbol set $T$,
+\[ \#\{\tau\in\mathrm{Perm}\,A : \forall a\in T,\ \tau a=\sigma a\}
+   = (|A|-|T|)!, \]
+the size of the STE feasible key set after one observation.
+\end{theorem}
+\noindent The proof reduces, by left-translating the constraint by
+$\sigma^{-1}$ (an explicit bijection), to the fixing-set count
+\texttt{STE.Carlson.card\_perm\_fixing}: the permutations fixing $T$
+pointwise number $(|A|-|T|)!$, via
+\texttt{Equiv.Perm.subtypeEquivSubtypePerm} and
+\texttt{Fintype.card\_perm}. The total key count is
+\texttt{STE.Carlson.card\_substitution\_keys}: $\#\mathrm{Perm}\,A=|A|!$.
+
+\paragraph{Cipher reduction (Carlson, Theorem~5.2 / Lemma~5.1 /
+Corollary~5.3; new).}
+Model an $n$-bit permutation cipher by $\mathrm{Perm}(\mathrm{Fin}\,n)$
+acting on the value space $\mathrm{Fin}\,n\to\mathrm{Bool}$: a position
+permutation $\rho$ induces the value permutation
+$\mathrm{coperm}\,\rho$, acting by
+$(\mathrm{coperm}\,\rho)\,f\,x=f(\rho^{-1}x)$.
+\begin{theorem}[\texttt{STE.Carlson.permutation\_reduces\_to\_substitution},
+\texttt{STE.Carlson.coperm\_injective}]
+Every permutation-cipher key is a substitution-cipher key, and the
+realization $\mathrm{coperm}$ is \emph{injective}: distinct position
+permutations induce distinct value permutations. This upgrades
+Theorem~5.2 to a genuine embedding of permutation ciphers into
+substitution ciphers.
+\end{theorem}
+\begin{theorem}[\texttt{STE.Carlson.card\_permutation\_lt\_card\_substitution},
+\texttt{STE.Carlson.substitution\_not\_reducible\_to\_permutation}]
+For an $n$-bit block with $n\ge 2$ there are strictly more substitution
+keys than permutation keys ($n! < (2^n)!$), so \emph{no} injective
+realization of permutation keys as substitution keys is onto: some
+substitution cipher is not a permutation cipher (Lemma~5.1 /
+Corollary~5.2). The non-surjectivity is quantified over every faithful
+embedding, so it does not depend on a particular construction.
+\end{theorem}
+\begin{theorem}[\texttt{STE.Carlson.psp\_reduces\_to\_substitution}]
+A permutation--substitution--permutation composition is again a single
+value permutation: every block cipher is a block substitution cipher
+(Corollary~5.3).
 \end{theorem}
 
 \section{Verification method}
@@ -146,12 +199,13 @@ operationalizes the project's rule to distrust results that are not
 machine proven.
 
 \section{Future work}
-In increasing depth: Carlson's cipher counting (Lemma~4.1, Theorem~4.1);
-the reduction of all block ciphers to substitution ciphers (Theorem~5.2,
-Corollary~5.3); POCS convergence over Hilbert spaces; and Theorem~2.3,
-that property sets are AEP typical sets, placing information theory under
-STE. Targets and their open/proven status are tracked in the project
-\texttt{log/}.
+With Lemma~4.1 and the reduction chain (Theorems~5.2, Lemma~5.1,
+Corollary~5.3) now discharged, the remaining targets, in increasing
+depth, are: Carlson's general counting Theorem~4.1 (the
+$\binom{|S_t|}{C}(|B|-|S_t|)!$ count with a chosen-symbol constraint);
+POCS convergence over Hilbert spaces; and Theorem~2.3, that property
+sets are AEP typical sets, placing information theory under STE. Targets
+and their open/proven status are tracked in the project \texttt{log/}.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs}
