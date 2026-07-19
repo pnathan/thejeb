@@ -1,0 +1,166 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+\title{The Algebraic Core of Constraint Grammar as Set Theoretic Estimation}
+\author{Project \texttt{thejeb}}
+\date{\today}
+
+\newtheorem{claim}{Claim}
+\newtheorem{definition}{Definition}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note does not argue for Constraint Grammar (CG) as a parsing technology.
+Instead it isolates an algebraic question suggested by CG: when a grammar starts
+with a universe of candidate analyses and rules eliminate candidates, is that
+algebra the same as set theoretic estimation (STE)?  For the hard, purely
+eliminative fragment the answer is yes.  A CG rule is exactly an STE property
+set, the surviving analyses are exactly the STE feasibility set, adding rules is
+exactly antitone refinement, fairness is preservation of the intended parse, and
+unambiguous successful analysis is ideal information.  The Lean module
+\texttt{Ste.ConstraintGrammar} verifies this identification by giving an
+explicit equivalence between hard-constraint grammars and STE property-set
+families.  The equivalence is deliberately scoped: CG operations that genuinely
+change the candidate universe are not isomorphic to static STE unless one first
+embeds them into a fixed enriched universe or treats them as staged maps between
+STE problems.
+\end{abstract}
+
+\section{Question}
+Fix a sentence $s$ only to obtain a finite universe $\mathcal P_s$ of possible
+complete analyses.  The linguistic details of $\mathcal P_s$ are not the point.
+The algebraic question is:
+\[
+  \text{candidate universe} + \text{hard eliminating constraints}
+  \quad\cong?\quad
+  \text{STE solution space} + \text{property sets}.
+\]
+Combettes's STE formulation represents each item of information as a property
+set $S_i\subseteq\Xi$ and estimates by the intersection $\bigcap_i S_i$
+\citep{combettes1993}.  Classical CG is presented as a rule-based framework for
+reducing locally possible readings in context \citep{karlsson1990constraint,
+karlsson1995constraint}; practical CG systems include richer operations and
+rule languages \citep{bick2015cg3}.  The proposed connection concerns the
+common hard-constraint core, not every operational feature of every parser.
+
+\section{The isomorphism for hard constraints}
+Let $P$ be a type or set of candidate parses and let $R$ be a type or set of
+rules.  A hard CG interpretation is a function
+\[
+  A : R \to \mathcal P(P),
+\]
+where $A(r)$ is the set of parses accepted, or surviving, rule $r$.  The set of
+surviving parses is
+\[
+  \operatorname{Parses}(A) = \bigcap_{r\in R} A(r).
+\]
+An STE presentation over the same universe and index set is also exactly a
+function
+\[
+  S : R \to \mathcal P(P),
+\]
+with feasibility set
+\[
+  \operatorname{Feas}(S) = \bigcap_{r\in R} S(r).
+\]
+Thus the data are not merely analogous: after abstracting rules by their
+extension, they are definitionally the same data.  In Lean this is recorded as
+an equivalence
+\[
+  \texttt{Grammar Parse Rule} \simeq (\texttt{Rule} \to \texttt{Set Parse}),
+\]
+implemented by \texttt{STE.ConstraintGrammar.grammarEquivSTE}.  The theorem
+\texttt{parses\_eq\_feasibilitySet} then states that the parse survivor set is
+exactly the STE feasibility set under this equivalence.
+
+\begin{claim}[Hard CG $\cong$ crisp STE]
+For fixed candidate universe $P$ and rule index set $R$, extensional hard CGs
+are isomorphic to crisp STE property-set families indexed by $R$.
+\end{claim}
+
+\section{Consequences transported from STE}
+Because the algebraic data are the same, the basic STE theorems transfer
+without new linguistic assumptions.
+
+\paragraph{Membership.}
+A parse $p$ survives the grammar iff it survives every rule:
+\[
+  p\in\operatorname{Parses}(A) \iff \forall r\in R,\ p\in A(r).
+\]
+
+\paragraph{Monotonicity.}
+If $R_0\subseteq R_1$, then applying all rules in $R_1$ can only shrink the
+survivor set relative to applying $R_0$:
+\[
+  \bigcap_{r\in R_1} A(r) \subseteq \bigcap_{r\in R_0} A(r).
+\]
+This is the algebraic invariant behind rule accumulation.  It does not say that
+rules are linguistically correct; it says only that hard constraints refine by
+intersection.
+
+\paragraph{Fairness.}
+For an intended parse $p_\star$, a rule is fair when $p_\star\in A(r)$.  A fair
+grammar preserves $p_\star$ and therefore has a nonempty survivor set.  This is
+the CG version of STE consistency from fair information.
+
+\paragraph{Idealness.}
+A grammar is ideal for $p_\star$ when
+\[
+  \operatorname{Parses}(A)=\{p_\star\}.
+\]
+Then any surviving parse is the intended parse.  Ambiguity is simply nonempty,
+non-singleton feasibility; failure is empty feasibility.
+
+\section{Where the isomorphism stops}
+The equivalence is intentionally limited to extensional hard constraints on a
+fixed universe.  Some CG implementations include operations such as add, map,
+replace, subreadings, traces, dynamic cohorts, or staged rule side effects
+\citep{bick2015cg3}.  Such operations are not literally static intersections if
+they change the universe on which later rules operate.  There are two ways to
+recover an STE account:
+\begin{enumerate}
+\item \textbf{Enriched universe:} define $P$ broadly enough to contain complete
+  before-and-after analyses, mapped tags, and latent features.  Each operation
+  is then represented extensionally as a predicate on complete histories or
+  complete enriched parses.
+\item \textbf{Staged STE:} model each operation as a map from one STE problem to
+  another, rather than as a single property set in one fixed feasibility
+  problem.
+\end{enumerate}
+Therefore the precise theorem is not ``all Constraint Grammar implementations
+are STE.''  The verified theorem is narrower and stronger: the algebra of fixed
+candidate-universe hard constraint elimination is isomorphic to crisp STE.
+
+\section{Topological reading}
+For a fixed finite sentence analysis space, give $P$ the discrete topology.
+Every hard rule property set is closed.  If $P$ is finite, it is compact in the
+usual discrete setting, so the existing topological STE theorem applies:
+finite consistency of closed rule constraints gives nonempty global feasibility.
+This is mathematically modest for a finite, explicitly enumerated rule set, but
+it is useful as a conceptual bridge from Carlson's finite/discrete topological
+STE perspective \citep{carlson2012} to non-cryptographic symbolic analysis.
+
+\section{Lean status}
+The mechanized contribution is \texttt{lean/Ste/ConstraintGrammar.lean}.  It
+contains:
+\begin{itemize}
+\item \texttt{Grammar}, a structure with field \texttt{accepts : Rule -> Set Parse};
+\item \texttt{parses}, defined as \texttt{STE.feasibilitySet accepts};
+\item \texttt{grammarEquivSTE}, an explicit equivalence between grammars and
+  STE property-set families;
+\item transport lemmas for membership, fairness/nonemptiness, ideal
+  identification, partial rule sets, and antitone refinement.
+\end{itemize}
+This verifies the algebraic isomorphism in the crisp hard-constraint setting
+and records the boundary where non-eliminative dynamics require additional
+modeling.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
