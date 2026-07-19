@@ -25,11 +25,12 @@ import Mathlib.GroupTheory.Perm.Basic
 import Mathlib.Data.Fintype.Perm
 import Mathlib.Data.Fintype.Card
 import Mathlib.Algebra.Group.End
+import Mathlib.Data.Nat.Factorial.Basic
 import Mathlib.Logic.Equiv.Basic
 
 namespace STE.Carlson
 
-open Equiv
+open Equiv Nat
 
 variable {A : Type*} [Fintype A] [DecidableEq A]
 
