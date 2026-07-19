@@ -1,0 +1,135 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+\title{A Comprehensive Survey of Topological-Space Set Theoretic
+Estimation\\\large with an eye to mechanization}
+\author{Project \texttt{thejeb}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Following the two seed papers \citep{combettes1993,carlson2012}, this
+survey maps the wider body of work in which set theoretic estimation
+(STE) lives --- the convex feasibility problem and its projection
+algorithms, the topological and nonconvex generalizations, and the
+set-membership tradition in control --- and, crucially, the current state
+of \emph{machine-checked} convex analysis in Lean~4 / Mathlib. The
+purpose is to prioritize what \texttt{thejeb} mechanizes next. Statements
+here are attributed to their sources; nothing is claimed proven in our
+library unless it appears in the CI-checked \texttt{Ste} development.
+\end{abstract}
+
+\section{The core problem STE instantiates}
+STE's mathematical heart is the \emph{convex feasibility problem} (CFP):
+given closed convex sets $C_1,\dots,C_m$ (or countably many) in a Hilbert
+space $H$, find a point of $\bigcap_i C_i$ \citep{combettes1993,
+bauschke1996}. Combettes' feasibility set is exactly this intersection;
+our \texttt{Ste.Convex} proves the intersection convex, the geometric
+precondition for everything below. The CFP is a modeling paradigm across
+image recovery, tomography, sensor networks, optimal/robust control, and
+machine learning \citep{bauschke1996,combettes1993numerical}.
+
+\section{Projection algorithms (the convex engine)}
+\paragraph{POCS and cyclic projections.} The method of successive
+projections onto convex sets \citep{youla1982}, descended from Bregman's
+relaxation and cyclic projection method \citep{bregman1967}, converges
+(weakly, in general) to a feasible point when the intersection is
+nonempty. The unifying convergence theory --- averaged/extrapolated
+projections, control strategies for set selection, and (bounded) linear
+regularity giving linear rates --- is surveyed definitively by
+\citet{bauschke1996} and set within monotone operator theory by
+\citet{bauschke2017}.
+\paragraph{Splitting and Douglas--Rachford.} Beyond plain projections,
+proximal splitting \citep{combettes2011proximal} and the
+Douglas--Rachford (DR) reflection method extend feasibility solving to
+sums of operators. DR is empirically the strongest projection method and
+enjoys a rich convergence theory; the sixty-year survey of
+\citet{lindstrom2021} is the entry point.
+
+\section{Leaving convexity: the topological turn}
+Carlson's move to a \emph{topological} solution space \citep{carlson2012}
+parallels a broader thread: once the constraint sets are not convex,
+Hilbert-space nonexpansiveness arguments fail and convergence must be
+recovered from \emph{regularity/transversality} conditions
+(superregularity, linear regularity) rather than convexity
+\citep{lindstrom2021}. Global DR convergence is known for structured
+nonconvex cases (a sphere with a line/hyperplane; finite unions of convex
+sets, locally). Carlson's motivation is complementary: he adopts a
+topological space precisely so that property sets are \emph{static}
+a~priori information that never expand, sidestepping the Optimal Bounding
+Ellipsoid pathology of metric-space STE, in which the bounding volume can
+spuriously enlarge the solution set. \texttt{Ste.Topology} captures the
+well-posedness half of this turn (closedness; compactness $+$ finite
+intersection property $\Rightarrow$ nonempty feasibility), which
+specializes to Carlson's finite key spaces.
+
+\section{The set-membership tradition (control)}
+Running in parallel to signal-processing STE is \emph{set-membership} /
+\emph{unknown-but-bounded} estimation in control
+\citep{schweppe1968,deller1989}: the feasible \emph{state} set consistent
+with bounded-error measurements, propagated recursively and outer-bounded
+by ellipsoids or zonotopes. This is exactly STE with a dynamical model,
+and it is where the OBE algorithms Carlson critiques originate. It remains
+active for safety-critical and robust/adaptive control (fault detection
+as feasibility, robust MPC over uncertainty sets). For \texttt{thejeb} it
+is a source of concrete, finitely-describable property sets (halfspaces,
+boxes, ellipsoids) that would make good mechanized examples.
+
+\section{State of machine-checked convex analysis (the tooling frontier)}
+This is the decisive input for our roadmap. Mathlib already carries
+Hilbert-space inner-product geometry and projection onto closed convex
+sets. Beyond the library, recent Lean~4 formalizations have reached
+exactly the algorithms STE needs:
+\begin{itemize}
+\item convergence of the Krasnosel'ski\v{\i}--Mann and Halpern
+  fixed-point iterations, and other fixed-point algorithms in Hilbert
+  spaces (arXiv:2602.17064, ``Formalization of Two Fixed-Point Algorithms
+  in Hilbert Spaces'');
+\item convergence \emph{rates} of first-order convex optimization
+  algorithms, with gradient/subgradient theory for convex functions on a
+  Hilbert space (\emph{J. Automated Reasoning}, 2025,
+  ``Formalization of Convergence Rates of Four First-order Algorithms for
+  Convex Optimization''; see also arXiv:2403.11437).
+\end{itemize}
+Because POCS and DR are fixed-point iterations of (firmly) nonexpansive
+projection/reflection operators, these results are the scaffolding for a
+machine-checked STE convergence theorem on top of our
+\texttt{Ste.Convex}. Isabelle/HOL-Analysis (Carath\'eodory, Radon, Helly)
+and Coq polyhedra formalizations provide comparison points but are off
+our Lean path.
+
+\section{Prioritized mechanization roadmap}
+\begin{enumerate}
+\item \textbf{POCS convergence} for finitely many closed convex $C_i$ with
+  nonempty intersection, as a fixed-point iteration atop
+  \texttt{Ste.Convex}, reusing Mathlib projection theory and the
+  Krasnosel'ski\v{\i}--Mann formalization. \emph{Highest value: turns our
+  static feasibility geometry into a verified solver.}
+\item \textbf{Carlson cipher counting} (Lemma~4.1, Theorem~4.1) over
+  \texttt{Fin} alphabets --- self-contained finite combinatorics, no
+  analysis; good parallel track.
+\item \textbf{Cipher reduction} (Theorem~5.2, Corollary~5.3): every block
+  cipher is a block substitution cipher --- algebra of keyed permutations.
+\item \textbf{Regularity-based results} and Douglas--Rachford
+  \citep{lindstrom2021}: reach for these only after POCS, as they need
+  linear/super-regularity infrastructure not yet in Mathlib.
+\item \textbf{AEP typical sets} (Carlson Theorem~2.3): deepest; needs a
+  probability/information-theory layer.
+\end{enumerate}
+
+\section*{Method note}
+Consistent with the project rules, this survey looks to seminal work
+(Bregman, Schweppe, Youla--Webb, Combettes, Bauschke) and considers the
+field broadly, but treats every mathematical claim as unverified for our
+purposes until it is machine-checked in the \texttt{Ste} library. Open
+targets are tracked in \texttt{log/}.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
