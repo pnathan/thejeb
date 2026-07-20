@@ -66,11 +66,13 @@ must-coreference, and exact status separation into inconsistent, must, cannot,
 and uncertain cases.  A finite countermodel proves that possible coreference
 and the uncertainty overlay need not be transitive even though every exact
 hypothesis is a partition.  We prove existence of finite minimal document
-supports for must- and cannot-coreference conclusions.  Finally, we lift a
-downstream truth feasible set over every normalization world and prove
-monotonicity and a commutation theorem for normalization-independent truth
-semantics.  The accompanying Lean~4 development names every stated formal
-result.
+supports for must- and cannot-coreference conclusions.  We then resolve six
+initial conjectures under explicit, necessary qualifications: partial
+variable-universe restriction; gluing by a cross-constraint obstruction with
+at most one extension; a finite exact solver with tight $2^N$ state-space
+bound; audited typed-relation lifting; exact marginal commutation for dependent
+truth fibers; and occurrence-set identity with relational lineage.  The
+accompanying Lean~4 development names every stated formal result.
 \end{abstract}
 
 \section{Introduction}
@@ -535,7 +537,11 @@ Lean module & Formal content \\
 \path{Ste.DynamicFrame.Solver} & property application, reduction, finite runs \\
 \path{Ste.DynamicFrame.Counterexample} & three-mention nontransitivity model \\
 \path{Ste.DynamicFrame.Support} & finite minimal document certificates \\
+\path{Ste.DynamicFrame.PresheafGluing} & partial restriction and exact gluing \\
+\path{Ste.DynamicFrame.FiniteSolver} & executable solver and tight bounds \\
+\path{Ste.DynamicFrame.RelationAlgebra} & audited typed necessary relations \\
 \path{Ste.DynamicFrame.TruthLift} & dependent downstream feasible family \\
+\path{Ste.DynamicFrame.Lineage} & occurrence-set identifiers and lineage \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -543,52 +549,271 @@ Lean module & Formal content \\
 The root module \path{Ste.lean} imports the complete theory.  The project is
 pinned to Lean~4.32.0 and Mathlib~4.32.0.  The repository workflow builds the
 root library on pushes to the development branch.  The source and this paper
-use a strict convention: a named Lean theorem is the authoritative statement;
-claims listed below as conjectures are not represented as proved facts.
+use a strict convention: a named Lean theorem is the authoritative statement.
+The next section replaces the earlier conjectures by qualified theorems and
+records the boundary at which each claim becomes false.
 
-\section{Open theory}
+\section{Resolution of the six conjectures}
 
-The present development closes several elementary questions but opens a more
-focused research program.
+The original conjectures mixed extensional existence claims with computational
+ones.  None should be accepted without its domain assumptions.  This section
+states what is actually achievable, proves it, and records sharp constants or
+small counterexamples where they matter.
 
-\begin{conjecture}[Variable-universe presheaf]
-There is a category of corpus-dependent exact normalizations whose restriction
-maps forget inactive claim occurrences and satisfy identity and composition,
-and whose fixed-universe embedding recovers \path{restrictFeasible}.
-\end{conjecture}
+\subsection{Variable-universe restriction is necessarily partial}
 
-\begin{conjecture}[Gluing classification]
-Compatible local normalizations admit a global extension exactly when a
-computable obstruction vanishes.  Uniqueness of gluing corresponds to absence
-of residual cross-document identity ambiguity.
-\end{conjecture}
+Write $W(D)=\Feas(D)$ for the subtype of exact worlds feasible at corpus $D$.
+For $D\subseteq E$, define
+\[
+  \rho_{E,D}:W(E)\longrightarrow W(D),\qquad \rho_{E,D}(h)=h.
+\]
+The earlier restriction proofs immediately give
+\[
+  \rho_{D,D}=\mathrm{id},\qquad
+  \rho_{E,D}\circ\rho_{F,E}=\rho_{F,D}.
+\]
+Lean: \path{restrictWorld_id} and \path{restrictWorld_comp}.  Thus feasible
+worlds form a contravariant functor on the document-set poset without any new
+axiom.
 
-\begin{conjecture}[Compact exact solver]
-For practically generated candidate graphs, the feasible family of partitions
-admits a compact representation supporting document insertion, deletion,
-must/may queries, and minimal-support extraction without full model
-enumeration.
-\end{conjecture}
+The active claim universe behaves differently.  Insertion gives a total map
+$\Claims(D)\to\Claims(E)$, but deletion cannot give a total reverse map: a claim
+whose source lies in $E\setminus D$ has no active target.  Define a partial
+restriction relation by equality of immutable occurrence identifiers.
 
-\begin{conjecture}[Typed relation algebra]
-Strict identity, subevent, supersession, temporal order, causation, repeated
-instance, and framing divergence admit a sound typed composition algebra whose
-necessary consequences are preserved by feasible-world intersection.
-\end{conjecture}
+\begin{theorem}[Partial claim restriction]
+For $D\subseteq E$ and $c\in\Claims(E)$, a restriction of $c$ to
+$\Claims(D)$ exists exactly when the source document of $c$ lies in $D$; when
+it exists, it is unique.
+\end{theorem}
+\begin{proof}
+If a restricted active claim is equal to $c$, its source is active in $D$.
+Conversely, source membership constructs the subtype element directly.
+Equality of two such subtype elements follows from equality of their immutable
+occurrences.
+\end{proof}
+\noindent Lean: \path{claimRestriction_exists_iff} and
+\path{claimRestriction_unique}.  The exact fiber constant is therefore
+$0$ or $1$, not always $1$.  Local strict-coreference is preserved
+definitionally by restricting the world and including the surviving claims
+(\path{localSame_restrict}).  This is the precise variable-universe result;
+a total deletion map was the false part of the unqualified conjecture.
 
-\begin{conjecture}[Dependent truth commutation]
-There are checkable conditions weaker than constant truth fibers under which
-normalization-first certain answers equal the certain answers of a fully joint
-normalization/truth solver.
-\end{conjecture}
+\subsection{Gluing is controlled by cross-document constraints}
 
-\begin{conjecture}[Stable presentation identity]
-Canonical-frame presentation identifiers can be maintained with a precise
-lineage semantics through merges, splits, and re-merges, without treating any
-historical point estimate as authoritative identity.
-\end{conjecture}
+For an ambient hypothesis $h$, define the obstruction
+\begin{align*}
+ \mathcal O_{D,E}(h)=\{k\in\Constraints:
+   &\operatorname{supp}(k)\subseteq D\cup E,\\
+   &\operatorname{supp}(k)\nsubseteq D,
+    \operatorname{supp}(k)\nsubseteq E,
+    h\notin S_k\}.
+\end{align*}
+Only genuinely cross-document constraints occur in this set.
 
-Other engineering questions now have exact correctness oracles: incremental
+\begin{theorem}[Exact union obstruction]
+For every $h$,
+\[
+ h\in\Feas(D\cup E)
+ \Longleftrightarrow
+ h\in\Feas(D)\land h\in\Feas(E)\land
+ \mathcal O_{D,E}(h)=\varnothing.
+\]
+\end{theorem}
+\begin{proof}
+The forward direction follows by feasibility antitonicity and satisfaction of
+every union-active constraint.  Conversely, a union-active constraint is
+active on $D$, active on $E$, or active on neither side.  The first two cases
+follow from local feasibility.  In the third case, violation would place the
+constraint in $\mathcal O_{D,E}(h)$, contradicting emptiness.
+\end{proof}
+\noindent Lean: \path{mem_feasible_union_iff}.
+
+Two local views are called compatible here when they expose the same ambient
+exact hypothesis.  Under that qualification, the global-extension type is
+nonempty exactly when the obstruction vanishes
+(\path{globalExtension_nonempty_iff}), and it is a subsingleton
+(\path{globalExtension_subsingleton}).  Hence the number of extensions is at
+most $1$.  For finite $\Constraints$ with decidable support and satisfaction,
+the obstruction is computable by one filter and contains at most
+$|\Constraints|$ elements.  If compatibility is weakened to agreement only on
+overlap, uniqueness is no longer promised: residual identity choices outside
+the overlap are precisely additional global worlds.
+
+\subsection{The finite exact solver and its tight limit}
+
+Assume the ambient exact hypothesis universe is finite of cardinality
+\[
+  N=|\Hyp|,
+\]
+and satisfaction is decidable.  Represent a solver state by a finite set and
+implement property application by filtering.
+
+\begin{theorem}[Executable exactness]
+Finite filtering denotes exactly abstract STE intersection, and a finite run
+denotes exactly the corresponding abstract run and partial feasibility set.
+\end{theorem}
+\begin{proof}
+Membership after filtering is membership in the input conjoined with
+satisfaction.  Induction on the constraint list then identifies every finite
+run with repeated property-set intersection.
+\end{proof}
+\noindent Lean: \path{coe_applyFinite}, \path{coe_runFinite}, and
+\path{coe_solveFinite}.
+
+Every nontrivial application removes at least one world
+(\path{applyFinite_card_lt}).  Total reduction from any state is at most $N$
+(\path{reductionCost_le_maxWorlds}).  These are useful operational constants:
+the explicit representation stores at most $N$ survivors, a full must/may scan
+examines at most $N$ worlds, and no execution can eliminate more than $N$
+distinct worlds.
+
+The unconditional compactness conjecture, however, is false.
+
+\begin{theorem}[Tight extensional state bound]
+There are exactly $2^N$ extensional solver states over $N$ ambient worlds, and
+unrestricted crisp STE can realize every one of them with a single property
+set.
+\end{theorem}
+\begin{proof}
+The solver states are the powerset of the $N$-element universe, whose
+cardinality is $2^N$.  Given any $A\subseteq\Hyp$, use one constraint with
+property set $S_\star=A$; its feasibility set is exactly $A$.
+\end{proof}
+\noindent Lean: \path{card_allExactStates} and
+\path{arbitrary_subset_as_single_property}.  Therefore no uniform
+subexponential extensional representation follows from STE alone.  BDDs,
+decomposable circuits, treewidth bounds, or factorized partition structures
+remain worthwhile, but their compactness theorems must assume structure in the
+generated property sets.
+
+\subsection{Typed relations lift exactly when their rules are audited}
+
+The mechanization gives each relation kind a source and target sort and keeps
+strict identity, subevent, supersession, before, causes, repeated instance, and
+framing divergence distinct.  A concrete world semantics supplies the laws it
+actually validates: transitivity for subevent, supersession, and before;
+causation implying temporal precedence; equivalence laws for repeated
+instance; and symmetry plus irreflexivity for framing divergence.
+
+\begin{theorem}[Necessary-relation lifting]
+Let a composition rule
+\[
+ R_i(x,y)\land R_j(y,z)\Longrightarrow R_k(x,z)
+\]
+hold in every exact world.  Replacing each relation by its must-version---the
+intersection over feasible worlds---preserves the same rule.
+\end{theorem}
+\begin{proof}
+Fix a feasible world $h$.  Both must-premises hold in $h$, so world-level
+soundness gives the conclusion in $h$.  Since $h$ was arbitrary, the
+must-conclusion follows.
+\end{proof}
+\noindent Lean: \path{CompositionRule} and \path{must_compose}.  Specialized
+proofs are \path{mustSubevent_trans}, \path{mustSupersession_trans},
+\path{mustBefore_trans}, and \path{mustCausesBefore}; the repeated-instance and
+framing-divergence laws are lifted separately.  The proof preserves one rule
+application exactly: two necessary premises produce one necessary conclusion.
+No theorem asserts, for example, transitivity of causation or framing
+divergence.  Names do not license composition constants; audited world laws do.
+
+Consistency is required to recover endpoint data from a necessary statement,
+because universal relations over an empty feasible set are vacuous.  This is
+explicit in \path{mustRel_typed}, \path{mustStrictIdentity_iff}, and
+\path{not_mustDivergence_self}.
+
+\subsection{Dependent truth commutes through its marginal union}
+
+For dependent truth fibers $T(h)$ define
+\[
+  T_\exists(D)=\{t:\exists h\in\Feas(D),\ t\in T(h)\}.
+\]
+The fibers may vary arbitrarily.
+
+\begin{theorem}[Marginal commutation]
+For every truth-only predicate $Q$,
+\begin{align*}
+ \forall h\in\Feas(D)\ \forall t\in T(h),\ Q(t)
+ &\Longleftrightarrow \forall t\in T_\exists(D),\ Q(t),\\
+ \exists h\in\Feas(D)\ \exists t\in T(h),\ Q(t)
+ &\Longleftrightarrow \exists t\in T_\exists(D),\ Q(t).
+\end{align*}
+\end{theorem}
+\begin{proof}
+Both equivalences follow by unpacking the existential witness in the definition
+of $T_\exists(D)$.  No fiber constancy or nonemptiness premise is used.
+\end{proof}
+\noindent Lean: \path{certain_marginal_iff} and
+\path{possible_marginal_iff}.
+
+A genuinely dependent query $P(h,t)$ also commutes if, on jointly feasible
+support, there is a $Q(t)$ with $P(h,t)\leftrightarrow Q(t)$.  This checkable
+condition is \path{SupportedInvariant}; the exact universal and existential
+results are \path{certain_supportedInvariant_iff} and
+\path{possible_supportedInvariant_iff}.  The loss constant is zero: these are
+logical equivalences, not approximations.  The condition is also meaningful.
+Two feasible normalizations sharing one truth world but disagreeing on $P$
+rule out every truth-only factor $Q$; this two-normalization, one-truth-world
+witness is formalized by \path{no_supportedInvariant_of_disagreement}.
+
+\subsection{Stable identity is a member set; history is a relation}
+
+For a canonical must-class $q$ at snapshot $D$, define
+\[
+  \operatorname{id}_D(q)=
+  \{c\in\Claims(D):c\text{ belongs to }q\}.
+\]
+These are immutable claim occurrence identifiers, not generated cluster names.
+
+\begin{theorem}[Complete snapshot identifier]
+Every $\operatorname{id}_D(q)$ is nonempty, and
+$\operatorname{id}_D(q)=\operatorname{id}_D(r)$ implies $q=r$.
+For $D\subseteq E$,
+\[
+ \operatorname{id}_D(q)\subseteq
+ \operatorname{id}_E(q_{D,E}(q)).
+\]
+\end{theorem}
+\begin{proof}
+A representative belongs to its own equivalence class.  Equal member sets put
+each representative in the other's class, so quotient soundness gives equal
+classes.  Under insertion, claims remain active and must-coreference is
+monotone, proving the inclusion.
+\end{proof}
+\noindent Lean: \path{canonicalMembers_nonempty},
+\path{canonicalMembers_injective}, and
+\path{canonicalMembers_subset_map}.  Thus the minimum identifier size is $1$,
+and the identifier has zero collisions inside a snapshot.
+
+Across arbitrary snapshots define lineage by nonempty intersection of member
+sets.  It is reflexive for live frames, symmetric, and every frame has lineage
+to its insertion image (\path{lineage_refl}, \path{lineage_symm}, and
+\path{lineage_canonicalMap}).  It is intentionally not transitive: the sets
+$\{a\}$, $\{a,b\}$, and $\{b\}$ give the smallest counterexample.  Lean proves
+this on a two-element type in \path{overlap_not_transitive}.  Consequently a
+single immutable scalar identifier cannot simultaneously model a merge and
+both later split children without collision or arbitrary choice.  Stable
+snapshot identity plus relational lineage is achievable; globally functional
+identity through splits is not.
+
+\subsection{Achievability constants}
+
+\begin{center}
+\begin{tabular}{p{0.27\textwidth}p{0.24\textwidth}p{0.37\textwidth}}
+\toprule
+Result & Constant & Qualification or sharp limit \\
+\midrule
+Claim restriction & fiber size $0$ or $1$ & source must remain active \\
+Compatible gluing & extensions $\leq 1$ & locals name the same ambient world \\
+Finite exact solver & $N$ survivors; $2^N$ states & exponential bound is tight \\
+Typed composition & one sound rule step & only audited rules lift \\
+Truth commutation & zero logical loss & invariant on feasible support \\
+Snapshot identity & size $\geq1$; zero collisions & history is overlap, not a function \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Other engineering questions retain exact correctness oracles: incremental
 output must equal a fresh STE meet; insertion order must not matter; deletion
 must reactivate every world excluded only by removed support; and every
 published settled link should admit a finite minimal certificate when the
@@ -608,10 +833,15 @@ while canonical quotients map covariantly under addition.  Minimal finite
 supports provide an explanation contract, and the dependent truth lift keeps
 normalization uncertainty intact downstream.
 
-The result is a small but substantive mathematical kernel for a live document
-database: ambiguity is represented, reduction is exact, retraction has a
-denotation, and the remaining research questions are stated at the level where
-they can be proved or refuted.
+The result is a substantive mathematical kernel for a live document database:
+ambiguity is represented, reduction is exact, retraction has a denotation,
+cross-document gluing has an obstruction, and finite implementation has both
+an executable correctness theorem and a tight worst-case bound.  The earlier
+open conjectures are no longer slogans: each is either proved under explicit
+hypotheses or delimited by a machine-checked counterexample.  The principal
+remaining algorithmic question is structural rather than semantic---which
+properties of real candidate graphs make their exact $2^N$ worst case compress
+in practice while retaining deletion, explanation, and must/may queries.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs}

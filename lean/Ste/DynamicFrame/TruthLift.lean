@@ -132,4 +132,88 @@ theorem possible_constant_iff {D : Set Document} (T : Set Truth)
   · rintro ⟨⟨h, hh⟩, ⟨t, ht, hp⟩⟩
     exact ⟨h, hh, t, ht, hp⟩
 
+/-! ## Exact commutation for dependent truth fibers -/
+
+/-- The existential union of all truth fibers over feasible normalizations.
+Unlike the constant-fiber special case, this permits `T h` to vary arbitrarily
+with the exact normalization. -/
+def marginalTruth (T : Hypothesis → Set Truth) (D : Set Document) : Set Truth :=
+  {t | ∃ h ∈ M.feasible D, t ∈ T h}
+
+@[simp] theorem mem_marginalTruth {T : Hypothesis → Set Truth}
+    {D : Set Document} {t : Truth} :
+    t ∈ marginalTruth M T D ↔ ∃ h ∈ M.feasible D, t ∈ T h :=
+  Iff.rfl
+
+/-- For a truth-only query, universal reasoning over a dependent joint system
+commutes exactly with projection to the marginal union.  No constant-fiber or
+nonemptiness assumption is required. -/
+theorem certain_marginal_iff {T : Hypothesis → Set Truth}
+    {D : Set Document} (P : Truth → Prop) :
+    Certain M T D (fun _ t => P t) ↔
+      CertainTruth (marginalTruth M T D) P := by
+  constructor
+  · intro hP t ht
+    obtain ⟨h, hh, hT⟩ := ht
+    exact hP h hh t hT
+  · intro hP h hh t ht
+    exact hP t ⟨h, hh, ht⟩
+
+/-- The existential companion also commutes exactly with the marginal union. -/
+theorem possible_marginal_iff {T : Hypothesis → Set Truth}
+    {D : Set Document} (P : Truth → Prop) :
+    Possible M T D (fun _ t => P t) ↔
+      PossibleTruth (marginalTruth M T D) P := by
+  constructor
+  · rintro ⟨h, hh, t, ht, hp⟩
+    exact ⟨t, ⟨h, hh, ht⟩, hp⟩
+  · rintro ⟨t, ⟨h, hh, ht⟩, hp⟩
+    exact ⟨h, hh, t, ht, hp⟩
+
+/-- A dependent query is normalization-invariant only on the jointly feasible
+support.  This is strictly weaker than requiring global independence from the
+normalization argument. -/
+def SupportedInvariant (T : Hypothesis → Set Truth) (D : Set Document)
+    (P : Hypothesis → Truth → Prop) (Q : Truth → Prop) : Prop :=
+  ∀ h ∈ M.feasible D, ∀ t ∈ T h, P h t ↔ Q t
+
+/-- Qualified dependent-truth commutation for universal queries. -/
+theorem certain_supportedInvariant_iff {T : Hypothesis → Set Truth}
+    {D : Set Document} {P : Hypothesis → Truth → Prop}
+    {Q : Truth → Prop} (hinv : SupportedInvariant M T D P Q) :
+    Certain M T D P ↔ CertainTruth (marginalTruth M T D) Q := by
+  constructor
+  · intro hP t ht
+    obtain ⟨h, hh, hT⟩ := ht
+    exact (hinv h hh t hT).mp (hP h hh t hT)
+  · intro hQ h hh t ht
+    exact (hinv h hh t ht).mpr (hQ t ⟨h, hh, ht⟩)
+
+/-- Qualified dependent-truth commutation for existential queries. -/
+theorem possible_supportedInvariant_iff {T : Hypothesis → Set Truth}
+    {D : Set Document} {P : Hypothesis → Truth → Prop}
+    {Q : Truth → Prop} (hinv : SupportedInvariant M T D P Q) :
+    Possible M T D P ↔ PossibleTruth (marginalTruth M T D) Q := by
+  constructor
+  · rintro ⟨h, hh, t, ht, hp⟩
+    exact ⟨t, ⟨h, hh, ht⟩, (hinv h hh t ht).mp hp⟩
+  · rintro ⟨t, ⟨h, hh, ht⟩, hQ⟩
+    exact ⟨h, hh, t, ht, (hinv h hh t ht).mpr hQ⟩
+
+/-- The support-invariance condition is substantively necessary for a
+truth-only factorization: if the same truth world is licensed under two
+feasible normalizations and the query disagrees there, no predicate on truth
+worlds alone can represent it. -/
+theorem no_supportedInvariant_of_disagreement
+    {T : Hypothesis → Set Truth} {D : Set Document}
+    {P : Hypothesis → Truth → Prop}
+    {h₁ h₂ : Hypothesis} {t : Truth}
+    (hh₁ : h₁ ∈ M.feasible D) (hh₂ : h₂ ∈ M.feasible D)
+    (ht₁ : t ∈ T h₁) (ht₂ : t ∈ T h₂)
+    (hp₁ : P h₁ t) (hp₂ : ¬P h₂ t) :
+    ¬∃ Q : Truth → Prop, SupportedInvariant M T D P Q := by
+  rintro ⟨Q, hQ⟩
+  have hqt : Q t := (hQ h₁ hh₁ t ht₁).mp hp₁
+  exact hp₂ ((hQ h₂ hh₂ t ht₂).mpr hqt)
+
 end STE.DynamicFrame.TruthLift

@@ -14,5 +14,9 @@ import Ste.DynamicFrame.Laws
 import Ste.DynamicFrame.Counterexample
 import Ste.DynamicFrame.Support
 import Ste.DynamicFrame.Solver
+import Ste.DynamicFrame.PresheafGluing
+import Ste.DynamicFrame.FiniteSolver
+import Ste.DynamicFrame.RelationAlgebra
 import Ste.DynamicFrame.TruthLift
+import Ste.DynamicFrame.Lineage
 import Ste.Carlson
