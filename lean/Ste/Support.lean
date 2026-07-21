@@ -27,6 +27,7 @@ Reference: R. Dechter, *Constraint Processing*, 2003 (scopes of
 constraints); Freuder, JACM 1982.
 -/
 import Ste.Basic
+import Ste.Sheaf
 
 namespace STE
 
@@ -104,5 +105,62 @@ theorem hasSupport_feasibilitySet {S : I → Set (∀ v, A v)} {σ : Set V}
   intro f g hfg
   simp only [mem_feasibilitySet]
   exact forall_congr' fun i => hS i f g hfg
+
+/-! ### The coupling core has no small support -/
+
+/-- **The diagonal is genuinely two-variable**: every support of the
+coupling constraint `diagonal` contains both variables.  Its scope
+cannot be shrunk below `{0, 1}` — the irreducible coupling core behind
+`diagonal_not_rectangular`. -/
+theorem diagonal_support_full {σ : Set (Fin 2)}
+    (h : HasSupport diagonal σ) :
+    (0 : Fin 2) ∈ σ ∧ (1 : Fin 2) ∈ σ := by
+  constructor
+  · by_contra h0
+    have hagree : ∀ v ∈ σ,
+        (fun _ : Fin 2 => false) v = (fun v : Fin 2 => decide (v = 0)) v := by
+      intro v hv
+      have hv0 : v ≠ 0 := fun e => h0 (e ▸ hv)
+      simp [hv0]
+    exact absurd
+      (show decide ((0 : Fin 2) = 0) = decide ((1 : Fin 2) = 0) from
+        (h _ _ hagree).mp rfl)
+      (by decide)
+  · by_contra h1
+    have hagree : ∀ v ∈ σ,
+        (fun _ : Fin 2 => false) v = (fun v : Fin 2 => decide (v = 1)) v := by
+      intro v hv
+      have hv1 : v ≠ 1 := fun e => h1 (e ▸ hv)
+      simp [hv1]
+    exact absurd
+      (show decide ((0 : Fin 2) = 1) = decide ((1 : Fin 2) = 1) from
+        (h _ _ hagree).mp rfl)
+      (by decide)
+
+/-- The diagonal has no empty support: it is not a trivial constraint. -/
+theorem diagonal_not_hasSupport_empty :
+    ¬ HasSupport diagonal (∅ : Set (Fin 2)) :=
+  fun h => Set.notMem_empty _ (diagonal_support_full h).1
+
+/-- The diagonal is not a constraint on variable `0` alone. -/
+theorem diagonal_not_hasSupport_zero :
+    ¬ HasSupport diagonal ({0} : Set (Fin 2)) :=
+  fun h =>
+    absurd (Set.mem_singleton_iff.mp (diagonal_support_full h).2) (by decide)
+
+/-- The diagonal is not a constraint on variable `1` alone. -/
+theorem diagonal_not_hasSupport_one :
+    ¬ HasSupport diagonal ({1} : Set (Fin 2)) :=
+  fun h =>
+    absurd (Set.mem_singleton_iff.mp (diagonal_support_full h).1) (by decide)
+
+/-- Conversely the diagonal is supported on `{0, 1}`; with
+`diagonal_support_full` this identifies its scope exactly. -/
+theorem diagonal_hasSupport_pair :
+    HasSupport diagonal ({0, 1} : Set (Fin 2)) := by
+  intro f g hfg
+  have h0 := hfg 0 (Set.mem_insert _ _)
+  have h1 := hfg 1 (Set.mem_insert_of_mem _ rfl)
+  simp only [diagonal, Set.mem_setOf_eq, h0, h1]
 
 end STE
