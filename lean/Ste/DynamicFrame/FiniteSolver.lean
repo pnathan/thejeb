@@ -12,6 +12,7 @@ subset, so no smaller uniform family of extensional states can be complete.
 -/
 import Ste.DynamicFrame.Solver
 import Mathlib.Data.Finset.Powerset
+import Mathlib.Data.Fintype.Card
 
 namespace STE.DynamicFrame
 
@@ -45,12 +46,16 @@ theorem coe_applyFinite (X : Finset Hypothesis) (k : Constraint) :
   simp [applyFinite, applyConstraint, propertySet]
 
 /-- Executable repeated filtering. -/
-def runFinite : List Constraint → Finset Hypothesis → Finset Hypothesis
+def runFinite (M : Model Document Claim Frame Hypothesis Constraint)
+    [∀ h k, Decidable (M.satisfies h k)] :
+    List Constraint → Finset Hypothesis → Finset Hypothesis
   | [], X => X
-  | k :: ks, X => M.runFinite ks (M.applyFinite X k)
+  | k :: ks, X => runFinite M ks (M.applyFinite X k)
 
 /-- Start the executable solver from the complete finite universe. -/
-def solveFinite (ks : List Constraint) : Finset Hypothesis :=
+def solveFinite (M : Model Document Claim Frame Hypothesis Constraint)
+    [∀ h k, Decidable (M.satisfies h k)]
+    (ks : List Constraint) : Finset Hypothesis :=
   M.runFinite ks Finset.univ
 
 /-- Finite execution is extensionally identical to the abstract STE run. -/
@@ -59,7 +64,7 @@ theorem coe_runFinite (ks : List Constraint) (X : Finset Hypothesis) :
   induction ks generalizing X with
   | nil => rfl
   | cons k ks ih =>
-      rw [runFinite, M.run, ih, M.coe_applyFinite]
+      rw [runFinite, run, ih, M.coe_applyFinite]
 
 /-- Consequently the executable output is exactly partial feasibility. -/
 theorem coe_solveFinite (ks : List Constraint) :
@@ -88,12 +93,14 @@ theorem applyFinite_card_lt {X : Finset Hypothesis} {k : Constraint}
   exact Finset.Subset.antisymm (M.applyFinite_subset X k) hback
 
 /-- The exact number of worlds eliminated by a finite schedule. -/
-def reductionCost (ks : List Constraint) (X : Finset Hypothesis) : Nat :=
+def reductionCost (M : Model Document Claim Frame Hypothesis Constraint)
+    [∀ h k, Decidable (M.satisfies h k)]
+    (ks : List Constraint) (X : Finset Hypothesis) : Nat :=
   X.card - (M.runFinite ks X).card
 
 /-- Ambient cardinality N: the unconditional storage and query-scan bound. -/
-include M in
-def maxWorlds : Nat := Fintype.card Hypothesis
+def maxWorlds (_M : Model Document Claim Frame Hypothesis Constraint) : Nat :=
+  Fintype.card Hypothesis
 
 /-- Total reduction is at most N.  In particular, a schedule can contain at
 most N steps that each remove a previously surviving world. -/
@@ -107,8 +114,8 @@ theorem reductionCost_le_maxWorlds (ks : List Constraint)
     _ = M.maxWorlds := by simp [maxWorlds]
 
 /-- Every possible extensional exact solver state. -/
-include M in
-def allExactStates : Finset (Finset Hypothesis) :=
+def allExactStates (_M : Model Document Claim Frame Hypothesis Constraint) :
+    Finset (Finset Hypothesis) :=
   (Finset.univ : Finset Hypothesis).powerset
 
 theorem mem_allExactStates (X : Finset Hypothesis) :

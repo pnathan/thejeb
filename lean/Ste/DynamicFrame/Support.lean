@@ -6,6 +6,8 @@ supported by a finite corpus has an inclusion-minimal finite subcorpus that
 still supports it.  It does not claim that computing such a support is cheap.
 -/
 import Ste.DynamicFrame.Laws
+import Mathlib.Data.Finset.Card
+import Mathlib.Data.Nat.Find
 
 namespace STE.DynamicFrame
 

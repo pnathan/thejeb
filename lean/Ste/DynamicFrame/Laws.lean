@@ -35,7 +35,7 @@ theorem feasible_subset_after_remove (D : Set Document) (d : Document) :
 once. -/
 theorem feasible_insert_idempotent (D : Set Document) (d : Document) :
     M.feasible (insert d (insert d D)) = M.feasible (insert d D) := by
-  rw [Set.insert_eq_self (Set.mem_insert d D)]
+  rw [Set.insert_eq_self.mpr (Set.mem_insert d D)]
 
 /-- The order of two document insertions is semantically irrelevant. -/
 theorem feasible_insert_comm (D : Set Document) (d e : Document) :
@@ -183,26 +183,26 @@ theorem maySame_refl {D : Set Document} (hc : M.Consistent D) :
     Reflexive (M.MaySame D) := by
   intro c
   obtain ⟨h, hh⟩ := hc
-  exact ⟨h, hh, (M.sameFrame_equivalence h).1 c⟩
+  exact ⟨h, hh, (M.sameFrame_equivalence h).refl c⟩
 
 theorem maySame_symm (D : Set Document) : Symmetric (M.MaySame D) := by
   rintro c d ⟨h, hh, hcd⟩
-  exact ⟨h, hh, (M.sameFrame_equivalence h).2.1 hcd⟩
+  exact ⟨h, hh, (M.sameFrame_equivalence h).symm hcd⟩
 
 theorem maySeparate_symm (D : Set Document) : Symmetric (M.MaySeparate D) := by
   rintro c d ⟨h, hh, hcd⟩
   refine ⟨h, hh, ?_⟩
   intro hdc
-  exact hcd ((M.sameFrame_equivalence h).2.1 hdc)
+  exact hcd ((M.sameFrame_equivalence h).symm hdc)
 
 theorem cannotSame_symm (D : Set Document) : Symmetric (M.CannotSame D) := by
   intro c d hcd h hh hdc
-  exact hcd h hh ((M.sameFrame_equivalence h).2.1 hdc)
+  exact hcd h hh ((M.sameFrame_equivalence h).symm hdc)
 
 theorem not_maySeparate_self (D : Set Document) (c : Claim) :
     ¬M.MaySeparate D c c := by
   rintro ⟨h, _, hne⟩
-  exact hne ((M.sameFrame_equivalence h).1 c)
+  exact hne ((M.sameFrame_equivalence h).refl c)
 
 theorem uncertain_symm (D : Set Document) : Symmetric (M.Uncertain D) := by
   rintro c d ⟨hs, hd⟩
@@ -243,15 +243,17 @@ inductive CorefStatus where
 
 /-- Deterministic status obtained from exact feasible-world quantification. -/
 noncomputable def corefStatus (D : Set Document) (c d : Claim) : CorefStatus :=
-  if hc : M.Consistent D then
-    if hm : M.MustSame D c d then
-      .must
-    else if M.MaySame D c d then
-      .uncertain
+  by
+    classical
+    exact if hc : M.Consistent D then
+      if hm : M.MustSame D c d then
+        .must
+      else if M.MaySame D c d then
+        .uncertain
+      else
+        .cannot
     else
-      .cannot
-  else
-    .inconsistent
+      .inconsistent
 
 theorem corefStatus_eq_inconsistent {D : Set Document} {c d : Claim}
     (h : ¬M.Consistent D) :

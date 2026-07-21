@@ -28,12 +28,14 @@ def solverReduction (X : Set Hypothesis) (k : Constraint) : Set Hypothesis :=
   X \ M.applyConstraint X k
 
 /-- Repeated property-set application. -/
-def run : List Constraint → Set Hypothesis → Set Hypothesis
+def run (M : Model Document Claim Frame Hypothesis Constraint) :
+    List Constraint → Set Hypothesis → Set Hypothesis
   | [], X => X
-  | k :: ks, X => M.run ks (M.applyConstraint X k)
+  | k :: ks, X => run M ks (M.applyConstraint X k)
 
 /-- Solve a finite constraint presentation from the full hypothesis universe. -/
-def solve (ks : List Constraint) : Set Hypothesis :=
+def solve (M : Model Document Claim Frame Hypothesis Constraint)
+    (ks : List Constraint) : Set Hypothesis :=
   M.run ks Set.univ
 
 @[simp] theorem mem_applyConstraint {X : Set Hypothesis} {k : Constraint}
@@ -57,7 +59,11 @@ theorem applyConstraint_comm (X : Set Hypothesis) (k l : Constraint) :
     M.applyConstraint (M.applyConstraint X k) l =
       M.applyConstraint (M.applyConstraint X l) k := by
   ext h
-  simp [applyConstraint, propertySet, and_left_comm, and_assoc]
+  constructor
+  · rintro ⟨⟨hh, hk⟩, hl⟩
+    exact ⟨⟨hh, hl⟩, hk⟩
+  · rintro ⟨⟨hh, hl⟩, hk⟩
+    exact ⟨⟨hh, hk⟩, hl⟩
 
 /-- Reduction is exactly the current candidates that violate the new
 constraint. -/

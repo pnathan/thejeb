@@ -65,7 +65,11 @@ identity and composition laws for feasible-world restriction, equivalence of
 must-coreference, and exact status separation into inconsistent, must, cannot,
 and uncertain cases.  A finite countermodel proves that possible coreference
 and the uncertainty overlay need not be transitive even though every exact
-hypothesis is a partition.  We prove existence of finite minimal document
+hypothesis is a partition.  We distinguish the safe must-quotient from a
+possible-coreference ambiguity envelope and prove that insertion can strictly
+split the latter by eliminating a merge world.  A two-claim Toyota/BMW model
+gives a constructive witness and an exact one-candidate reduction.  We prove
+existence of finite minimal document
 supports for must- and cannot-coreference conclusions.  We then resolve six
 initial conjectures under explicit, necessary qualifications: partial
 variable-universe restriction; gluing by a cross-constraint obstruction with
@@ -112,6 +116,8 @@ The contributions are:
         deletion without destructive clustering;
   \item a must-coreference quotient and a nontransitive uncertainty overlay;
   \item a finite countermodel ruling out possible-coreference clustering;
+  \item a mechanized insertion-induced ambiguity-envelope split, including a
+        finite cardinal bound and an exact Toyota/BMW witness;
   \item existence of minimal finite document certificates for settled links;
   \item contravariant feasible-world restriction and covariant canonical-frame
         maps, exposing the fundamental insertion/deletion asymmetry;
@@ -359,6 +365,85 @@ must-classes, not a special kind of class.  Taking connected components of
 possible or uncertain edges invents identifications not licensed in any exact
 world.
 
+\subsection{Insertion can split an ambiguity envelope}
+
+The preceding warning does not mean that an existing database-facing frame
+can never split.  It means that we must say which object bears the word
+``frame.''  Define the possible-coreference envelope anchored at $c$ by
+\[
+  A_D(c)=\{d\in\Claims:\May_D(c,d)\}.
+\]
+This is a presentation of unresolved alternatives, not an equivalence class.
+For $D\subseteq E$, feasibility antitonicity gives
+\[
+  A_E(c)\subseteq A_D(c).
+\]
+The inclusion can be strict.  Say that insertion \emph{resolves $c,d$ apart}
+when
+\[
+  \Uncertain_D(c,d)\quad\text{and}\quad\Cannot_E(c,d).
+\]
+
+\begin{theorem}[Insertion-induced envelope splitting]
+If $D\subseteq E$ resolves $c,d$ apart, then
+\[
+  A_E(c)\subseteq A_D(c),\qquad
+  d\in A_D(c),\qquad d\notin A_E(c).
+\]
+If the claim universe is finite, then
+\[
+  |A_E(c)|<|A_D(c)|\leq |\Claims|.
+\]
+Thus the exact envelope reduction
+$|A_D(c)|-|A_E(c)|$ is positive and is at most $|\Claims|$ without further
+assumptions.
+\end{theorem}
+\begin{proof}
+The old uncertainty supplies a feasible world merging $c$ and $d$, hence
+$d\in A_D(c)$.  The new cannot-link is equivalent to absence of every
+feasible merge world, hence $d\notin A_E(c)$.  Antitonicity of $\May$ supplies
+the subset.  For finite sets, a proper subset has strictly smaller
+cardinality; both envelopes are subsets of the ambient claim universe.
+\end{proof}
+\noindent Lean: \path{Model.mayEnvelope_antitone} and
+\path{Model.mayEnvelope_split_witness}.
+
+\noindent The finite theorem names are
+\begin{center}
+\small
+\path{Model.finiteMayEnvelope_card_lt_of_resolvesApart}\\
+\path{Model.envelopeReduction_le_card}.
+\end{center}
+
+The smallest informative witness contains two old descriptions and two exact
+worlds.  Initially $c$ is ``the red car'' and $d$ is ``the burgundy car.''
+One world treats them as one vehicle and the other as two, so
+\[
+  \Feas(D)=\left\{\{\{c,d\}\},\ \{\{c\},\{d\}\}\right\}.
+\]
+A later document identifies the red description as Toyota and the burgundy
+description as BMW.  Under the audited property that one vehicle cannot have
+both manufacturers, STE rejects the one-vehicle world:
+\[
+  \Feas(E)=\left\{\{\{c\},\{d\}\}\right\}.
+\]
+Consequently $A_D(c)=\{c,d\}$, $A_E(c)=\{c\}$, and the exact reduction is
+$1$.  This construction is mechanized in module
+\path{Ste.DynamicFrame.AmbiguitySplit}, namespace \path{VehicleSplit};
+the principal results are
+\path{toyota_bmw_envelope_split} and
+\path{toyota_bmw_split_into_two_singletons}, with the exact reduction
+certified by \path{toyota_bmw_reduction_eq_one}.
+
+There is no contradiction with monotonicity of the must-quotient.  If
+$\Must_D(c,d)$ really held, constraint intersection could not make it false:
+every later world was already an earlier world.  The split occurs because the
+old database-facing object was an ambiguity envelope containing a
+\emph{possible} link, not a forced identity class.  The authoritative state is
+therefore the feasible family of exact partitions.  A single partition plus
+pairwise $\Uncertain$ marks is only a summary and can lose correlations among
+alternatives.
+
 \section{Restriction, quotient maps, and retraction asymmetry}
 
 On the fixed ambient hypothesis universe, inclusion $D\subseteq E$ induces
@@ -542,6 +627,7 @@ Lean module & Formal content \\
 \path{Ste.DynamicFrame.RelationAlgebra} & audited typed necessary relations \\
 \path{Ste.DynamicFrame.TruthLift} & dependent downstream feasible family \\
 \path{Ste.DynamicFrame.Lineage} & occurrence-set identifiers and lineage \\
+\path{Ste.DynamicFrame.AmbiguitySplit} & insertion-induced envelope splitting \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -809,6 +895,7 @@ Finite exact solver & $N$ survivors; $2^N$ states & exponential bound is tight \
 Typed composition & one sound rule step & only audited rules lift \\
 Truth commutation & zero logical loss & invariant on feasible support \\
 Snapshot identity & size $\geq1$; zero collisions & history is overlap, not a function \\
+Ambiguity-envelope split & reduction $\geq1$; at most $|\Claims|$ & old may-link eliminated by evidence \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -827,7 +914,11 @@ application is the solver.  Provenance selects the active meet.  Must
 coreference is the intersection of feasible equivalence relations and supplies
 the only generally safe deterministic quotient.  `May' and $\Uncertain$ are
 modal summaries, and a finite machine-checked countermodel shows why they
-cannot be collapsed into partitions.  Document addition and deletion act in
+cannot be collapsed into partitions.  Nevertheless, a database-facing
+ambiguity envelope can genuinely split under insertion: new properties remove
+merge worlds, shrink $\May$, and can force formerly compatible descriptions
+apart.  The Toyota/BMW witness makes this distinction constructive.  Document
+addition and deletion act in
 opposite information directions; feasible worlds restrict contravariantly,
 while canonical quotients map covariantly under addition.  Minimal finite
 supports provide an explanation contract, and the dependent truth lift keeps

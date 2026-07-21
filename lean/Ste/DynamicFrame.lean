@@ -107,21 +107,23 @@ def Uncertain (D : Set Document) (c d : Claim) : Prop :=
 
 theorem mustSame_refl (D : Set Document) : Reflexive (M.MustSame D) := by
   intro c h _
-  exact (M.sameFrame_equivalence h).1 c
+  exact (M.sameFrame_equivalence h).refl c
 
 theorem mustSame_symm (D : Set Document) : Symmetric (M.MustSame D) := by
   intro c d hcd h hh
-  exact (M.sameFrame_equivalence h).2.1 (hcd h hh)
+  exact (M.sameFrame_equivalence h).symm (hcd h hh)
 
 theorem mustSame_trans (D : Set Document) : Transitive (M.MustSame D) := by
   intro c d e hcd hde h hh
-  exact (M.sameFrame_equivalence h).2.2 (hcd h hh) (hde h hh)
+  exact (M.sameFrame_equivalence h).trans (hcd h hh) (hde h hh)
 
 /-- The intersection of all surviving exact partitions is itself an
 equivalence relation.  It therefore defines the safe deterministic quotient. -/
 theorem mustSame_equivalence (D : Set Document) :
     Equivalence (M.MustSame D) :=
-  ⟨M.mustSame_refl D, M.mustSame_symm D, M.mustSame_trans D⟩
+  ⟨fun c => M.mustSame_refl D c,
+    fun h => M.mustSame_symm D h,
+    fun hcd hde => M.mustSame_trans D hcd hde⟩
 
 /-- The canonical frame quotient containing only identifications forced by
 every feasible hypothesis.  Uncertain links remain outside this quotient. -/
@@ -228,7 +230,7 @@ def exactCluster (h : Hypothesis) (c : Claim) : Set Claim :=
 
 theorem mem_exactCluster_self (h : Hypothesis) (c : Claim) :
     c ∈ M.exactCluster h c :=
-  (M.sameFrame_equivalence h).1 c
+  (M.sameFrame_equivalence h).refl c
 
 end Model
 

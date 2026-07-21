@@ -19,4 +19,5 @@ import Ste.DynamicFrame.FiniteSolver
 import Ste.DynamicFrame.RelationAlgebra
 import Ste.DynamicFrame.TruthLift
 import Ste.DynamicFrame.Lineage
+import Ste.DynamicFrame.AmbiguitySplit
 import Ste.Carlson

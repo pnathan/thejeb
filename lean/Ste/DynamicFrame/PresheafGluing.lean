@@ -169,7 +169,10 @@ theorem globalExtension_nonempty_iff {D E : Set Document}
     have hright := congrArg Subtype.val hU.2.2
     refine ⟨hleft.symm.trans hright, ?_⟩
     have hmem := M.mem_feasible_union_iff.mp hU.1.2
-    simpa [hleft] using hmem.2.2
+    have hobs : M.crossObstruction D E hU.1.1 = ∅ := hmem.2.2
+    change hU.1.1 = hD.1 at hleft
+    rw [hleft] at hobs
+    exact hobs
   · rintro ⟨hc, hobs⟩
     exact ⟨M.glue hD hE hc hobs⟩
 
