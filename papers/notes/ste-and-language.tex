@@ -1,0 +1,265 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\newcommand{\sem}[1]{[\![#1]\!]}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+\title{Set Theoretic Estimation and Language:\\
+Unification, Underspecification, and the Hyperframe Lattice}
+\author{Project \texttt{thejeb}}
+\date{\today}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{claim}{Claim}
+\newtheorem*{conjecture}{Conjecture (outlook)}
+
+\newcommand{\lean}[1]{\texttt{#1}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note makes an intellectual case in three movements.  First, a
+historical claim: set theoretic estimation (STE) in the sense of
+Combettes \citep{combettes1993} is the estimation-theoretic framing of
+what two mature traditions in computational linguistics---unification
+grammar and underspecification semantics---already do operationally, and
+neither tradition cites Combettes; the bridge appears to be unclaimed.
+Second, a structural claim, now machine-checked in the Lean module
+\lean{Ste.HyperFrame}: the STE satisfaction relation is a formal context
+in the sense of Formal Concept Analysis \citep{ganter1999fca}, partial
+feasibility sets are exactly its lower polars, and hence the closed
+feasible sets are the extents of a complete concept lattice---the
+\emph{hyperframe lattice}.  This yields, as corollaries, a disproof of
+naive oscillation (pure constraint accumulation is monotone) and a
+rough-set \citep{pawlak1982rough} indiscernibility partition that
+explains why Carlson's AEP work partition \citep{carlson2012} is
+STE-invariant.  Third, an outlook: feasible sets glue over the
+constraint poset in a presheaf-like way, and a sheaf-theoretic
+representation is the natural next target; that direction is explicitly
+conjectural.  Throughout we distinguish sharply between what is proven
+in the CI-verified Lean library (cited by identifier) and what is
+argued or conjectured.
+\end{abstract}
+
+\section{The thesis: an unclaimed bridge}
+
+Combettes's foundational formulation of set theoretic estimation
+\citep{combettes1993} is austere: a solution space $\Xi$, an index set
+$I$ of items of information, and for each $i \in I$ a \emph{property
+set} $S_i \subseteq \Xi$ of solutions consistent with that item.  The
+estimate is not a point but the \emph{feasibility set}
+$\bigcap_{i \in I} S_i$; acquiring information shrinks it; a point
+estimate is warranted only in the \emph{ideal} case where the
+intersection is a singleton.
+
+Two traditions in computational linguistics rediscovered this schema
+operationally, in different guises, without the estimation-theoretic
+vocabulary and---as far as we have been able to determine---without
+citing Combettes or the set-membership estimation literature at all.
+
+\paragraph{Unification grammar.}
+In unification-based approaches to grammar
+\citep{shieber1986unification, carpenter1992logic}, partial information
+about a linguistic object is a \emph{feature structure}, and combining
+two pieces of information is \emph{unification}: the greatest lower
+bound in the subsumption order, when it exists.  Each feature structure
+$F$ denotes the set $\sem{F}$ of fully specified objects
+it subsumes, and the defining property of unification is precisely
+constraint intersection:
+\[
+\sem{F \sqcap G} \;=\; \sem{F} \cap \sem{G} .
+\]
+Unification failure is the empty intersection---in STE terms, an
+infeasible (over-constrained) problem.  A parse succeeds ideally when
+the accumulated constraints cut the candidate space to a singleton.
+This is STE's ``intersect the property sets'' scheme executed by a
+grammar, with subsumption playing the role of informativeness and
+$\sqcap$ playing the role of adding an item of information.
+
+\paragraph{Underspecification semantics.}
+In underspecification semantics the denotation of an ambiguous sentence
+is deliberately a \emph{set of readings}, represented compactly and
+narrowed by constraints.  Minimal Recursion Semantics
+\citep{copestake2005mrs} represents scope ambiguity by a flat bag of
+elementary predications plus handle constraints; each way of solving
+the constraints is one reading, so an MRS denotes the set of its
+solutions.  Hole Semantics \citep{bos1996hole} and the Constraint
+Language for Lambda Structures \citep{egg2001cls} make the logic
+explicit: an underspecified representation is a constraint set, its
+models are the readings, and adding a dominance constraint monotonically
+prunes the model set.  Again this is exactly the STE picture: readings
+are the solution space, each constraint is a property set, and the
+current semantic value of the discourse is the feasibility set.
+
+\paragraph{The claim.}
+The claim is not that these fields need STE to do what they already do.
+It is that STE is the common estimation-theoretic \emph{frame}: both
+traditions perform set-valued estimation by constraint intersection,
+with monotone refinement, over-constraint (failure) and
+under-constraint (residual ambiguity) as the two failure modes, and the
+ideal case as a singleton feasibility set.  Because neither literature
+cites Combettes, the identification---and with it the transfer of STE's
+structural results (below) to grammar and semantics---appears to be an
+unclaimed bridge.  The companion note on Constraint Grammar in this
+repository makes one instance of this identification fully formal; the
+present note supplies the lattice-theoretic superstructure.
+
+\section{Machine-checked: the hyperframe lattice}
+\label{sec:hyperframe}
+
+All results in this section are proven in Lean~4 over
+Mathlib \citep{mathlib2020} in the module \lean{Ste.HyperFrame}, which
+builds in this repository's CI; we cite each by its Lean identifier.
+Fix $S : I \to \mathcal P(\Xi)$, a family of property sets.
+
+\begin{definition}[satisfaction context; \lean{STE.sat}]
+The relation $\mathrm{sat}\,S \subseteq \Xi \times I$ holds at $(a,i)$
+iff $a \in S_i$.
+\end{definition}
+
+This is literally a \emph{formal context} in the sense of Formal
+Concept Analysis \citep{ganter1999fca}: objects are hypotheses,
+attributes are constraints, incidence is satisfaction.  The partial
+feasibility set $\Phi_J = \bigcap_{i \in J} S_i$ (only the constraints
+in $J \subseteq I$ enforced) then has an exact FCA description:
+
+\begin{theorem}[the bridge; \lean{STE.partialFeasibilitySet\_eq\_lowerPolar}]
+For every $J \subseteq I$, the partial feasibility set $\Phi_J$ equals
+the lower polar (attribute derivation $J'$) of $J$ under
+$\mathrm{sat}\,S$.
+\end{theorem}
+
+Consequently the Galois connection of the context organizes STE.  A
+\emph{hyperframe} of $S$ (\lean{STE.HyperFrame}) is defined as a formal
+concept of $\mathrm{sat}\,S$: a pair (extent, intent) with extent the
+set of hypotheses satisfying every constraint in the intent, and intent
+the set of constraints satisfied by every hypothesis in the extent.
+Mathlib supplies the complete-lattice structure on concepts, so the
+hyperframes of $S$ form a complete lattice with no further work.
+The two directions of the correspondence are:
+
+\begin{theorem}[feasible sets are extents;
+\lean{STE.isExtent\_partialFeasibilitySet}]
+Every partial feasibility set $\Phi_J$ is the extent of a hyperframe.
+\end{theorem}
+
+\begin{theorem}[extents are feasible sets;
+\lean{STE.hyperFrame\_extent\_eq\_feasibilitySet}]
+Every hyperframe's extent equals the feasibility set of its own
+intent: $\mathrm{extent}(c) = \Phi_{\mathrm{intent}(c)}$.
+\end{theorem}
+
+So the lattice of hyperframes is exactly the lattice of
+constraint-set/feasible-set fixpoints: the ``reachable'' estimation
+states of the problem, closed under the Galois closure.  Enforcement is
+compositional:
+
+\begin{theorem}[superposition; \lean{STE.partialFeasibilitySet\_union}]
+$\Phi_{J \cup K} = \Phi_J \cap \Phi_K$.
+\end{theorem}
+
+For the linguistic reading: the hyperframe lattice is the space of
+stable ``analysis states'' of a grammar or of an underspecified
+semantic representation.  Unification moves down this lattice (meet);
+the maximally underspecified representation is its top; unification
+failure is falling to an empty extent.  None of the linguistic claims
+in Section~1 are formalized---what is formalized is the STE-side
+lattice they would land in.
+
+\section{Oscillation: the honest statement}
+\label{sec:oscillation}
+
+A recurring informal worry about iterated constraint processing is
+\emph{oscillation}: as information accumulates, does the feasible set
+thrash---shrinking to empty, then growing again?  The machine-checked
+answer localizes the phenomenon precisely.
+
+\begin{theorem}[no oscillation under accumulation;
+\lean{STE.ncard\_partialFeasibilitySet\_antitone}]
+Over a finite hypothesis space, if $J \subseteq K$ then
+$|\Phi_K| \le |\Phi_J|$: accumulating constraints can only shrink the
+feasible cardinality.
+\end{theorem}
+
+\begin{theorem}[oscillation requires retraction;
+\lean{STE.lt\_ncard\_imp\_not\_subset}]
+If $|\Phi_J| < |\Phi_K|$ then $J \not\subseteq K$: any growth of the
+feasible set forces the drop (retraction) of some previously enforced
+constraint.
+\end{theorem}
+
+So \emph{pure accumulation is monotone and cannot oscillate}; this
+disproves the naive form of the worry.  What remains true---and this is
+the honest refinement---is that oscillation is exactly a
+\emph{dynamic} phenomenon of edit streams that include retraction:
+reanalysis in parsing, defeasible constraints, belief revision.  The
+repository's \lean{Ste.DynamicFrame} development studies that
+non-monotone regime; the present result fences it off cleanly from
+static STE.
+
+\section{Rough sets and Carlson's AEP partition}
+\label{sec:rough}
+
+The context $\mathrm{sat}\,S$ also carries Pawlak's rough-set structure
+\citep{pawlak1982rough}.  Define two hypotheses to be
+\emph{indiscernible} (\lean{STE.Indisc}) when they lie in exactly the
+same property sets.
+
+\begin{theorem}[\lean{STE.indisc\_equivalence}]
+Indiscernibility is an equivalence relation on $\Xi$.
+\end{theorem}
+
+\begin{theorem}[granularity; \lean{STE.indisc\_mem\_iff}]
+Indiscernible hypotheses are co-feasible for every enforced constraint
+set $J$: $a \in \Phi_J \iff b \in \Phi_J$.
+\end{theorem}
+
+The equivalence classes are the \emph{resolution floor} of the
+estimation problem: no subfamily of the available constraints can
+separate two indiscernible hypotheses, so every lower/upper (Pawlak)
+approximation, and every feasible set, is a union of classes.  This is
+the STE reading of Carlson's use of the asymptotic equipartition
+property in his cryptanalytic dissertation \citep{carlson2012}: the
+AEP typical-set partition used there to divide the work of key search
+is an indiscernibility partition for the induced property sets, and the
+granularity theorem is the formal reason the partition is STE-invariant
+---constraint processing respects the classes, so work can be
+partitioned along them once and for all.  (The identification of
+Carlson's specific partition with \lean{STE.Indisc} for his context is
+an interpretive claim of this note; what is machine-checked is the
+general indiscernibility theory just cited.)
+
+\section{Outlook: representation via sheaves}
+\label{sec:sheaves}
+
+The superposition law $\Phi_{J\cup K} = \Phi_J \cap \Phi_K$ and
+antitonicity say that $J \mapsto \Phi_J$ is a limit-preserving
+contravariant assignment on the poset of constraint sets: local
+feasibility data over a cover $\{J_k\}$ of $J = \bigcup_k J_k$
+determines feasibility over $J$, and compatible local sections should
+glue.  The repository already contains a first mechanized step in this
+direction, \lean{Ste.DynamicFrame.PresheafGluing}, which proves a
+gluing law for feasibility data over document/constraint structure.
+
+\begin{conjecture}
+The assignment $J \mapsto \Phi_J$ extends to a sheaf on a suitable site
+(the constraint poset with covers given by unions, or a Grothendieck
+topology on the document poset in the dynamic setting), and the
+hyperframe lattice of Section~\ref{sec:hyperframe} is recovered as its
+lattice of closed subsheaf sections.  A representation theorem of this
+form would subsume both the concept-lattice picture and the dynamic
+gluing law.
+\end{conjecture}
+
+We flag this explicitly as \emph{not yet proven}: no sheaf condition,
+site structure, or representation theorem is currently formalized, and
+we deliberately do not pursue sheaf- or homotopy-theoretic
+formalization here.  It is the open direction this note points at.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
