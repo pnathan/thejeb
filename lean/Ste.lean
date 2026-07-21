@@ -21,3 +21,10 @@ import Ste.DynamicFrame.TruthLift
 import Ste.DynamicFrame.Lineage
 import Ste.DynamicFrame.AmbiguitySplit
 import Ste.Carlson
+import Ste.HyperFrame
+import Ste.Sheaf
+import Ste.Decomposition
+import Ste.Support
+import Ste.Conditioning
+import Ste.Treewidth
+import Ste.Elimination

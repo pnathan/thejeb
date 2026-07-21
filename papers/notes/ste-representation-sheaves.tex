@@ -1,0 +1,668 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+\title{Representation and Tractability in Set Theoretic Estimation:\\
+Sheaves, Rectangles, and the Coupling Obstruction}
+\author{Project \texttt{thejeb}}
+\date{\today}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{claim}{Claim}
+\newtheorem*{conjecture}{Conjecture (outlook)}
+
+\newcommand{\lean}[1]{\texttt{#1}}
+\newcommand{\feas}{\mathrm{feas}}
+\newcommand{\Xii}{\Xi}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The feasible set of a set theoretic estimation (STE) problem
+\citep{combettes1993} lives in $\mathcal{P}(\Xii)$, and when the
+hypothesis space is a product over $N$ variables, $|\Xii|$ is
+exponential in $N$: representing the feasible set extensionally hits a
+$2^N$ wall that is machine-checked in this project
+(\lean{Ste.DynamicFrame.Model.card\_allExactStates}).  This note asks
+when the feasible set can be represented \emph{locally} and glued, and
+answers three pieces of the question with Lean-verified results in the
+module \lean{Ste.Sheaf}.  (i) \emph{Gluing on the constraint side}: the
+assignment $J \mapsto \feas(J)$ from constraint subsets to partial
+feasible sets sends unions to intersections
+(\lean{partialFeasibilitySet\_iUnion}), so any cover of the constraint
+index recovers the global feasible set as the limit of local ones
+(\lean{feasibilitySet\_eq\_iInter\_cover}); on this side there is no
+obstruction.  (ii) \emph{A tractable upper bound}: if every constraint is
+variable-separable (a rectangle), the feasible set is itself a rectangle
+(\lean{rectangular\_feasibilitySet}) representable by one subset per
+variable---$\sum$-space, not $\prod$-space---with product cardinality
+(\lean{rectangular\_encard}).  (iii) \emph{The obstruction}: a single
+coupling constraint, the diagonal on two bits, is provably not a
+rectangle (\lean{diagonal\_not\_rectangular}).  This is the elementary
+form of the Abramsky--Brandenburger contextuality obstruction
+\citep{abramsky2011sheaf}, and the same shape as this project's
+non-transitivity countermodel
+(\lean{Ste.DynamicFrame.Counterexample}).  Four further Lean modules
+push toward decomposition: \lean{Ste.Decomposition} proves that
+disconnected constraint blocks give a product feasible set with
+multiplicative cost (\lean{feasibilitySet\_blockFamily},
+\lean{encard\_feasibilitySet\_blockFamily}); \lean{Ste.Support} gives
+constraints a scope and shows the diagonal's scope is exactly
+$\{0,1\}$ (\lean{diagonal\_support\_full});
+\lean{Ste.Conditioning} mechanizes variable elimination---conditioning
+commutes with feasibility, shrinks scopes, preserves rectangles, and,
+applied to a \emph{cut} variable, disconnects the problem into
+independent blocks
+(\lean{piecewise\_mem\_condition\_feasibilitySet}); and
+\lean{Ste.Treewidth} proves the general cut-elimination theorem
+(\lean{cut\_elimination}), the join-scope accounting behind bucket
+elimination, the quantitative \emph{bag bound}: the table of a
+constraint on a scope $\sigma$ has at most $\prod_{v \in \sigma}
+|A_v| \le k^{w+1}$ rows (\lean{table\_encard\_le},
+\lean{elimination\_step}), and the \emph{elimination-order total-space
+bound}: $n$ bags of width $w$ cost at most $n \cdot k^{w+1}$ total
+table rows (\lean{elimination\_order\_total\_bound}).
+\lean{Ste.Elimination} then mechanizes \emph{running} an order: the
+bucket-elimination fold on lists of scoped constraints is correct
+(\lean{joinConstraint\_bucketEliminate}), a complete order decides the
+substituted problem (\lean{bucketEliminate\_decides}), and a width-$w$
+run of $n$ steps materializes at most $n \cdot k^{w+1}$ rows in total
+(\lean{bucketEliminate\_total\_space}).  A clearly-labelled outlook
+sketches the unproven remainder: projective ($\exists$-)elimination,
+tree-decomposition existence and junction trees, $k$-consistency as
+higher gluing, $\check{H}^1$ as the measure of intractability, and a
+treewidth-style tractability dichotomy
+\citep{freuder1982backtrack,dechter2003constraint}.
+\end{abstract}
+
+\section{The problem: the $2^N$ wall}
+
+Combettes' set theoretic estimation \citep{combettes1993} specifies a
+solution space $\Xii$, an index set $I$ of pieces of information, and a
+property set $S_i \subseteq \Xii$ for each $i \in I$; the feasible
+(solution) set is $S = \bigcap_{i} S_i$.  The framework is silent about
+\emph{representation}: it treats $S$ as a set, not as a data structure.
+
+The silence becomes a cost the moment $\Xii$ is a product.  In the
+estimation problems this project cares about---dynamic frames over
+documents, constraint grammars, hyperframe lattices---the hypothesis
+space factors as $\Xii = \prod_{v \in V} A_v$ over a family of
+variables (claims, mentions, cells), and $|\Xii| = \prod_v |A_v|$ is
+exponential in $|V|$.  The finite solver in
+\lean{Ste.DynamicFrame.FiniteSolver} makes the wall precise and
+machine-checked: over $N$ ambient worlds there are exactly $2^N$
+extensional states (\lean{Model.card\_allExactStates}), and crisp STE
+has full subset expressivity---a single property set can carve out
+\emph{any} subset of the universe
+(\lean{arbitrary\_subset\_as\_single\_property})---so without structural
+assumptions on the constraints, no representation smaller than $2^N$
+can be complete.
+
+The question of this note: \emph{which structural assumptions buy which
+representations?}  The natural language for the question is
+sheaf-theoretic, because ``represent locally and glue'' is exactly what
+a sheaf condition asserts.
+
+\section{Gluing over the constraint poset}
+
+Fix $S : I \to \mathcal{P}(\Xii)$ and write, for a subset
+$J \subseteq I$ of the constraint index,
+\[
+  \feas(J) \;=\; \bigcap_{i \in J} S_i
+  \qquad (\text{\lean{partialFeasibilitySet}~$S$~$J$}),
+\]
+the set of hypotheses consistent with the information in $J$.  The
+assignment $J \mapsto \feas(J)$ is a presheaf on the poset
+$\mathcal{P}(I)$ (ordered by inclusion, mapping contravariantly): if
+$J \subseteq K$ then $\feas(K) \subseteq \feas(J)$, which is the
+information-monotonicity lemma
+\lean{partialFeasibilitySet\_antitone} already verified in
+\lean{Ste.Basic}.
+
+The new, machine-checked content of \lean{Ste.Sheaf} is that this
+presheaf satisfies the gluing condition exactly, with no sheafification
+needed.  The engine is the Formal Concept Analysis bridge of
+\lean{Ste.HyperFrame} \citep{ganter1999fca}: partial feasibility is
+definitionally the lower polar of the satisfaction context
+(\lean{partialFeasibilitySet\_eq\_lowerPolar}), and polars turn unions
+into intersections.
+
+\begin{theorem}[\lean{partialFeasibilitySet\_iUnion}]
+For any family $\mathcal{J} : \kappa \to \mathcal{P}(I)$ of constraint
+subsets,
+\[
+  \feas\Bigl(\bigcup_{k} \mathcal{J}_k\Bigr)
+  \;=\; \bigcap_{k} \feas(\mathcal{J}_k).
+\]
+\end{theorem}
+
+\begin{theorem}[\lean{feasibilitySet\_eq\_iInter\_cover}]
+If $\bigcup_k \mathcal{J}_k = I$ is any cover of the constraint index,
+then the global feasible set is the intersection of the local ones:
+\[
+  \feas(I) \;=\; \bigcap_{k} \feas(\mathcal{J}_k).
+\]
+\end{theorem}
+
+In sheaf language: the functor $\feas$ sends colimits (unions) of
+constraint sets to limits (intersections) of feasible sets, so
+\emph{local consistency data over any cover glues uniquely to the
+global feasible set}.  On the constraint side of the Galois connection
+there is no obstruction whatsoever---this is a theorem, not a
+heuristic.  Whatever makes STE hard does not live here.
+
+\section{The tractable upper bound: rectangular constraints}
+
+Where the hardness \emph{can} live is the variable side.  Take
+$\Xii = \prod_{v \in V} A_v$.  Call a constraint \emph{rectangular}
+(variable-separable, a cylinder in every coordinate) if it has the form
+$\prod_{v} P_v$ for some family of per-variable sets
+$P_v \subseteq A_v$---in Lean, $\lean{Set.univ.pi}\;P$.  A rectangular
+constraint inspects each variable independently; it couples nothing.
+
+\begin{theorem}[\lean{rectangular\_feasibilitySet}]
+If every constraint is rectangular, $S_i = \prod_v P_{i,v}$, then the
+feasible set is itself the rectangle whose $v$-th side is the pointwise
+intersection:
+\[
+  \bigcap_{i} \prod_{v} P_{i,v}
+  \;=\; \prod_{v} \Bigl(\bigcap_{i} P_{i,v}\Bigr).
+\]
+\end{theorem}
+
+This is the representation theorem for the easy case: a fully
+variable-separable STE problem is represented \emph{exactly} by one
+subset per variable.  The representation lives in
+$\sum_{v} |A_v|$ space---linear in the number of variables---never in
+the $\prod_v |A_v|$ product space.  The $2^N$ wall does not exist for
+rectangular constraint families.
+
+The cardinality statement is checked as well, in terms of Mathlib's
+extended natural cardinality $\mathrm{encard}$ (which handles infinite
+sides gracefully):
+
+\begin{theorem}[\lean{rectangular\_encard}]
+For a finite variable set $V$ (\lean{Fintype}~$V$),
+\[
+  \Bigl|\bigcap_i \textstyle\prod_v P_{i,v}\Bigr|
+  \;=\; \prod_{v \in V} \Bigl|\bigcap_i P_{i,v}\Bigr|,
+\]
+as extended cardinals.
+\end{theorem}
+
+So in the separable case even the \emph{size} of the feasible set is a
+product of locally-computable sizes: consistency checking, counting,
+and sampling all decompose per-variable.  This is the STE incarnation
+of the trivial end of CSP tractability: a constraint network with no
+edges is backtrack-free \citep{freuder1982backtrack}.
+
+\section{The obstruction: coupling is not rectangular}
+
+The lower bound is a single, minimal counterexample.  Let the
+hypothesis space be two binary variables, $\Xii = (\mathrm{Fin}\,2 \to
+\mathrm{Bool})$, and consider the \emph{diagonal} (coupling,
+equality) constraint
+\[
+  \Delta \;=\; \{\, f \mid f(0) = f(1) \,\}
+  \qquad (\text{\lean{diagonal}}).
+\]
+
+\begin{theorem}[\lean{diagonal\_not\_rectangular}]
+There is no family $t : \mathrm{Fin}\,2 \to
+\mathcal{P}(\mathrm{Bool})$ with $\Delta = \prod_v t_v$.
+\end{theorem}
+
+The proof is the two-line contextuality argument: $(0,0) \in \Delta$
+and $(1,1) \in \Delta$, so any rectangle containing $\Delta$ has
+$0 \in t_0$ and $1 \in t_1$, hence contains the mixed point $(0,1)$
+---which violates the coupling.  The local (per-variable) data of
+$\Delta$ is \emph{full}: projected to either coordinate, everything is
+possible.  The constraint is invisible locally and exists only
+jointly.
+
+This is precisely the elementary form of the sheaf-theoretic
+obstruction of Abramsky and Brandenburger \citep{abramsky2011sheaf}:
+a family of perfectly consistent local sections (here: both values
+possible at each variable) that admits no factorization through a
+product---the ``global section'' data is not determined by, and not
+recoverable from, the per-variable marginals.  In cohomological
+terms (made precise only in the outlook below), the diagonal carries a
+nonzero \v{C}ech gluing class relative to the cover of $V$ by
+singletons.
+
+It is also, structurally, the same countermodel this project already
+uses for a different purpose: \lean{Ste.DynamicFrame.Counterexample}
+refutes transitivity of possible-coreference
+(\lean{maySame\_not\_transitive}) with a three-world model in which
+pairwise-consistent local identifications fail to assemble into a
+global one.  Pairwise consistency without global consistency is the
+one phenomenon, seen twice.
+
+Consequences for representation: since rectangles are closed under
+intersection (\lean{rectangular\_feasibilitySet} again), no family of
+rectangular constraints can ever express $\Delta$.  Coupling
+constraints are therefore \emph{exactly} the constraints that force
+representations beyond $\sum$-space; the $2^N$ wall of
+\lean{card\_allExactStates} is built out of them.
+
+\section{Block decomposition: $\sum$ across blocks, $\prod$ within}
+
+The module \lean{Ste.Decomposition} proves the first positive
+decomposition result beyond full separability.  Suppose the hypothesis
+space splits into two blocks, $\Xii = X \times Y$, and the constraint
+family is indexed by a disjoint union $I = \iota \sqcup \kappa$ where
+$\iota$-constraints depend only on the $X$ coordinate and
+$\kappa$-constraints only on $Y$ (in Lean, \lean{blockFamily}~$C$~$D$
+takes preimages under the two projections).
+
+\begin{theorem}[\lean{feasibilitySet\_blockFamily}]
+For any block families $C : \iota \to \mathcal{P}(X)$ and
+$D : \kappa \to \mathcal{P}(Y)$,
+\[
+  \feas(\mathrm{blockFamily}\;C\;D)
+  \;=\; \feas(C) \times \feas(D).
+\]
+\end{theorem}
+
+\begin{theorem}[\lean{encard\_feasibilitySet\_blockFamily},
+\lean{encard\_feasibilitySet\_blockFamily\_le}]
+Consequently the representation cost multiplies,
+$|\feas(\mathrm{blockFamily}\;C\;D)| = |\feas(C)| \cdot |\feas(D)|$
+as extended cardinals, and is bounded by $|X| \cdot |Y|$.
+\end{theorem}
+
+Iterated, this is the $\sum$-across-blocks, $\prod$-within-block law:
+when the constraint hypergraph is disconnected, the exponential lives
+only inside each connected component.  The question becomes: what
+counts as a block, and what dissolves coupling between blocks?  Both
+answers need a machine-checked notion of \emph{which variables a
+constraint actually touches}.
+
+\section{Support: the scope of a constraint}
+
+The module \lean{Ste.Support} defines, for a constraint
+$T \subseteq \prod_v A_v$ and a set of variables
+$\sigma \subseteq V$, the predicate \lean{HasSupport}~$T$~$\sigma$:
+any two assignments agreeing on $\sigma$ are both in or both out of
+$T$.  This is the scope of a constraint in the CSP sense
+\citep{dechter2003constraint}, i.e.\ the hypergraph edge on which the
+constraint sits.  Verified basic theory: supports are monotone
+(\lean{HasSupport.mono}), every constraint is supported on $V$
+(\lean{hasSupport\_univ}), support $\emptyset$ holds exactly for the
+trivial constraints $\Xii$ and $\emptyset$
+(\lean{hasSupport\_empty\_iff}) --- scope-free information is no
+information --- rectangles are supported on their non-trivial
+coordinates (\lean{hasSupport\_pi}), and supports are stable under
+intersection, so a family with common scope $\sigma$ has feasible set
+with scope $\sigma$ (\lean{HasSupport.inter},
+\lean{hasSupport\_feasibilitySet}).
+
+The payoff is a sharpening of the coupling obstruction of
+Section~4 from ``not rectangular'' to ``scope provably $\{0,1\}$'':
+
+\begin{theorem}[\lean{diagonal\_support\_full},
+\lean{diagonal\_hasSupport\_pair}]
+Every support of the diagonal $\Delta$ contains both variables, and
+$\{0,1\}$ is a support; hence the scope of $\Delta$ is exactly
+$\{0,1\}$.  In particular $\Delta$ has no support $\emptyset$,
+$\{0\}$, or $\{1\}$
+(\lean{diagonal\_not\_hasSupport\_empty},
+\lean{diagonal\_not\_hasSupport\_zero},
+\lean{diagonal\_not\_hasSupport\_one}).
+\end{theorem}
+
+Where \lean{diagonal\_not\_rectangular} says $\Delta$ is not a product
+of per-variable data, this says more: no proper subset of the
+variables suffices to decide membership.  The coupling core is
+genuinely two-variable --- it is an irreducible edge of the constraint
+hypergraph.
+
+\section{Conditioning: variable elimination, machine-checked}
+
+The module \lean{Ste.Conditioning} mechanizes the elimination step of
+bucket elimination \citep{dechter2003constraint}: conditioning a
+constraint $T$ on fixing one coordinate $v := a$,
+\[
+  \mathrm{cond}(T, v, a) \;=\;
+  \{\, f \mid f[v \mapsto a] \in T \,\}
+  \qquad (\text{\lean{condition}}).
+\]
+Machine-checked facts:
+
+\begin{theorem}[\lean{condition\_feasibilitySet}]
+Conditioning commutes with feasibility:
+$\mathrm{cond}(\feas(S), v, a) = \feas(i \mapsto
+\mathrm{cond}(S_i, v, a))$.  Elimination may be performed
+constraint-by-constraint.
+\end{theorem}
+
+\begin{theorem}[\lean{HasSupport.condition}]
+Elimination shrinks scopes: if $T$ has support $\sigma$ then
+$\mathrm{cond}(T, v, a)$ has support $\sigma \setminus \{v\}$.  The
+eliminated variable leaves the constraint hypergraph.
+\end{theorem}
+
+\begin{theorem}[\lean{condition\_pi};
+\lean{condition\_condition\_self}, \lean{condition\_condition\_comm}]
+The rectangular class is closed under conditioning on a feasible
+value (the $v$-th side becomes trivial), and elimination is
+idempotent per variable and commutes across distinct variables ---
+the elimination order is immaterial.
+\end{theorem}
+
+\begin{theorem}[\lean{condition\_diagonal\_rectangular},
+\lean{condition\_diagonal\_hasSupport\_one}]
+Conditioning the diagonal on either value of variable $0$ yields a
+\emph{rectangular} constraint of scope $\{1\}$ --- although the
+diagonal itself is provably not rectangular and provably has no
+support $\{1\}$.  Fixing one variable of the coupling core moves it
+from the intractable class to the tractable one.
+\end{theorem}
+
+Finally, the cut-variable theorem connects elimination to the block
+decomposition of Section~5.  Say the family $S$ is a \emph{block
+family} for the partition $\{\sigma, \sigma^{\mathsf{c}}\}$ if every
+constraint has support inside $\sigma$ or inside
+$\sigma^{\mathsf{c}}$; and say $v$ is a \emph{cut variable} if every
+constraint has support inside $\sigma \cup \{v\}$ or
+$\sigma^{\mathsf{c}} \cup \{v\}$ --- the two sides interact only
+through $v$.
+
+\begin{theorem}[\lean{piecewise\_mem\_feasibilitySet}]
+The feasible set of a block family is closed under block-wise
+recombination: if $f, g \in \feas(S)$ then the splice
+$\sigma.\mathrm{piecewise}\,f\,g$ (equal to $f$ on $\sigma$, to $g$
+off $\sigma$) is again in $\feas(S)$.  This is the pi-space form of
+``$\feas(S)$ is a product of two independent subproblems''
+(cf.\ \lean{feasibilitySet\_blockFamily}).
+\end{theorem}
+
+\begin{theorem}[\lean{condition\_cut\_blocks},
+\lean{piecewise\_mem\_condition\_feasibilitySet}]
+Conditioning on a cut variable disconnects the problem: after fixing
+$v := a$, every conditioned constraint has support inside a single
+block, and the conditioned feasible set
+$\mathrm{cond}(\feas(S), v, a)$ is closed under block-wise
+recombination.
+\end{theorem}
+
+This is variable elimination confining the exponential: eliminating a
+cut vertex of the constraint hypergraph splits the remaining problem
+into independent subproblems, each paying only its own product cost.
+The next section makes the cut theorem general and the cost per bag
+quantitative.
+
+\section{Cut elimination and treewidth: the bag invariant}
+
+The module \lean{Ste.Treewidth} proves, over an abstract variable type
+$V$ with alphabets $A_v$, the two accounting facts that underlie
+treewidth bounds \citep{dechter2003constraint}, then the quantitative
+per-bag cost.
+
+\subsection*{Scope accounting}
+
+\begin{theorem}[\lean{HasSupport.inter\_union};
+\lean{HasSupport.iInter}]
+Joins union scopes: if $T$ has support $\sigma$ and $U$ has support
+$\tau$, then $T \cap U$ has support $\sigma \cup \tau$; for a family,
+$\bigcap_i T_i$ has support $\bigcup_i \sigma_i$.
+\end{theorem}
+
+\begin{theorem}[\lean{condition\_inter}]
+Conditioning distributes over intersection:
+$\mathrm{cond}(T \cap U, v, a) = \mathrm{cond}(T, v, a) \cap
+\mathrm{cond}(U, v, a)$.  Elimination commutes with joining.
+\end{theorem}
+
+With \lean{HasSupport.condition} (elimination removes $v$ from every
+scope), the scope of an intermediate table of bucket elimination is
+$(\bigcup_i \sigma_i) \setminus \{v\}$ --- the \emph{bag} of the step.
+
+\subsection*{Cut elimination, general form}
+
+\begin{theorem}[\lean{cut\_elimination}]
+If $T, U$ have supports $\sigma, \tau$ with $\sigma \cap \tau
+\subseteq \{v\}$ (the constraints share only the cut variable $v$),
+then for any value $a$ the conditioned constraints
+$\mathrm{cond}(T, v, a)$, $\mathrm{cond}(U, v, a)$ have
+\emph{disjoint} supports $\sigma \setminus \{v\}$ and
+$\tau \setminus \{v\}$.
+\end{theorem}
+
+\begin{theorem}[\lean{inter\_nonempty\_iff\_of\_disjoint\_support};
+\lean{condition\_inter\_nonempty\_iff}]
+Disjoint scopes make joint feasibility independent: for supports
+$\sigma \perp \tau$, $T \cap U \neq \emptyset$ iff $T \neq \emptyset$
+and $U \neq \emptyset$ (splice the witnesses along $\sigma$).
+Consequently, if $T, U$ share only the cut variable $v$, then after
+conditioning on $v$ the joint problem is satisfiable iff each side is
+satisfiable separately.  This is the pi-space form of the block
+product \lean{feasibilitySet\_blockFamily}: fixing a cut variable
+dissolves the join into independent checks.
+\end{theorem}
+
+\subsection*{The bag bound}
+
+For a scope $\sigma \subseteq V$, the \emph{table} of a constraint $T$
+is its restriction image
+$\mathrm{table}(\sigma, T) = \{\, f|_\sigma \mid f \in T \,\}$
+(\lean{table}) --- the relation bucket elimination materializes.
+
+\begin{theorem}[\lean{HasSupport.eq\_preimage\_table}]
+A constraint with support $\sigma$ is the preimage of its
+$\sigma$-table: the table is a faithful representation, losing no
+information.
+\end{theorem}
+
+\begin{theorem}[\lean{table\_encard\_le};
+\lean{table\_encard\_le\_pow}]
+For finite $\sigma$ and finite alphabets, the table of \emph{any}
+constraint satisfies
+$|\mathrm{table}(\sigma, T)| \le \prod_{v \in \sigma} |A_v|$; if
+moreover $|A_v| \le k$ for all $v$ and $|\sigma| \le w + 1$, then
+$|\mathrm{table}(\sigma, T)| \le k^{w+1}$.
+\end{theorem}
+
+\begin{theorem}[\lean{elimination\_step}]
+The elimination step of bucket elimination---join constraints with
+scopes $\sigma_i$, then eliminate $v$---produces a constraint that
+(i) has support the bag $(\bigcup_i \sigma_i) \setminus \{v\}$,
+(ii) equals the preimage of its bag table, and (iii) has bag table of
+at most $k^{w+1}$ rows whenever the bag has at most $w+1$ variables
+over alphabets of size at most $k$.
+\end{theorem}
+
+This is the per-step space invariant of variable elimination: an
+elimination whose every bag stays within $w + 1$ variables never
+materializes more than $k^{w+1}$ rows at a step --- the induced-width
+cost $a^{w^* + 1}$ \citep{dechter2003constraint}.
+
+\subsection*{The elimination-order total-space bound}
+
+The global statement of bucket elimination sums the bag bound along a
+whole elimination \emph{order}.  Presenting the order by the list of
+its bags:
+
+\begin{theorem}[\lean{elimination\_order\_total\_bound}]
+Let $\mathrm{bags}$ be a list of finite bags, each of at most $w + 1$
+variables, over alphabets of size at most $k \ge 1$.  Then the total
+capacity of all bag tables satisfies
+\[
+\sum_{\sigma \in \mathrm{bags}} \; \prod_{v \in \sigma} |A_v|
+  \;\le\; |\mathrm{bags}| \cdot k^{w+1}.
+\]
+\end{theorem}
+
+\begin{theorem}[\lean{elimination\_order\_table\_total\_bound};
+\lean{table\_encard\_le\_pow\_finset}]
+For any list of realized steps $(\sigma_i, T_i)$ with
+$|\sigma_i| \le w + 1$, the \emph{actual} materialized sizes satisfy
+$\sum_i |\mathrm{table}(\sigma_i, T_i)| \le n \cdot k^{w+1}$ where $n$
+is the number of steps.
+\end{theorem}
+
+This is the honest ``bucket elimination runs in $n \cdot a^{w+1}$
+total space'' theorem, taking the order and its width as input.
+
+\section{Running the order: the elimination fold, machine-checked}
+
+The module \lean{Ste.Elimination} mechanizes \emph{running} a whole
+elimination order.  An order is a list of $(v, a_v)$ steps;
+\lean{eliminate} folds conditioning over it, and
+\lean{condition\_eq\_self} shows conditioning outside the scope is
+trivial (so a step only touches the bucket of its variable).
+
+\begin{theorem}[\lean{HasSupport.eliminate};
+\lean{mem\_eliminate\_iff}; \lean{eliminate\_eq\_univ\_or\_empty}]
+Running an order removes every eliminated variable from the support:
+the residue of a $\sigma$-supported constraint is supported on
+$\sigma \setminus \mathrm{eliminated}$.  Elimination is substitution:
+$f$ survives the fold iff $f$ overwritten with the eliminated values
+lies in the original constraint.  Hence a \emph{complete} order (one
+covering $\sigma$) leaves a decision: the residue is $\Xii$ or
+$\emptyset$.
+\end{theorem}
+
+The full data-structure fold operates on a list of constraints with
+finite scopes.  One \lean{bucketStep} at $(v,a)$ collects the bucket
+of constraints whose scope contains $v$, joins it --- the join is
+supported on the union of the scopes
+(\lean{hasSupport\_joinConstraint}) --- conditions on $v$, and keeps
+the rest untouched.
+
+\begin{theorem}[\lean{bucketEliminate\_support};
+\lean{bucketEliminate\_scope\_subset};
+\lean{joinConstraint\_bucketEliminate}]
+Along the whole run: every live constraint stays supported on its
+recorded scope; every live scope avoids all eliminated variables; and
+the joint constraint of the state is exactly the elimination fold of
+the original joint constraint --- the data structure is a faithful
+implementation of variable elimination.
+\end{theorem}
+
+\begin{theorem}[\lean{bucketEliminate\_decides}]
+Run a complete order --- one whose variables cover every initial
+scope.  Then every surviving constraint has empty scope, hence is
+$\Xii$ or $\emptyset$, and the joint residue --- the full elimination
+of the original joint constraint --- is itself $\Xii$ or $\emptyset$:
+bucket elimination terminates in a decision.
+\end{theorem}
+
+\begin{theorem}[\lean{bucketEliminate\_total\_space}]
+Let $\mathrm{bucketBags}$ trace the (bag, constraint) pair each step
+materializes ($n$ steps materialize $n$ tables,
+\lean{length\_bucketBags}, each faithfully tabled on its bag,
+\lean{bucketBags\_support} with
+\lean{HasSupport.eq\_preimage\_table}).  If every materialized bag has
+at most $w + 1$ variables --- the order has width $w$ on this instance
+--- then over alphabets of size at most $k$ the total size of all
+materialized tables is at most $n \cdot k^{w+1}$.
+\end{theorem}
+
+Together: a width-$w$ elimination order decides feasibility of the
+substituted problem in $n \cdot a^{w+1}$ total table space.  One
+honest caveat, stated plainly: \lean{condition} \emph{substitutes} a
+chosen value, so the fold decides the problem \emph{conditioned on the
+chosen values} $(a_v)$ (\lean{mem\_eliminate\_iff} makes this exact).
+The \emph{projective} step of bucket elimination --- existentially
+quantifying $v$ rather than substituting it, so that a single run
+decides unconditional feasibility --- is \emph{not yet proven}
+(outlook), as are: a tree-decomposition datatype with its
+junction-tree representation theorem, the existence of a
+minimum-width elimination order for a given hypergraph, and the
+\lean{encard} factorization of the conditioned feasible set through
+restriction maps (the quantitative analogue of
+\lean{encard\_feasibilitySet\_blockFamily}).
+
+\section{Outlook: the cohomological program (not proven)}
+
+\emph{Everything in this section is conjecture or programme.  None of
+it is machine-checked, and none of it should be cited as a result of
+this project.}
+
+\begin{conjecture}[Feasibility as a sheaf on a site over variables]
+Section~2 proved gluing over the \emph{constraint} poset.  The
+substantive open direction is the \emph{variable} side: assign to each
+subset $W \subseteq V$ of variables the set of partial assignments on
+$W$ consistent with all constraints whose support lies in $W$.  We
+conjecture this is a presheaf on a Grothendieck site over
+$\mathcal{P}(V)$ whose sheaf condition, relative to a cover of $V$ by
+constraint supports, holds precisely for the tractable fragments; the
+diagonal example shows the presheaf is not a sheaf for the singleton
+cover in general.
+\end{conjecture}
+
+\begin{conjecture}[$k$-consistency is higher gluing]
+Local ($k$-)consistency in the CSP sense
+\citep{freuder1982backtrack,dechter2003constraint}---every consistent
+assignment on $k-1$ variables extends to any $k$-th---should be
+exactly the statement that sections glue along the cover of $V$ by
+$k$-element subsets.  Freuder's theorem (strong $k$-consistency plus
+width $< k$ implies backtrack-free search) would then become: on
+covers refined enough for the treewidth, the presheaf \emph{is} a
+sheaf, and a global section is constructed greedily.
+\end{conjecture}
+
+\begin{conjecture}[$\check{H}^1$ measures intractability]
+Following \citet{abramsky2011sheaf}, the obstruction to a family of
+compatible local sections extending to a global one should be captured
+by a \v{C}ech cohomology class in $\check{H}^1$ of the support cover
+with coefficients in the (relative) presheaf of partial solutions; the
+class vanishes iff gluing succeeds.  The conjectured quantitative
+version: the difficulty of an STE instance---the size blow-up of its
+smallest exact representation---is controlled by the size of this
+obstruction, with rectangular families the $\check{H}^1 = 0$ case of
+Section~3 and the diagonal of Section~4 the minimal nonvanishing
+class.
+\end{conjecture}
+
+\begin{conjecture}[Tractability dichotomy]
+Bounded treewidth of the constraint (co)occurrence structure---or,
+conjecturally equivalent in this setting, bounded obstruction in the
+sense above---yields a polynomial-size glued representation
+(junction-tree style: rectangles over bags, glued along separators),
+and unbounded coupling reproduces the $2^N$ wall.  This would be the
+STE form of the classical CSP dichotomy between bounded-width
+tractability and general intractability
+\citep{dechter2003constraint}.
+\end{conjecture}
+
+What stands \emph{proven} against this programme: the fully separable
+case is exactly linear (\lean{rectangular\_feasibilitySet},
+\lean{rectangular\_encard}); one coupling suffices to leave it, and
+its scope is provably irreducible (\lean{diagonal\_not\_rectangular},
+\lean{diagonal\_support\_full}); disconnected blocks multiply
+(\lean{feasibilitySet\_blockFamily},
+\lean{encard\_feasibilitySet\_blockFamily}); eliminating a variable
+removes it from every scope (\lean{HasSupport.condition}); eliminating
+a \emph{cut} variable disconnects the residual problem into
+independent blocks with disjoint scopes
+(\lean{piecewise\_mem\_condition\_feasibilitySet},
+\lean{cut\_elimination}) whose joint feasibility factors into
+independent checks (\lean{condition\_inter\_nonempty\_iff}); every
+single elimination step is confined to its bag with table cost at most
+$\prod_{v \in \mathrm{bag}} |A_v| \le k^{w+1}$
+(\lean{elimination\_step}, \lean{table\_encard\_le}); a whole
+width-$w$ order of $n$ steps costs at most $n \cdot k^{w+1}$ total
+table space (\lean{elimination\_order\_total\_bound},
+\lean{bucketEliminate\_total\_space}); and the bucket-elimination fold
+itself is verified correct and terminating in a decision for the
+substituted problem (\lean{joinConstraint\_bucketEliminate},
+\lean{bucketEliminate\_decides})---the width-$1$ case of the
+conjectured dichotomy, plus its space accounting, plus a verified
+solver skeleton.  The constraint-side gluing
+(\lean{feasibilitySet\_eq\_iInter\_cover}) guarantees the difficulty
+is genuinely about variables, not about how information is indexed.
+Open in this direction: projective ($\exists$-)elimination, the
+quantitative \lean{encard} factorization of the conditioned feasible
+set over a partition, tree-decomposition existence and minimum-width
+orders, junction trees, and the full treewidth dichotomy.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
