@@ -137,4 +137,21 @@ theorem indisc_mem_iff {a b : Ξ} (hab : Indisc S a b) (J : Set I) :
   simp only [mem_partialFeasibilitySet_iff]
   exact ⟨fun h i hi => (hab i).1 (h i hi), fun h i hi => (hab i).2 (h i hi)⟩
 
+/-- **Signature fibers.**  Indiscernibility classes are exactly the
+fibers of the constraint-signature map `a ↦ upperPolar (sat S) {a}`:
+two hypotheses are indiscernible iff they have the same object intent in
+the hyperframe context.  Thus the Pawlak partition of `Ξ` is the
+pullback partition of the FCA object-intent map. -/
+theorem indisc_iff_upperPolar_singleton_eq {a b : Ξ} :
+    Indisc S a b ↔ upperPolar (sat S) {a} = upperPolar (sat S) {b} := by
+  constructor
+  · intro h
+    ext i
+    rw [mem_upperPolar_singleton, mem_upperPolar_singleton]
+    exact h i
+  · intro h i
+    have hi := Set.ext_iff.mp h i
+    rw [mem_upperPolar_singleton, mem_upperPolar_singleton] at hi
+    exact hi
+
 end STE
