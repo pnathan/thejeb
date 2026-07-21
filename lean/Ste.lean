@@ -22,3 +22,4 @@ import Ste.DynamicFrame.Lineage
 import Ste.DynamicFrame.AmbiguitySplit
 import Ste.Carlson
 import Ste.HyperFrame
+import Ste.Sheaf
