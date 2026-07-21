@@ -36,6 +36,7 @@ Concept Analysis*, 1999; Combettes 1993.
 -/
 import Mathlib.Data.Set.Card
 import Mathlib.Data.Fintype.Pi
+import Mathlib.Tactic.FinCases
 import Ste.HyperFrame
 
 namespace STE
@@ -120,7 +121,8 @@ theorem diagonal_not_rectangular :
     · simpa using hf0
     · simpa using ht1
   rw [← ht] at hmix
-  simp only [diagonal, Set.mem_setOf_eq] at hmix
-  simp at hmix
+  exact absurd
+    (show decide ((0 : Fin 2) = 1) = decide ((1 : Fin 2) = 1) from hmix)
+    (by decide)
 
 end STE
