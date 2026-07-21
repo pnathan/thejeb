@@ -30,6 +30,10 @@ materializes a table larger than `a^{w+1}` — is developed on top of
 Reference: R. Dechter, *Constraint Processing*, 2003 (bucket elimination,
 induced width); N. Robertson, P. D. Seymour, treewidth.
 -/
+import Mathlib.Data.ENat.Basic
+import Mathlib.Data.Fintype.BigOperators
+import Mathlib.Algebra.BigOperators.Ring.Finset
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Ste.Conditioning
 
 namespace STE
@@ -85,5 +89,56 @@ theorem cut_elimination {T U : Set (∀ v, A v)} {σ τ : Set V} (v : V)
       ∧ HasSupport (condition U v a) (τ \ {v})
       ∧ Disjoint (σ \ {v}) (τ \ {v}) :=
   ⟨hT.condition v a, hU.condition v a, sdiff_disjoint_of_cut hcut⟩
+
+/-! ### The bag table and its size bound -/
+
+/-- The **table** of a constraint on the scope `σ`: the image of `T`
+under restriction to the coordinates in `σ`.  This is the "relation
+table" bucket elimination materializes for a bag. -/
+def table (σ : Set V) (T : Set (∀ v, A v)) : Set (∀ v : σ, A (v : V)) :=
+  (fun f (v : σ) => f v) '' T
+
+/-- **A supported constraint is its table.**  If `T` has support `σ`,
+then `T` is exactly the preimage of its `σ`-table: the table is a
+*faithful* representation, losing no information.  Combined with
+`table_encard_le` this says a scope-`σ` constraint is representable in
+`∏ v ∈ σ, |A v|` rows. -/
+theorem HasSupport.eq_preimage_table {T : Set (∀ v, A v)} {σ : Set V}
+    (hT : HasSupport T σ) :
+    T = (fun f (v : σ) => f v) ⁻¹' table σ T := by
+  ext f
+  simp only [Set.mem_preimage, table, Set.mem_image]
+  constructor
+  · intro hf
+    exact ⟨f, hf, rfl⟩
+  · rintro ⟨g, hg, hgf⟩
+    exact (hT g f fun v hv => congrFun hgf ⟨v, hv⟩).mp hg
+
+/-- **The bag bound.**  The table of any constraint on a finite scope
+`σ` has at most `∏ v ∈ σ, |A v|` rows — the number of assignments to
+the bag.  This is the per-step space cost of bucket elimination. -/
+theorem table_encard_le (σ : Set V) [Fintype σ] [∀ v, Fintype (A v)]
+    (T : Set (∀ v, A v)) :
+    (table σ T).encard ≤ ∏ v : σ, (Fintype.card (A (v : V)) : ℕ∞) := by
+  have h1 : (table σ T).encard
+      ≤ (Set.univ : Set (∀ v : σ, A (v : V))).encard :=
+    Set.encard_mono (Set.subset_univ _)
+  rw [Set.encard_univ, ENat.card_eq_coe_fintype_card, Fintype.card_pi,
+    Nat.cast_prod] at h1
+  exact h1
+
+/-- **The uniform bag bound.**  Over alphabets of size at most `k ≥ 1`,
+a bag of at most `w + 1` variables has a table of at most `k ^ (w + 1)`
+rows: the `a^{w+1}` cost of induced width `w`. -/
+theorem table_encard_le_pow (σ : Set V) [Fintype σ] [∀ v, Fintype (A v)]
+    (T : Set (∀ v, A v)) {k w : ℕ} (hk : 0 < k)
+    (halpha : ∀ u : V, Fintype.card (A u) ≤ k)
+    (hbag : Fintype.card σ ≤ w + 1) :
+    (table σ T).encard ≤ ((k ^ (w + 1) : ℕ) : ℕ∞) := by
+  refine le_trans (table_encard_le σ T) ?_
+  rw [← Nat.cast_prod]
+  refine ENat.coe_le_coe.mpr (le_trans ?_ (Nat.pow_le_pow_right hk hbag))
+  rw [← Finset.card_univ]
+  exact Finset.prod_le_pow_card _ _ _ fun x _ => halpha x.1
 
 end STE
