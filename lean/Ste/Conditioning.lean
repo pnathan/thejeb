@@ -27,6 +27,7 @@ Main results:
 Reference: R. Dechter, "Bucket elimination: a unifying framework for
 reasoning," Artificial Intelligence 113 (1999); Freuder, JACM 1982.
 -/
+import Mathlib.Data.Set.Piecewise
 import Ste.Support
 import Ste.Sheaf
 
@@ -91,6 +92,81 @@ theorem condition_pi (P : ∀ v, Set (A v)) {v : V} {a : A v}
   · subst hwv
     simp [Function.update_self, ha]
   · rw [Function.update_of_ne hwv, Function.update_of_ne hwv]
+
+/-! ### Elimination algebra: idempotence and commutation -/
+
+/-- Re-conditioning on an already-eliminated variable is absorbed: the
+inner fixed value wins. -/
+@[simp]
+theorem condition_condition_self (T : Set (∀ v, A v)) (v : V)
+    (a b : A v) :
+    condition (condition T v a) v b = condition T v a := by
+  ext f
+  simp only [mem_condition_iff, Function.update_idem]
+
+/-- Conditioning on distinct variables commutes: the elimination order
+of distinct variables is immaterial. -/
+theorem condition_condition_comm (T : Set (∀ v, A v)) {v w : V}
+    (hvw : v ≠ w) (a : A v) (b : A w) :
+    condition (condition T v a) w b = condition (condition T w b) v a := by
+  ext f
+  simp only [mem_condition_iff, Function.update_comm hvw.symm]
+
+/-! ### Block recombination: cut variables disconnect the problem -/
+
+/-- **Feasible sets of block families recombine block-wise.**  If every
+constraint has support inside `σ` or inside `σᶜ` (no constraint couples
+the two blocks), splicing two feasible assignments along `σ` is again
+feasible — the pi-space form of `feasibilitySet_blockFamily`. -/
+theorem piecewise_mem_feasibilitySet {S : I → Set (∀ v, A v)}
+    {σ : Set V} [∀ u, Decidable (u ∈ σ)]
+    (hS : ∀ i, HasSupport (S i) σ ∨ HasSupport (S i) σᶜ)
+    {f g : ∀ v, A v} (hf : f ∈ feasibilitySet S)
+    (hg : g ∈ feasibilitySet S) :
+    σ.piecewise f g ∈ feasibilitySet S := by
+  rw [mem_feasibilitySet] at hf hg ⊢
+  intro i
+  rcases hS i with h | h
+  · exact (h f (σ.piecewise f g) fun u hu =>
+      (Set.piecewise_eq_of_mem σ f g hu).symm).mp (hf i)
+  · exact (h g (σ.piecewise f g) fun u hu =>
+      (Set.piecewise_eq_of_notMem σ f g hu).symm).mp (hg i)
+
+/-- **Conditioning on a cut variable splits every scope into a block.**
+If each constraint has support inside `σ ∪ {v}` or inside `σᶜ ∪ {v}`
+(the blocks talk only through `v`), then after conditioning on `v`
+every constraint has support inside a single block. -/
+theorem condition_cut_blocks {S : I → Set (∀ v, A v)} {σ : Set V}
+    {v : V}
+    (hS : ∀ i, HasSupport (S i) (σ ∪ {v}) ∨ HasSupport (S i) (σᶜ ∪ {v}))
+    (a : A v) (i : I) :
+    HasSupport (condition (S i) v a) σ
+      ∨ HasSupport (condition (S i) v a) σᶜ := by
+  rcases hS i with h | h
+  · refine Or.inl ((h.condition v a).mono fun u hu => ?_)
+    rcases hu with ⟨hu1 | hu1, hu2⟩
+    · exact hu1
+    · exact absurd hu1 hu2
+  · refine Or.inr ((h.condition v a).mono fun u hu => ?_)
+    rcases hu with ⟨hu1 | hu1, hu2⟩
+    · exact hu1
+    · exact absurd hu1 hu2
+
+/-- **Eliminating a cut variable disconnects the problem.**  If the
+blocks `σ`, `σᶜ` interact only through the cut variable `v`, the
+conditioned feasible set is closed under block-wise recombination:
+fixing `v := a` splits the residual problem into independent
+subproblems on `σ` and `σᶜ`. -/
+theorem piecewise_mem_condition_feasibilitySet {S : I → Set (∀ v, A v)}
+    {σ : Set V} {v : V} [∀ u, Decidable (u ∈ σ)]
+    (hS : ∀ i, HasSupport (S i) (σ ∪ {v}) ∨ HasSupport (S i) (σᶜ ∪ {v}))
+    (a : A v) {f g : ∀ v, A v}
+    (hf : f ∈ condition (feasibilitySet S) v a)
+    (hg : g ∈ condition (feasibilitySet S) v a) :
+    σ.piecewise f g ∈ condition (feasibilitySet S) v a := by
+  rw [condition_feasibilitySet] at hf hg ⊢
+  exact piecewise_mem_feasibilitySet (fun i => condition_cut_blocks hS a i)
+    hf hg
 
 /-! ### Eliminating a variable dissolves the coupling core -/
 
