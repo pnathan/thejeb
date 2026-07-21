@@ -217,6 +217,15 @@ Indiscernible hypotheses are co-feasible for every enforced constraint
 set $J$: $a \in \Phi_J \iff b \in \Phi_J$.
 \end{theorem}
 
+\begin{theorem}[signature fibers;
+\lean{STE.indisc\_iff\_upperPolar\_singleton\_eq}]
+$a$ and $b$ are indiscernible iff they have the same object intent:
+$\mathrm{upperPolar}(\mathrm{sat}\,S)\,\{a\} =
+ \mathrm{upperPolar}(\mathrm{sat}\,S)\,\{b\}$.  The Pawlak partition of
+$\Xi$ is thus exactly the pullback partition of the FCA object-intent
+map, tying Section~\ref{sec:hyperframe} and this section together.
+\end{theorem}
+
 The equivalence classes are the \emph{resolution floor} of the
 estimation problem: no subfamily of the available constraints can
 separate two indiscernible hypotheses, so every lower/upper (Pawlak)
