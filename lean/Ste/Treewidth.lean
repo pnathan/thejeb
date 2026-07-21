@@ -32,8 +32,10 @@ induced width); N. Robertson, P. D. Seymour, treewidth.
 -/
 import Mathlib.Data.ENat.Basic
 import Mathlib.Data.Fintype.BigOperators
+import Mathlib.Data.Fintype.Sets
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
+import Mathlib.Algebra.Order.BigOperators.Group.List
 import Ste.Conditioning
 
 namespace STE
@@ -167,6 +169,78 @@ theorem elimination_step {ι : Type*} {T : ι → Set (∀ v, A v)}
   ⟨(HasSupport.iInter h).condition v a,
     ((HasSupport.iInter h).condition v a).eq_preimage_table,
     table_encard_le_pow _ _ hk halpha hbag⟩
+
+/-! ### The elimination-order total-space bound
+
+`elimination_step` bounds ONE bucket.  The global statement of bucket
+elimination is about a whole elimination ORDER: `n` buckets of width
+`w` cost at most `n · a^{w+1}` total table space.  We present an order
+by the list of its bags. -/
+
+/-- **Bag bound, `Finset` scope.**  Over alphabets of size at most `k`,
+a bag given as a `Finset` of at most `w + 1` variables tables any
+constraint in at most `k ^ (w + 1)` rows. -/
+theorem table_encard_le_pow_finset (σ : Finset V) [∀ u, Fintype (A u)]
+    (T : Set (∀ v, A v)) {k w : ℕ} (hk : 0 < k)
+    (halpha : ∀ u : V, Fintype.card (A u) ≤ k)
+    (hbag : σ.card ≤ w + 1) :
+    (table (↑σ : Set V) T).encard ≤ ((k ^ (w + 1) : ℕ) : ℕ∞) := by
+  refine table_encard_le_pow (↑σ : Set V) T hk halpha ?_
+  calc Fintype.card (↑σ : Set V)
+      = σ.card := (Fintype.card_congr
+        (Equiv.subtypeEquivRight fun u => Finset.mem_coe)).trans
+        (Fintype.card_coe σ)
+    _ ≤ w + 1 := hbag
+
+/-- **The elimination-order total-space bound.**  An elimination order
+of width `w` presents its buckets as a list `bags` of bags, each of at
+most `w + 1` variables.  Over alphabets of size at most `k`, the total
+capacity of all bag tables — `∏ v ∈ σ, |A v|` rows for bag `σ`, the
+per-bag bound of `table_encard_le` — is at most
+`bags.length * k ^ (w + 1)`: bucket elimination along an order of
+width `w` runs in `n · a^{w+1}` total table space. -/
+theorem elimination_order_total_bound [∀ u, Fintype (A u)]
+    (bags : List (Finset V)) {k w : ℕ} (hk : 0 < k)
+    (halpha : ∀ u : V, Fintype.card (A u) ≤ k)
+    (hwidth : ∀ σ ∈ bags, σ.card ≤ w + 1) :
+    (bags.map fun σ => ∏ v ∈ σ, Fintype.card (A v)).sum
+      ≤ bags.length * k ^ (w + 1) := by
+  have hbound : ∀ x ∈ bags.map fun σ => ∏ v ∈ σ, Fintype.card (A v),
+      x ≤ k ^ (w + 1) := by
+    intro x hx
+    obtain ⟨σ, hσ, rfl⟩ := List.mem_map.mp hx
+    calc ∏ v ∈ σ, Fintype.card (A v)
+        ≤ k ^ σ.card := Finset.prod_le_pow_card σ _ k fun u _ => halpha u
+      _ ≤ k ^ (w + 1) := Nat.pow_le_pow_right hk (hwidth σ hσ)
+  calc (bags.map fun σ => ∏ v ∈ σ, Fintype.card (A v)).sum
+      ≤ (bags.map fun σ => ∏ v ∈ σ, Fintype.card (A v)).length
+          • k ^ (w + 1) := List.sum_le_card_nsmul _ _ hbound
+    _ = bags.length * k ^ (w + 1) := by
+        rw [List.length_map, nsmul_eq_mul, Nat.cast_id]
+
+/-- **The realized total-space bound.**  Run an elimination order whose
+steps materialize the (bag, constraint) pairs `steps`, every bag having
+at most `w + 1` variables.  The total number of rows actually
+materialized — the sum of the `encard`s of the per-step bag tables —
+is at most `steps.length · k ^ (w + 1)`.  Combined with
+`elimination_step`, an order of `n` buckets of width `w` decides the
+problem materializing at most `n · k^{w+1}` rows in total. -/
+theorem elimination_order_table_total_bound [∀ u, Fintype (A u)]
+    (steps : List (Finset V × Set (∀ v, A v))) {k w : ℕ} (hk : 0 < k)
+    (halpha : ∀ u : V, Fintype.card (A u) ≤ k)
+    (hwidth : ∀ p ∈ steps, p.1.card ≤ w + 1) :
+    (steps.map fun p => (table (↑p.1 : Set V) p.2).encard).sum
+      ≤ (steps.length : ℕ∞) * ((k ^ (w + 1) : ℕ) : ℕ∞) := by
+  have hbound : ∀ x ∈ steps.map fun p => (table (↑p.1 : Set V) p.2).encard,
+      x ≤ ((k ^ (w + 1) : ℕ) : ℕ∞) := by
+    intro x hx
+    obtain ⟨p, hp, rfl⟩ := List.mem_map.mp hx
+    exact table_encard_le_pow_finset p.1 p.2 hk halpha (hwidth p hp)
+  calc (steps.map fun p => (table (↑p.1 : Set V) p.2).encard).sum
+      ≤ (steps.map fun p => (table (↑p.1 : Set V) p.2).encard).length
+          • ((k ^ (w + 1) : ℕ) : ℕ∞) := List.sum_le_card_nsmul _ _ hbound
+    _ = (steps.length : ℕ∞) * ((k ^ (w + 1) : ℕ) : ℕ∞) := by
+        rw [List.length_map, nsmul_eq_mul]
 
 /-! ### Cut elimination dissolves joint feasibility -/
 
