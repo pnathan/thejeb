@@ -46,11 +46,22 @@ rectangle (\lean{diagonal\_not\_rectangular}).  This is the elementary
 form of the Abramsky--Brandenburger contextuality obstruction
 \citep{abramsky2011sheaf}, and the same shape as this project's
 non-transitivity countermodel
-(\lean{Ste.DynamicFrame.Counterexample}).  A clearly-labelled outlook
-sketches the unproven cohomological program: $k$-consistency as higher
-gluing, $\check{H}^1$ as the measure of intractability, and a
-treewidth-style tractability dichotomy
-\citep{freuder1982backtrack,dechter2003constraint}.
+(\lean{Ste.DynamicFrame.Counterexample}).  Three further Lean modules
+push toward decomposition: \lean{Ste.Decomposition} proves that
+disconnected constraint blocks give a product feasible set with
+multiplicative cost (\lean{feasibilitySet\_blockFamily},
+\lean{encard\_feasibilitySet\_blockFamily}); \lean{Ste.Support} gives
+constraints a scope and shows the diagonal's scope is exactly
+$\{0,1\}$ (\lean{diagonal\_support\_full}); and
+\lean{Ste.Conditioning} mechanizes variable elimination---conditioning
+commutes with feasibility, shrinks scopes, preserves rectangles, and,
+applied to a \emph{cut} variable, disconnects the problem into
+independent blocks
+(\lean{piecewise\_mem\_condition\_feasibilitySet}).  A
+clearly-labelled outlook sketches the unproven remainder:
+$k$-consistency as higher gluing, $\check{H}^1$ as the measure of
+intractability, junction trees, and a treewidth-style tractability
+dichotomy \citep{freuder1982backtrack,dechter2003constraint}.
 \end{abstract}
 
 \section{The problem: the $2^N$ wall}
@@ -223,6 +234,157 @@ constraints are therefore \emph{exactly} the constraints that force
 representations beyond $\sum$-space; the $2^N$ wall of
 \lean{card\_allExactStates} is built out of them.
 
+\section{Block decomposition: $\sum$ across blocks, $\prod$ within}
+
+The module \lean{Ste.Decomposition} proves the first positive
+decomposition result beyond full separability.  Suppose the hypothesis
+space splits into two blocks, $\Xii = X \times Y$, and the constraint
+family is indexed by a disjoint union $I = \iota \sqcup \kappa$ where
+$\iota$-constraints depend only on the $X$ coordinate and
+$\kappa$-constraints only on $Y$ (in Lean, \lean{blockFamily}~$C$~$D$
+takes preimages under the two projections).
+
+\begin{theorem}[\lean{feasibilitySet\_blockFamily}]
+For any block families $C : \iota \to \mathcal{P}(X)$ and
+$D : \kappa \to \mathcal{P}(Y)$,
+\[
+  \feas(\mathrm{blockFamily}\;C\;D)
+  \;=\; \feas(C) \times \feas(D).
+\]
+\end{theorem}
+
+\begin{theorem}[\lean{encard\_feasibilitySet\_blockFamily},
+\lean{encard\_feasibilitySet\_blockFamily\_le}]
+Consequently the representation cost multiplies,
+$|\feas(\mathrm{blockFamily}\;C\;D)| = |\feas(C)| \cdot |\feas(D)|$
+as extended cardinals, and is bounded by $|X| \cdot |Y|$.
+\end{theorem}
+
+Iterated, this is the $\sum$-across-blocks, $\prod$-within-block law:
+when the constraint hypergraph is disconnected, the exponential lives
+only inside each connected component.  The question becomes: what
+counts as a block, and what dissolves coupling between blocks?  Both
+answers need a machine-checked notion of \emph{which variables a
+constraint actually touches}.
+
+\section{Support: the scope of a constraint}
+
+The module \lean{Ste.Support} defines, for a constraint
+$T \subseteq \prod_v A_v$ and a set of variables
+$\sigma \subseteq V$, the predicate \lean{HasSupport}~$T$~$\sigma$:
+any two assignments agreeing on $\sigma$ are both in or both out of
+$T$.  This is the scope of a constraint in the CSP sense
+\citep{dechter2003constraint}, i.e.\ the hypergraph edge on which the
+constraint sits.  Verified basic theory: supports are monotone
+(\lean{HasSupport.mono}), every constraint is supported on $V$
+(\lean{hasSupport\_univ}), support $\emptyset$ holds exactly for the
+trivial constraints $\Xii$ and $\emptyset$
+(\lean{hasSupport\_empty\_iff}) --- scope-free information is no
+information --- rectangles are supported on their non-trivial
+coordinates (\lean{hasSupport\_pi}), and supports are stable under
+intersection, so a family with common scope $\sigma$ has feasible set
+with scope $\sigma$ (\lean{HasSupport.inter},
+\lean{hasSupport\_feasibilitySet}).
+
+The payoff is a sharpening of the coupling obstruction of
+Section~4 from ``not rectangular'' to ``scope provably $\{0,1\}$'':
+
+\begin{theorem}[\lean{diagonal\_support\_full},
+\lean{diagonal\_hasSupport\_pair}]
+Every support of the diagonal $\Delta$ contains both variables, and
+$\{0,1\}$ is a support; hence the scope of $\Delta$ is exactly
+$\{0,1\}$.  In particular $\Delta$ has no support $\emptyset$,
+$\{0\}$, or $\{1\}$
+(\lean{diagonal\_not\_hasSupport\_empty},
+\lean{diagonal\_not\_hasSupport\_zero},
+\lean{diagonal\_not\_hasSupport\_one}).
+\end{theorem}
+
+Where \lean{diagonal\_not\_rectangular} says $\Delta$ is not a product
+of per-variable data, this says more: no proper subset of the
+variables suffices to decide membership.  The coupling core is
+genuinely two-variable --- it is an irreducible edge of the constraint
+hypergraph.
+
+\section{Conditioning: variable elimination, machine-checked}
+
+The module \lean{Ste.Conditioning} mechanizes the elimination step of
+bucket elimination \citep{dechter2003constraint}: conditioning a
+constraint $T$ on fixing one coordinate $v := a$,
+\[
+  \mathrm{cond}(T, v, a) \;=\;
+  \{\, f \mid f[v \mapsto a] \in T \,\}
+  \qquad (\text{\lean{condition}}).
+\]
+Machine-checked facts:
+
+\begin{theorem}[\lean{condition\_feasibilitySet}]
+Conditioning commutes with feasibility:
+$\mathrm{cond}(\feas(S), v, a) = \feas(i \mapsto
+\mathrm{cond}(S_i, v, a))$.  Elimination may be performed
+constraint-by-constraint.
+\end{theorem}
+
+\begin{theorem}[\lean{HasSupport.condition}]
+Elimination shrinks scopes: if $T$ has support $\sigma$ then
+$\mathrm{cond}(T, v, a)$ has support $\sigma \setminus \{v\}$.  The
+eliminated variable leaves the constraint hypergraph.
+\end{theorem}
+
+\begin{theorem}[\lean{condition\_pi};
+\lean{condition\_condition\_self}, \lean{condition\_condition\_comm}]
+The rectangular class is closed under conditioning on a feasible
+value (the $v$-th side becomes trivial), and elimination is
+idempotent per variable and commutes across distinct variables ---
+the elimination order is immaterial.
+\end{theorem}
+
+\begin{theorem}[\lean{condition\_diagonal\_rectangular},
+\lean{condition\_diagonal\_hasSupport\_one}]
+Conditioning the diagonal on either value of variable $0$ yields a
+\emph{rectangular} constraint of scope $\{1\}$ --- although the
+diagonal itself is provably not rectangular and provably has no
+support $\{1\}$.  Fixing one variable of the coupling core moves it
+from the intractable class to the tractable one.
+\end{theorem}
+
+Finally, the cut-variable theorem connects elimination to the block
+decomposition of Section~5.  Say the family $S$ is a \emph{block
+family} for the partition $\{\sigma, \sigma^{\mathsf{c}}\}$ if every
+constraint has support inside $\sigma$ or inside
+$\sigma^{\mathsf{c}}$; and say $v$ is a \emph{cut variable} if every
+constraint has support inside $\sigma \cup \{v\}$ or
+$\sigma^{\mathsf{c}} \cup \{v\}$ --- the two sides interact only
+through $v$.
+
+\begin{theorem}[\lean{piecewise\_mem\_feasibilitySet}]
+The feasible set of a block family is closed under block-wise
+recombination: if $f, g \in \feas(S)$ then the splice
+$\sigma.\mathrm{piecewise}\,f\,g$ (equal to $f$ on $\sigma$, to $g$
+off $\sigma$) is again in $\feas(S)$.  This is the pi-space form of
+``$\feas(S)$ is a product of two independent subproblems''
+(cf.\ \lean{feasibilitySet\_blockFamily}).
+\end{theorem}
+
+\begin{theorem}[\lean{condition\_cut\_blocks},
+\lean{piecewise\_mem\_condition\_feasibilitySet}]
+Conditioning on a cut variable disconnects the problem: after fixing
+$v := a$, every conditioned constraint has support inside a single
+block, and the conditioned feasible set
+$\mathrm{cond}(\feas(S), v, a)$ is closed under block-wise
+recombination.
+\end{theorem}
+
+This is variable elimination confining the exponential: eliminating a
+cut vertex of the constraint hypergraph splits the remaining problem
+into independent subproblems, each paying only its own product cost.
+What is \emph{not} yet proven in this direction is the quantitative
+product form over pi types (an \lean{encard} factorization of the
+conditioned feasible set through restriction maps, the analogue of
+\lean{encard\_feasibilitySet\_blockFamily}), and everything iterated:
+junction trees, elimination orderings of width $> 1$, and the
+treewidth dichotomy.  Those remain in the outlook below.
+
 \section{Outlook: the cohomological program (not proven)}
 
 \emph{Everything in this section is conjecture or programme.  None of
@@ -276,14 +438,24 @@ tractability and general intractability
 \citep{dechter2003constraint}.
 \end{conjecture}
 
-What stands \emph{proven} against this programme are its two
-endpoints: the fully separable case is exactly linear
-(\lean{rectangular\_feasibilitySet}, \lean{rectangular\_encard}), and
-one coupling suffices to leave it
-(\lean{diagonal\_not\_rectangular})---with the constraint-side gluing
-(\lean{feasibilitySet\_eq\_iInter\_cover}) guaranteeing that the
-difficulty is genuinely about variables, not about how information is
-indexed.
+What stands \emph{proven} against this programme: the fully separable
+case is exactly linear (\lean{rectangular\_feasibilitySet},
+\lean{rectangular\_encard}); one coupling suffices to leave it, and
+its scope is provably irreducible (\lean{diagonal\_not\_rectangular},
+\lean{diagonal\_support\_full}); disconnected blocks multiply
+(\lean{feasibilitySet\_blockFamily},
+\lean{encard\_feasibilitySet\_blockFamily}); eliminating a variable
+removes it from every scope (\lean{HasSupport.condition}); and
+eliminating a \emph{cut} variable disconnects the residual problem
+into independent blocks
+(\lean{piecewise\_mem\_condition\_feasibilitySet})---the width-$1$
+case of the conjectured dichotomy.  The constraint-side gluing
+(\lean{feasibilitySet\_eq\_iInter\_cover}) guarantees the difficulty
+is genuinely about variables, not about how information is indexed.
+Open in this direction: the quantitative \lean{encard} factorization
+of the conditioned feasible set over a partition, junction trees over
+elimination orderings of width $> 1$, and the full treewidth
+dichotomy.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs}

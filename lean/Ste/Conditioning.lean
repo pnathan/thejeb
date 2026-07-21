@@ -70,6 +70,7 @@ theorem HasSupport.condition {T : Set (∀ v, A v)} {σ : Set V}
     HasSupport (condition T v a) (σ \ {v}) := by
   intro f g hfg
   refine hT _ _ fun w hw => ?_
+  show Function.update f v a w = Function.update g v a w
   by_cases hwv : w = v
   · subst hwv
     rw [Function.update_self, Function.update_self]
