@@ -4,6 +4,20 @@ Set theoretic estimation, mechanized.
 Root module: imports the whole development.
 -/
 import Ste.Basic
+import Ste.Algebra
+import Ste.Reduction
 import Ste.Topology
 import Ste.Convex
+import Ste.ConstraintGrammar
+import Ste.DynamicFrame
+import Ste.DynamicFrame.Laws
+import Ste.DynamicFrame.Counterexample
+import Ste.DynamicFrame.Support
+import Ste.DynamicFrame.Solver
+import Ste.DynamicFrame.PresheafGluing
+import Ste.DynamicFrame.FiniteSolver
+import Ste.DynamicFrame.RelationAlgebra
+import Ste.DynamicFrame.TruthLift
+import Ste.DynamicFrame.Lineage
+import Ste.DynamicFrame.AmbiguitySplit
 import Ste.Carlson
