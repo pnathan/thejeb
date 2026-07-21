@@ -3,7 +3,8 @@ Conditioning / variable elimination: the algorithmic step.
 
 `Ste.Support` gave constraints a scope; `Ste.Sheaf` showed the diagonal
 coupling has no small scope.  This file mechanizes the elimination step
-of bucket-/variable-elimination: *conditioning* a constraint on fixing
+of bucket elimination / variable elimination: *conditioning* a
+constraint on fixing
 one coordinate `v := a`.
 
 Main results:
