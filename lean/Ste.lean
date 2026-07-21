@@ -23,3 +23,4 @@ import Ste.DynamicFrame.AmbiguitySplit
 import Ste.Carlson
 import Ste.HyperFrame
 import Ste.Sheaf
+import Ste.Decomposition
