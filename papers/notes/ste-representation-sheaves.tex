@@ -46,22 +46,28 @@ rectangle (\lean{diagonal\_not\_rectangular}).  This is the elementary
 form of the Abramsky--Brandenburger contextuality obstruction
 \citep{abramsky2011sheaf}, and the same shape as this project's
 non-transitivity countermodel
-(\lean{Ste.DynamicFrame.Counterexample}).  Three further Lean modules
+(\lean{Ste.DynamicFrame.Counterexample}).  Four further Lean modules
 push toward decomposition: \lean{Ste.Decomposition} proves that
 disconnected constraint blocks give a product feasible set with
 multiplicative cost (\lean{feasibilitySet\_blockFamily},
 \lean{encard\_feasibilitySet\_blockFamily}); \lean{Ste.Support} gives
 constraints a scope and shows the diagonal's scope is exactly
-$\{0,1\}$ (\lean{diagonal\_support\_full}); and
+$\{0,1\}$ (\lean{diagonal\_support\_full});
 \lean{Ste.Conditioning} mechanizes variable elimination---conditioning
 commutes with feasibility, shrinks scopes, preserves rectangles, and,
 applied to a \emph{cut} variable, disconnects the problem into
 independent blocks
-(\lean{piecewise\_mem\_condition\_feasibilitySet}).  A
-clearly-labelled outlook sketches the unproven remainder:
+(\lean{piecewise\_mem\_condition\_feasibilitySet}); and
+\lean{Ste.Treewidth} proves the general cut-elimination theorem
+(\lean{cut\_elimination}), the join-scope accounting behind bucket
+elimination, and the quantitative \emph{bag bound}: the table of a
+constraint on a scope $\sigma$ has at most $\prod_{v \in \sigma}
+|A_v| \le k^{w+1}$ rows (\lean{table\_encard\_le},
+\lean{elimination\_step}).  A clearly-labelled outlook sketches the
+unproven remainder: multi-step elimination orders and junction trees,
 $k$-consistency as higher gluing, $\check{H}^1$ as the measure of
-intractability, junction trees, and a treewidth-style tractability
-dichotomy \citep{freuder1982backtrack,dechter2003constraint}.
+intractability, and a treewidth-style tractability dichotomy
+\citep{freuder1982backtrack,dechter2003constraint}.
 \end{abstract}
 
 \section{The problem: the $2^N$ wall}
@@ -378,12 +384,100 @@ recombination.
 This is variable elimination confining the exponential: eliminating a
 cut vertex of the constraint hypergraph splits the remaining problem
 into independent subproblems, each paying only its own product cost.
-What is \emph{not} yet proven in this direction is the quantitative
-product form over pi types (an \lean{encard} factorization of the
-conditioned feasible set through restriction maps, the analogue of
-\lean{encard\_feasibilitySet\_blockFamily}), and everything iterated:
-junction trees, elimination orderings of width $> 1$, and the
-treewidth dichotomy.  Those remain in the outlook below.
+The next section makes the cut theorem general and the cost per bag
+quantitative.
+
+\section{Cut elimination and treewidth: the bag invariant}
+
+The module \lean{Ste.Treewidth} proves, over an abstract variable type
+$V$ with alphabets $A_v$, the two accounting facts that underlie
+treewidth bounds \citep{dechter2003constraint}, then the quantitative
+per-bag cost.
+
+\subsection*{Scope accounting}
+
+\begin{theorem}[\lean{HasSupport.inter\_union};
+\lean{HasSupport.iInter}]
+Joins union scopes: if $T$ has support $\sigma$ and $U$ has support
+$\tau$, then $T \cap U$ has support $\sigma \cup \tau$; for a family,
+$\bigcap_i T_i$ has support $\bigcup_i \sigma_i$.
+\end{theorem}
+
+\begin{theorem}[\lean{condition\_inter}]
+Conditioning distributes over intersection:
+$\mathrm{cond}(T \cap U, v, a) = \mathrm{cond}(T, v, a) \cap
+\mathrm{cond}(U, v, a)$.  Elimination commutes with joining.
+\end{theorem}
+
+With \lean{HasSupport.condition} (elimination removes $v$ from every
+scope), the scope of an intermediate table of bucket elimination is
+$(\bigcup_i \sigma_i) \setminus \{v\}$ --- the \emph{bag} of the step.
+
+\subsection*{Cut elimination, general form}
+
+\begin{theorem}[\lean{cut\_elimination}]
+If $T, U$ have supports $\sigma, \tau$ with $\sigma \cap \tau
+\subseteq \{v\}$ (the constraints share only the cut variable $v$),
+then for any value $a$ the conditioned constraints
+$\mathrm{cond}(T, v, a)$, $\mathrm{cond}(U, v, a)$ have
+\emph{disjoint} supports $\sigma \setminus \{v\}$ and
+$\tau \setminus \{v\}$.
+\end{theorem}
+
+\begin{theorem}[\lean{inter\_nonempty\_iff\_of\_disjoint\_support};
+\lean{condition\_inter\_nonempty\_iff}]
+Disjoint scopes make joint feasibility independent: for supports
+$\sigma \perp \tau$, $T \cap U \neq \emptyset$ iff $T \neq \emptyset$
+and $U \neq \emptyset$ (splice the witnesses along $\sigma$).
+Consequently, if $T, U$ share only the cut variable $v$, then after
+conditioning on $v$ the joint problem is satisfiable iff each side is
+satisfiable separately.  This is the pi-space form of the block
+product \lean{feasibilitySet\_blockFamily}: fixing a cut variable
+dissolves the join into independent checks.
+\end{theorem}
+
+\subsection*{The bag bound}
+
+For a scope $\sigma \subseteq V$, the \emph{table} of a constraint $T$
+is its restriction image
+$\mathrm{table}(\sigma, T) = \{\, f|_\sigma \mid f \in T \,\}$
+(\lean{table}) --- the relation bucket elimination materializes.
+
+\begin{theorem}[\lean{HasSupport.eq\_preimage\_table}]
+A constraint with support $\sigma$ is the preimage of its
+$\sigma$-table: the table is a faithful representation, losing no
+information.
+\end{theorem}
+
+\begin{theorem}[\lean{table\_encard\_le};
+\lean{table\_encard\_le\_pow}]
+For finite $\sigma$ and finite alphabets, the table of \emph{any}
+constraint satisfies
+$|\mathrm{table}(\sigma, T)| \le \prod_{v \in \sigma} |A_v|$; if
+moreover $|A_v| \le k$ for all $v$ and $|\sigma| \le w + 1$, then
+$|\mathrm{table}(\sigma, T)| \le k^{w+1}$.
+\end{theorem}
+
+\begin{theorem}[\lean{elimination\_step}]
+The elimination step of bucket elimination---join constraints with
+scopes $\sigma_i$, then eliminate $v$---produces a constraint that
+(i) has support the bag $(\bigcup_i \sigma_i) \setminus \{v\}$,
+(ii) equals the preimage of its bag table, and (iii) has bag table of
+at most $k^{w+1}$ rows whenever the bag has at most $w+1$ variables
+over alphabets of size at most $k$.
+\end{theorem}
+
+This is the per-step space invariant of variable elimination: an
+elimination whose every bag stays within $w + 1$ variables never
+materializes more than $k^{w+1}$ rows at a step --- the induced-width
+cost $a^{w^* + 1}$ \citep{dechter2003constraint}.  \emph{Not yet
+proven} (outlook): the multi-step fold over an elimination
+\emph{order} (iterating \lean{elimination\_step} along an ordering and
+carrying the width invariant through the recursion), a
+tree-decomposition datatype with its junction-tree representation
+theorem, and the \lean{encard} factorization of the conditioned
+feasible set through restriction maps (the quantitative analogue of
+\lean{encard\_feasibilitySet\_blockFamily}).
 
 \section{Outlook: the cohomological program (not proven)}
 
@@ -445,17 +539,22 @@ its scope is provably irreducible (\lean{diagonal\_not\_rectangular},
 \lean{diagonal\_support\_full}); disconnected blocks multiply
 (\lean{feasibilitySet\_blockFamily},
 \lean{encard\_feasibilitySet\_blockFamily}); eliminating a variable
-removes it from every scope (\lean{HasSupport.condition}); and
-eliminating a \emph{cut} variable disconnects the residual problem
-into independent blocks
-(\lean{piecewise\_mem\_condition\_feasibilitySet})---the width-$1$
-case of the conjectured dichotomy.  The constraint-side gluing
-(\lean{feasibilitySet\_eq\_iInter\_cover}) guarantees the difficulty
-is genuinely about variables, not about how information is indexed.
-Open in this direction: the quantitative \lean{encard} factorization
-of the conditioned feasible set over a partition, junction trees over
-elimination orderings of width $> 1$, and the full treewidth
-dichotomy.
+removes it from every scope (\lean{HasSupport.condition}); eliminating
+a \emph{cut} variable disconnects the residual problem into
+independent blocks with disjoint scopes
+(\lean{piecewise\_mem\_condition\_feasibilitySet},
+\lean{cut\_elimination}) whose joint feasibility factors into
+independent checks (\lean{condition\_inter\_nonempty\_iff}); and every
+single elimination step is confined to its bag with table cost at most
+$\prod_{v \in \mathrm{bag}} |A_v| \le k^{w+1}$
+(\lean{elimination\_step}, \lean{table\_encard\_le})---the width-$1$
+case of the conjectured dichotomy, plus its per-step space bound.  The
+constraint-side gluing (\lean{feasibilitySet\_eq\_iInter\_cover})
+guarantees the difficulty is genuinely about variables, not about how
+information is indexed.  Open in this direction: the multi-step fold
+over an elimination ordering, the quantitative \lean{encard}
+factorization of the conditioned feasible set over a partition,
+junction trees, and the full treewidth dichotomy.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs}

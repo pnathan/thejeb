@@ -168,4 +168,41 @@ theorem elimination_step {ι : Type*} {T : ι → Set (∀ v, A v)}
     ((HasSupport.iInter h).condition v a).eq_preimage_table,
     table_encard_le_pow _ _ hk halpha hbag⟩
 
+/-! ### Cut elimination dissolves joint feasibility -/
+
+/-- **Disjoint scopes make joint feasibility independent.**  Two
+constraints with disjoint supports are jointly satisfiable iff each is
+satisfiable on its own: the splice of two separate witnesses along `σ`
+is a joint witness.  Pi-space counterpart of the block product
+`feasibilitySet_blockFamily`. -/
+theorem inter_nonempty_iff_of_disjoint_support {T U : Set (∀ v, A v)}
+    {σ τ : Set V} (hT : HasSupport T σ) (hU : HasSupport U τ)
+    (hdisj : Disjoint σ τ) :
+    (T ∩ U).Nonempty ↔ T.Nonempty ∧ U.Nonempty := by
+  constructor
+  · rintro ⟨f, hfT, hfU⟩
+    exact ⟨⟨f, hfT⟩, ⟨f, hfU⟩⟩
+  · classical
+    rintro ⟨⟨f, hf⟩, ⟨g, hg⟩⟩
+    refine ⟨σ.piecewise f g, ?_, ?_⟩
+    · exact (hT f (σ.piecewise f g) fun u hu =>
+        (Set.piecewise_eq_of_mem σ f g hu).symm).mp hf
+    · refine (hU g (σ.piecewise f g) fun u hu => ?_).mp hg
+      exact (Set.piecewise_eq_of_notMem σ f g
+        (Set.disjoint_right.mp hdisj hu)).symm
+
+/-- **Cut elimination, feasibility form.**  If `T` and `U` share only
+the cut variable `v`, then after conditioning on `v` the joint problem
+is satisfiable iff each conditioned constraint is satisfiable
+separately: eliminating a cut variable turns joint feasibility into
+independent per-block checks. -/
+theorem condition_inter_nonempty_iff {T U : Set (∀ v, A v)}
+    {σ τ : Set V} (v : V) (a : A v) (hT : HasSupport T σ)
+    (hU : HasSupport U τ) (hcut : σ ∩ τ ⊆ {v}) :
+    (condition (T ∩ U) v a).Nonempty
+      ↔ (condition T v a).Nonempty ∧ (condition U v a).Nonempty := by
+  rw [condition_inter]
+  exact inter_nonempty_iff_of_disjoint_support (hT.condition v a)
+    (hU.condition v a) (sdiff_disjoint_of_cut hcut)
+
 end STE
