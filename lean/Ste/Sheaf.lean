@@ -125,4 +125,59 @@ theorem diagonal_not_rectangular :
     (show decide ((0 : Fin 2) = 1) = decide ((1 : Fin 2) = 1) from hmix)
     (by decide)
 
+/-! ### The quantitative gap: 2 solutions, but rectangular hull of size 4 -/
+
+/-- The diagonal consists of exactly the two constant assignments. -/
+theorem diagonal_eq_pair :
+    diagonal = ({fun _ => false, fun _ => true} : Set (Fin 2 → Bool)) := by
+  ext f
+  simp only [diagonal, Set.mem_setOf_eq, Set.mem_insert_iff,
+    Set.mem_singleton_iff]
+  constructor
+  · intro hf
+    have hconst : f = fun _ => f 0 := funext fun v => by
+      fin_cases v
+      · rfl
+      · exact hf.symm
+    cases h0 : f 0
+    · exact Or.inl (by rw [hconst, h0])
+    · exact Or.inr (by rw [hconst, h0])
+  · rintro (rfl | rfl) <;> rfl
+
+/-- The coupling constraint has exactly two solutions. -/
+theorem diagonal_encard : diagonal.encard = 2 := by
+  rw [diagonal_eq_pair]
+  exact Set.encard_pair (fun h => by simpa using congrFun h 0)
+
+/-- Any rectangle containing the diagonal is the whole space: the best
+rectangular over-approximation of a coupling constraint carries zero
+information. -/
+theorem rectangle_superset_diagonal_eq_univ (t : Fin 2 → Set Bool)
+    (h : diagonal ⊆ Set.univ.pi t) : Set.univ.pi t = Set.univ := by
+  have h00 := h (show (fun _ => false) ∈ diagonal from rfl)
+  have h11 := h (show (fun _ => true) ∈ diagonal from rfl)
+  rw [Set.mem_univ_pi] at h00 h11
+  ext f
+  simp only [Set.mem_univ_pi, Set.mem_univ, iff_true]
+  intro v
+  cases hv : f v
+  · exact h00 v
+  · exact h11 v
+
+/-- The two-bit hypothesis space has four points. -/
+theorem encard_univ_two_bits :
+    (Set.univ : Set (Fin 2 → Bool)).encard = 4 := by
+  rw [Set.encard_univ, ENat.card_eq_coe_fintype_card,
+    show Fintype.card (Fin 2 → Bool) = 4 from by decide]
+  simp
+
+/-- **Quantitative obstruction gap.**  The diagonal has `encard 2`, but
+every rectangle containing it has `encard 4`: the tightest per-variable
+(linear) representation of a coupling constraint overshoots the true
+feasible set by a factor of two.  Together with `diagonal_encard` this
+measures the cost of forgetting the coupling. -/
+theorem rectangle_superset_diagonal_encard (t : Fin 2 → Set Bool)
+    (h : diagonal ⊆ Set.univ.pi t) : (Set.univ.pi t).encard = 4 := by
+  rw [rectangle_superset_diagonal_eq_univ t h, encard_univ_two_bits]
+
 end STE
