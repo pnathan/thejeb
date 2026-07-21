@@ -56,4 +56,15 @@ theorem encard_feasibilitySet_blockFamily (C : ι → Set X) (D : κ → Set Y) 
       = (feasibilitySet C).encard * (feasibilitySet D).encard := by
   rw [feasibilitySet_blockFamily, Set.encard_prod]
 
+/-- **Cost upper bound.**  The feasible set of a decoupled problem costs
+at most the product of the block sizes: the representation never pays for
+the full space `X × Y` beyond the product of its blocks, and any block
+whose feasible set is small caps the total accordingly. -/
+theorem encard_feasibilitySet_blockFamily_le (C : ι → Set X) (D : κ → Set Y) :
+    (feasibilitySet (blockFamily C D)).encard
+      ≤ (Set.univ : Set X).encard * (Set.univ : Set Y).encard := by
+  rw [encard_feasibilitySet_blockFamily]
+  exact mul_le_mul' (Set.encard_mono (Set.subset_univ _))
+    (Set.encard_mono (Set.subset_univ _))
+
 end STE
