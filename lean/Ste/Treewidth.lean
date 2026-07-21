@@ -141,4 +141,31 @@ theorem table_encard_le_pow (σ : Set V) [Fintype σ] [∀ v, Fintype (A v)]
   rw [← Finset.card_univ]
   exact Finset.prod_le_pow_card _ _ _ fun x _ => halpha x.1
 
+/-! ### The elimination step: the per-bag invariant of bucket elimination -/
+
+/-- **The elimination step of bucket elimination.**  Join a family of
+constraints with scopes `σ i` and eliminate the variable `v`.  The
+resulting constraint (i) lives on the *bag*
+`(⋃ i, σ i) \ {v}` — the union of the joined scopes minus the
+eliminated variable, (ii) is faithfully represented by its table on
+the bag, and (iii) if the bag has at most `w + 1` variables
+(elimination width `w`) over alphabets of size at most `k > 0`, that
+table has at most `k ^ (w + 1)` rows.  This is the per-step space
+invariant whose maximum over an elimination order is the induced-width
+cost `a^{w+1}` of variable elimination. -/
+theorem elimination_step {ι : Type*} {T : ι → Set (∀ v, A v)}
+    {σ : ι → Set V} (h : ∀ i, HasSupport (T i) (σ i)) (v : V) (a : A v)
+    [Fintype ((⋃ i, σ i) \ {v} : Set V)] [∀ u, Fintype (A u)]
+    {k w : ℕ} (hk : 0 < k) (halpha : ∀ u : V, Fintype.card (A u) ≤ k)
+    (hbag : Fintype.card ((⋃ i, σ i) \ {v} : Set V) ≤ w + 1) :
+    HasSupport (condition (⋂ i, T i) v a) ((⋃ i, σ i) \ {v})
+      ∧ condition (⋂ i, T i) v a
+          = (fun f (u : ((⋃ i, σ i) \ {v} : Set V)) => f u) ⁻¹'
+              table ((⋃ i, σ i) \ {v}) (condition (⋂ i, T i) v a)
+      ∧ (table ((⋃ i, σ i) \ {v}) (condition (⋂ i, T i) v a)).encard
+          ≤ ((k ^ (w + 1) : ℕ) : ℕ∞) :=
+  ⟨(HasSupport.iInter h).condition v a,
+    ((HasSupport.iInter h).condition v a).eq_preimage_table,
+    table_encard_le_pow _ _ hk halpha hbag⟩
+
 end STE
