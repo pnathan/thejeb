@@ -71,9 +71,17 @@ bucket-elimination fold on lists of scoped constraints is correct
 (\lean{joinConstraint\_bucketEliminate}), a complete order decides the
 substituted problem (\lean{bucketEliminate\_decides}), and a width-$w$
 run of $n$ steps materializes at most $n \cdot k^{w+1}$ rows in total
-(\lean{bucketEliminate\_total\_space}).  A clearly-labelled outlook
-sketches the unproven remainder: projective ($\exists$-)elimination,
-tree-decomposition existence and junction trees, $k$-consistency as
+(\lean{bucketEliminate\_total\_space}).  \lean{Ste.Treedecomp}
+discharges the width hypothesis: the \emph{induced treewidth} of an
+instance is defined as the least achievable elimination width, proven
+well-defined and \emph{attained} by a concrete optimal order
+(\lean{achievesWidth\_inducedTreewidth}), so some complete order
+decides the substituted problem in $n \cdot
+k^{\operatorname{tw}(B)+1}$ total table space \emph{unconditionally}
+(\lean{bucketEliminate\_treewidth\_bound}).  A clearly-labelled
+outlook sketches the unproven remainder: projective
+($\exists$-)elimination, the equivalence of elimination width with
+tree-decomposition treewidth and junction trees, $k$-consistency as
 higher gluing, $\check{H}^1$ as the measure of intractability, and a
 treewidth-style tractability dichotomy
 \citep{freuder1982backtrack,dechter2003constraint}.
@@ -572,11 +580,54 @@ The \emph{projective} step of bucket elimination --- existentially
 quantifying $v$ rather than substituting it, so that a single run
 decides unconditional feasibility --- is \emph{not yet proven}
 (outlook), as are: a tree-decomposition datatype with its
-junction-tree representation theorem, the existence of a
-minimum-width elimination order for a given hypergraph, and the
-\lean{encard} factorization of the conditioned feasible set through
-restriction maps (the quantitative analogue of
+junction-tree representation theorem, and the \lean{encard}
+factorization of the conditioned feasible set through restriction maps
+(the quantitative analogue of
 \lean{encard\_feasibilitySet\_blockFamily}).
+
+\subsection*{The width hypothesis discharged: induced treewidth}
+
+The width $w$ above is a hypothesis on the \emph{given} order.
+\lean{Ste.Treedecomp} removes it.  Say the instance $B$ \emph{achieves
+width $w$} (\lean{AchievesWidth}) if some complete elimination order
+--- one whose eliminated variables cover every scope --- materializes
+only bags of at most $w + 1$ variables on $B$.  Over a finite variable
+set with inhabited alphabets the predicate is satisfiable: the trivial
+order eliminating every variable once (\lean{elimAll}) is complete
+(\lean{eliminated\_elimAll}), and every bag it materializes is a
+finite set of variables, so every instance achieves width $|V|$
+(\lean{achievesWidth\_card}).
+
+\begin{theorem}[\lean{inducedTreewidth};
+\lean{achievesWidth\_inducedTreewidth}; \lean{inducedTreewidth\_le}]
+The \emph{induced treewidth} $\operatorname{tw}(B)$ of an instance $B$
+is the least achievable width.  It is well-defined (the minimum of a
+nonempty set of naturals, $\operatorname{tw}(B) \le |V|$ by
+\lean{inducedTreewidth\_le\_card}) and \emph{attained}: a concrete
+optimal elimination order realizes it.
+\end{theorem}
+
+\begin{theorem}[\lean{bucketEliminate\_treewidth\_bound}]
+For every instance $B$ of scoped constraints over alphabets of size at
+most $k$, there \emph{exists} a complete elimination order that
+decides the substituted joint constraint --- the elimination residue
+is $\Xii$ or $\emptyset$ --- while materializing at most $n \cdot
+k^{\operatorname{tw}(B)+1}$ total table rows, $n$ the length of the
+order.  The width hypothesis of \lean{bucketEliminate\_total\_space}
+is discharged: the bound holds at the instance's own attained induced
+treewidth, with no free width parameter.
+\end{theorem}
+
+Two honest limits of this discharge, stated plainly.  First, the
+substitution caveat above still applies: the run decides the problem
+\emph{conditioned on the chosen values}.  Second,
+$\operatorname{tw}(B)$ is elimination width (Dechter's induced width
+over all complete orders), and its equivalence with the
+tree-decomposition treewidth of the constraint hypergraph is
+\emph{not} mechanized (outlook); nor is any efficient computation of
+$\operatorname{tw}(B)$ claimed --- the optimal order is obtained by
+minimization over a nonempty set, and computing it is NP-hard in
+general.
 
 \section{Outlook: the cohomological program (not proven)}
 
@@ -654,13 +705,19 @@ itself is verified correct and terminating in a decision for the
 substituted problem (\lean{joinConstraint\_bucketEliminate},
 \lean{bucketEliminate\_decides})---the width-$1$ case of the
 conjectured dichotomy, plus its space accounting, plus a verified
-solver skeleton.  The constraint-side gluing
-(\lean{feasibilitySet\_eq\_iInter\_cover}) guarantees the difficulty
-is genuinely about variables, not about how information is indexed.
-Open in this direction: projective ($\exists$-)elimination, the
-quantitative \lean{encard} factorization of the conditioned feasible
-set over a partition, tree-decomposition existence and minimum-width
-orders, junction trees, and the full treewidth dichotomy.
+solver skeleton; and the width hypothesis is discharged: the induced
+treewidth of an instance is well-defined and attained by a concrete
+optimal order (\lean{achievesWidth\_inducedTreewidth}), yielding the
+unconditional $n \cdot k^{\operatorname{tw}(B)+1}$ decision-and-space
+bound (\lean{bucketEliminate\_treewidth\_bound}).  The
+constraint-side gluing (\lean{feasibilitySet\_eq\_iInter\_cover})
+guarantees the difficulty is genuinely about variables, not about how
+information is indexed.  Open in this direction: projective
+($\exists$-)elimination, the quantitative \lean{encard} factorization
+of the conditioned feasible set over a partition, the equivalence of
+elimination width with tree-decomposition treewidth, junction trees,
+efficient (or any) computation of $\operatorname{tw}(B)$, and the full
+treewidth dichotomy.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs}
