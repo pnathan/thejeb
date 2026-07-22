@@ -2,7 +2,7 @@ name: Lean
 
 on:
   push:
-    branches: [main, codex, research/hyperframes]
+    branches: [main, codex, "research/**"]
   pull_request:
   workflow_dispatch:
 
