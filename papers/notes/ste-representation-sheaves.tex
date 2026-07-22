@@ -17,6 +17,7 @@ Sheaves, Rectangles, and the Coupling Obstruction}
 \newcommand{\lean}[1]{\texttt{#1}}
 \newcommand{\feas}{\mathrm{feas}}
 \newcommand{\Xii}{\Xi}
+\newcommand{\bagof}[1]{\beta(#1)}
 
 \begin{document}
 \maketitle
@@ -622,12 +623,104 @@ Two honest limits of this discharge, stated plainly.  First, the
 substitution caveat above still applies: the run decides the problem
 \emph{conditioned on the chosen values}.  Second,
 $\operatorname{tw}(B)$ is elimination width (Dechter's induced width
-over all complete orders), and its equivalence with the
-tree-decomposition treewidth of the constraint hypergraph is
-\emph{not} mechanized (outlook); nor is any efficient computation of
-$\operatorname{tw}(B)$ claimed --- the optimal order is obtained by
-minimization over a nonempty set, and computing it is NP-hard in
-general.
+over all complete orders); its \emph{equivalence} with the
+tree-decomposition treewidth of the primal graph is now half
+mechanized --- the constructive inequality is machine-checked
+(next section), the converse remains outlook --- and no efficient
+computation of $\operatorname{tw}(B)$ is claimed: the optimal order is
+obtained by minimization over a nonempty set, and computing it is
+NP-hard in general.
+
+\section{The graph-treewidth bridge, machine-checked}
+
+The induced treewidth $\operatorname{tw}(B)$ of the previous section is
+defined operationally, through elimination orders.  Its classical
+counterpart is the Robertson--Seymour treewidth of the \emph{primal}
+(co-occurrence) graph $G_B$ --- vertices are variables, and $u \sim v$
+iff some scope of $B$ contains both.  The file \lean{Ste.GraphTreewidth}
+builds the graph side from scratch (Mathlib has \lean{SimpleGraph} but
+no tree decompositions) and proves one direction of the equivalence.
+
+A \lean{TreeDecomposition} of a graph $G$ is a list of bags with a
+strictly increasing parent function on positions, satisfying the three
+Robertson--Seymour axioms: every vertex lies in a bag
+(\lean{vertexCover}), every edge lies in a common bag
+(\lean{edgeCover}), and running intersection
+(\lean{runningIntersection}), stated in parent-closure form --- a vertex
+in bag $i$ and in some later bag lies in bag $\operatorname{parent}(i)$.
+For an increasing parent this is equivalent to the usual
+``bags containing a vertex form a connected subtree'': the parent-walk
+from any occurrence strictly climbs, stays among occurrences, and
+terminates at the topmost one, which is their common ancestor.  The
+width is the largest bag size minus one, and
+\[
+  \operatorname{treewidth}(G) \;:=\;
+  \inf\{\, w \mid \exists\,\text{tree decomposition of width} \le w \,\},
+\]
+well-defined and attained because the single-bag decomposition
+$[\,V\,]$ always exists over a finite vertex set
+(\lean{TreeDecomposition.single}, \lean{treewidth\_le\_card}).
+
+\begin{theorem}[\lean{primalGraph\_elimination\_cover}]
+For every instance $B$ over a finite variable set with inhabited
+alphabets there exists a list of bags that covers every variable and
+every primal edge of $B$, each of size at most
+$\operatorname{tw}(B) + 2$.
+\end{theorem}
+
+The bags are the \emph{elimination bags}: at each step of the optimal
+order, the recorded message scope $\bagof{v}$ together with the
+eliminated variable $v$ itself.  This is exactly the elimination clique
+$\{v\} \cup \operatorname{nbr}(v)$ of the induced graph.
+
+\begin{theorem}[\lean{treewidth\_primalGraph\_le}]
+For every instance $B$ over a finite variable set with inhabited
+alphabets,
+\[
+  \operatorname{treewidth}(G_B) \;\le\; \operatorname{tw}(B) + 1 .
+\]
+\end{theorem}
+
+The proof exhibits a genuine tree decomposition of $G_B$ --- all three
+axioms, running intersection included, discharged sorry-free.  The
+construction dedupes the optimal order to a repetition-free one with a
+sublist of bags (\lean{exists\_nodup\_order}, using that empty-scope
+constraints are \lean{InertLe} for elimination), pads it to eliminate
+every variable (the padding bags are empty, since the state is already
+decided), and builds the decomposition recursively
+(\lean{exists\_elim\_treeDecomposition}): the bag of each step is
+$\{v\} \cup \bagof{v}$, and its parent is a later bag containing its
+message scope.  Running intersection closes because a deduped order
+never re-eliminates a variable, so each eliminated variable appears in
+no bag above its own.
+
+\subsection*{The offset is exactly one, and it is not an artifact}
+$\operatorname{treewidth}(G_B) \le \operatorname{tw}(B) + 1$, not
+equality of the two symbols, because they count \emph{different} things
+by exactly one variable.  Our \lean{inducedTreewidth} records the
+\emph{message scope} $\bagof{v}$, which excludes the eliminated
+variable $v$; a Robertson--Seymour bag must include $v$ (otherwise the
+edges incident to $v$ are uncovered).  So the elimination bag is one
+larger than the message scope, and:
+\[
+  \max_v |\bagof{v}| \;=\; \operatorname{tw}(G_B)
+  \quad\text{(Dechter's induced width)},
+  \qquad
+  \operatorname{tw}(B) \;=\; \max_v |\bagof{v}| - 1 .
+\]
+Read symbolically: the quantity equal to graph treewidth is
+$\max_v |\bagof{v}|$ (the largest message scope), while our slack
+parameter \lean{inducedTreewidth} equals $\operatorname{tw}(G_B) - 1$
+for any coupled instance.  For a \emph{fixed} order the induced width is
+$\ge \operatorname{tw}(G_B)$ (GTE); minimized over orders they are equal
+--- the classical Bodlaender/Dechter theorem.  What is machine-checked
+here is the tractable half of that equality, in the honest direction:
+an elimination order of width $w$ yields a tree decomposition of width
+$\le w+1$.  The converse --- that no tree decomposition beats
+elimination, i.e.\ $\operatorname{tw}(G_B) \ge \operatorname{tw}(B)+1$
+--- is the deep half (it needs a simplicial-vertex / chordal-completion
+argument turning any decomposition into an order of no greater width)
+and remains outlook.
 
 \section{Outlook: the cohomological program (not proven)}
 
