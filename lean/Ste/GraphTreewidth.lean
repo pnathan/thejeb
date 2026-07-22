@@ -35,11 +35,16 @@ This file builds the graph-theoretic side of the bridge, from scratch
 * `primalGraph_elimination_cover`: the assembled unconditional
   statement — some list of bags covers every vertex and every primal
   edge of `B`, all bags of size at most `inducedTreewidth B + 2`.
-
-Outlook: the running-intersection property of `elimBags` (hence
-`treewidth (primalGraph B) ≤ inducedTreewidth B + 1`) is the remaining
-axiom of the elimination construction; it is developed on top of these
-pieces.
+* `InertLe`, `exists_nodup_order`: empty-scope constraints are inert
+  for bucket elimination, so duplicated elimination steps can be
+  dropped — every order dedupes with a sublist of its bags.
+* `exists_elim_treeDecomposition`: the recursive construction of the
+  full elimination tree decomposition, including the
+  running-intersection axiom, for duplicate-free complete orders.
+* `treewidth_primalGraph_le`: the headline bound
+  `treewidth (primalGraph B) ≤ inducedTreewidth B + 1` — graph
+  treewidth and bucket-elimination induced width measure the same
+  quantity, offset by the eliminated variable each bag carries.
 
 References: R. Dechter, *Constraint Processing*, 2003 (induced width,
 bucket elimination); N. Robertson, P. D. Seymour, *Graph minors II*
@@ -706,5 +711,290 @@ theorem bucketBags_fst_empty {order : List ((v : V) × A v)}
       rcases List.mem_cons.mp hq with rfl | hq
       · exact bucketHead_fst_eq_empty h
       · exact ih (bucketStep_scopes_empty p h) q hq
+
+/-! ### The elimination tree decomposition -/
+
+private theorem getD_mem_of_lt {α : Type*} :
+    ∀ {l : List α} {i : ℕ} {d : α}, i < l.length → l.getD i d ∈ l
+  | _ :: _, 0, _, _ => List.mem_cons_self
+  | a :: _, _ + 1, _, h =>
+      List.mem_cons_of_mem a (getD_mem_of_lt (Nat.lt_of_succ_lt_succ h))
+
+/-- Extend a parent function under a new bag at position `0`: the new
+bag's parent is `t + 1`; all other positions shift by one. -/
+def consParent (t : ℕ) (parent : ℕ → ℕ) : ℕ → ℕ
+  | 0 => t + 1
+  | i + 1 => parent i + 1
+
+@[simp] theorem consParent_zero (t : ℕ) (parent : ℕ → ℕ) :
+    consParent t parent 0 = t + 1 := rfl
+
+@[simp] theorem consParent_succ (t : ℕ) (parent : ℕ → ℕ) (i : ℕ) :
+    consParent t parent (i + 1) = parent i + 1 := rfl
+
+/-- **The elimination tree decomposition, recursively.**  Running a
+duplicate-free complete elimination order on a state `B` yields bags
+(one per elimination step — the message scope plus the eliminated
+variable — plus a terminal empty bag) and a parent function (each step
+points at the first later bag containing its message scope) satisfying
+all three tree-decomposition axioms for the primal graph of `B`,
+together with the bookkeeping invariants that drive the recursion:
+scope coverage (every live scope is inside some bag), provenance (bags
+contain only scope variables or order variables — this is what makes
+running intersection close: the eliminated variable never reappears),
+and width provenance (every bag is empty or a recorded message scope
+plus one variable). -/
+theorem exists_elim_treeDecomposition :
+    ∀ (order : List ((v : V) × A v))
+      (B : List (Finset V × Set (∀ v, A v))),
+      (order.map Sigma.fst).Nodup →
+      (∀ q ∈ B, (↑q.1 : Set V) ⊆ eliminated order) →
+      ∃ (bags : List (Finset V)) (parent : ℕ → ℕ),
+        bags.length = order.length + 1
+          ∧ (∀ i, i + 1 < bags.length → i < parent i)
+          ∧ (∀ i, i + 1 < bags.length → parent i < bags.length)
+          ∧ (∀ q ∈ B, ∃ i, i < bags.length ∧ q.1 ⊆ bags.getD i ∅)
+          ∧ (∀ u v : V, (primalGraph B).Adj u v →
+              ∃ b ∈ bags, u ∈ b ∧ v ∈ b)
+          ∧ (∀ x : V, x ∈ order.map Sigma.fst → ∃ b ∈ bags, x ∈ b)
+          ∧ (∀ b ∈ bags, ∀ x ∈ b,
+              (∃ q ∈ B, x ∈ q.1) ∨ x ∈ order.map Sigma.fst)
+          ∧ (∀ u : V, ∀ i j : ℕ, i < j → j < bags.length →
+              u ∈ bags.getD i ∅ → u ∈ bags.getD j ∅ →
+              u ∈ bags.getD (parent i) ∅)
+          ∧ (∀ b ∈ bags, b = ∅
+              ∨ ∃ q ∈ bucketBags order B, ∃ x : V, b = insert x q.1) := by
+  intro order
+  induction order with
+  | nil =>
+      intro B _ hcov
+      have hempty : ∀ q ∈ B, q.1 = ∅ := by
+        intro q hq
+        have h := hcov q hq
+        rwa [eliminated_nil, Set.subset_empty_iff, Finset.coe_eq_empty]
+          at h
+      refine ⟨[∅], id, rfl, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+      · intro i hi
+        simp only [List.length_cons, List.length_nil] at hi
+        omega
+      · intro i hi
+        simp only [List.length_cons, List.length_nil] at hi
+        omega
+      · intro q hq
+        refine ⟨0, Nat.zero_lt_one, ?_⟩
+        rw [hempty q hq]
+        exact Finset.empty_subset _
+      · intro u v huv
+        obtain ⟨_, q, hq, hu, _⟩ := huv
+        rw [hempty q hq] at hu
+        exact absurd hu (Finset.notMem_empty u)
+      · intro x hx
+        simp at hx
+      · intro b hb x hxb
+        rcases List.mem_cons.mp hb with rfl | hb
+        · exact absurd hxb (Finset.notMem_empty x)
+        · simp at hb
+      · intro u i j hij hjlen _ _
+        simp only [List.length_cons, List.length_nil] at hjlen
+        omega
+      · intro b hb
+        rcases List.mem_cons.mp hb with rfl | hb
+        · exact Or.inl rfl
+        · simp at hb
+  | cons p order ih =>
+      intro B hnd hcov
+      rw [List.map_cons, List.nodup_cons] at hnd
+      obtain ⟨hpnotin, hnd'⟩ := hnd
+      obtain ⟨bags', parent', hlen', hpg', hpl', hsc', hec', hvc',
+        hprov', hri', hwb'⟩ :=
+        ih (bucketStep p B) hnd' (bucketStep_cov p hcov)
+      obtain ⟨j0, hj0len, hj0sub⟩ :=
+        hsc' (bucketHead p B)
+          (by rw [bucketStep_eq]; exact List.mem_cons_self)
+      refine ⟨insert p.1 (bucketHead p B).1 :: bags',
+        consParent j0 parent', ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+      -- length
+      · simp only [List.length_cons, hlen']
+      -- parents grow
+      · intro i hi
+        simp only [List.length_cons] at hi
+        rcases i with _ | k
+        · simp only [consParent_zero]
+          omega
+        · simp only [consParent_succ]
+          have := hpg' k (by omega)
+          omega
+      -- parents stay in range
+      · intro i hi
+        simp only [List.length_cons] at hi ⊢
+        rcases i with _ | k
+        · simp only [consParent_zero]
+          omega
+        · simp only [consParent_succ]
+          have := hpl' k (by omega)
+          omega
+      -- scope coverage
+      · intro q hq
+        by_cases hp : p.1 ∈ q.1
+        · refine ⟨0, ?_, ?_⟩
+          · simp only [List.length_cons]
+            omega
+          · rw [List.getD_cons_zero]
+            intro x hx
+            exact mem_insert_erase (mem_joinScope.mpr
+              ⟨q, List.mem_filter.mpr ⟨hq, decide_eq_true hp⟩, hx⟩)
+        · obtain ⟨i, hilen, hisub⟩ := hsc' q (List.mem_cons_of_mem _
+            (List.mem_filter.mpr ⟨hq, decide_eq_true hp⟩))
+          refine ⟨i + 1, ?_, ?_⟩
+          · simp only [List.length_cons]
+            omega
+          · rw [List.getD_cons_succ]
+            exact hisub
+      -- edge coverage
+      · intro u v huv
+        obtain ⟨hune, q, hq, hu, hv⟩ := huv
+        by_cases hp : p.1 ∈ q.1
+        · have hqf : q ∈ B.filter fun r => p.1 ∈ r.1 :=
+            List.mem_filter.mpr ⟨hq, decide_eq_true hp⟩
+          exact ⟨insert p.1 (bucketHead p B).1, List.mem_cons_self,
+            mem_insert_erase (mem_joinScope.mpr ⟨q, hqf, hu⟩),
+            mem_insert_erase (mem_joinScope.mpr ⟨q, hqf, hv⟩)⟩
+        · have hq' : q ∈ bucketStep p B := List.mem_cons_of_mem _
+            (List.mem_filter.mpr ⟨hq, decide_eq_true hp⟩)
+          obtain ⟨b, hb, hub, hvb⟩ := hec' u v ⟨hune, q, hq', hu, hv⟩
+          exact ⟨b, List.mem_cons_of_mem _ hb, hub, hvb⟩
+      -- vertex coverage of the eliminated variables
+      · intro x hx
+        rw [List.map_cons] at hx
+        rcases List.mem_cons.mp hx with h1 | h1
+        · refine ⟨insert p.1 (bucketHead p B).1, List.mem_cons_self, ?_⟩
+          rw [h1]
+          exact Finset.mem_insert_self p.1 _
+        · obtain ⟨b, hb, hxb⟩ := hvc' x h1
+          exact ⟨b, List.mem_cons_of_mem _ hb, hxb⟩
+      -- provenance
+      · intro b hb x hxb
+        rcases List.mem_cons.mp hb with rfl | hb
+        · rcases Finset.mem_insert.mp hxb with rfl | hx
+          · refine Or.inr ?_
+            rw [List.map_cons]
+            exact List.mem_cons_self
+          · rw [bucketHead_fst] at hx
+            obtain ⟨r, hr, hxr⟩ :=
+              mem_joinScope.mp (Finset.mem_of_mem_erase hx)
+            exact Or.inl ⟨r, List.mem_of_mem_filter hr, hxr⟩
+        · rcases hprov' b hb x hxb with ⟨q, hq, hxq⟩ | hx
+          · rw [bucketStep_eq] at hq
+            rcases List.mem_cons.mp hq with rfl | hq
+            · rw [bucketHead_fst] at hxq
+              obtain ⟨r, hr, hxr⟩ :=
+                mem_joinScope.mp (Finset.mem_of_mem_erase hxq)
+              exact Or.inl ⟨r, List.mem_of_mem_filter hr, hxr⟩
+            · exact Or.inl ⟨q, List.mem_of_mem_filter hq, hxq⟩
+          · refine Or.inr ?_
+            rw [List.map_cons]
+            exact List.mem_cons_of_mem _ hx
+      -- running intersection
+      · intro u i j hij hjlen hui huj
+        simp only [List.length_cons] at hjlen
+        rcases i with _ | k
+        · rcases j with _ | m
+          · omega
+          · rw [List.getD_cons_zero] at hui
+            rw [List.getD_cons_succ] at huj
+            simp only [consParent_zero]
+            rw [List.getD_cons_succ]
+            have hm : m < bags'.length := by omega
+            have hune : u ≠ p.1 := by
+              intro heq
+              rcases hprov' _ (getD_mem_of_lt hm) u huj with
+                ⟨q, hq, hxq⟩ | hx
+              · exact bucketStep_not_mem_scope p B q hq (heq ▸ hxq)
+              · exact hpnotin (heq ▸ hx)
+            have hu' : u ∈ (bucketHead p B).1 := by
+              rcases Finset.mem_insert.mp hui with h | h
+              · exact absurd h hune
+              · exact h
+            exact hj0sub hu'
+        · rcases j with _ | m
+          · omega
+          · rw [List.getD_cons_succ] at hui huj
+            simp only [consParent_succ]
+            rw [List.getD_cons_succ]
+            exact hri' u k m (by omega) (by omega) hui huj
+      -- width provenance
+      · intro b hb
+        rcases List.mem_cons.mp hb with rfl | hb
+        · refine Or.inr ⟨bucketHead p B, ?_, p.1, rfl⟩
+          rw [bucketBags_cons]
+          exact List.mem_cons_self
+        · rcases hwb' b hb with h0 | ⟨q, hq, x, hx⟩
+          · exact Or.inl h0
+          · refine Or.inr ⟨q, ?_, x, hx⟩
+            rw [bucketBags_cons]
+            exact List.mem_cons_of_mem _ hq
+
+/-! ### The headline bound -/
+
+/-- **Treewidth of the primal graph is at most the induced treewidth
+plus one.**  Take an optimal complete elimination order
+(`achievesWidth_inducedTreewidth`), dedupe it (`exists_nodup_order` —
+the bags only shrink), pad it to eliminate every variable (`padOrder`
+— the extra bags are empty), and run the recursive construction
+(`exists_elim_treeDecomposition`).  Every bag of the resulting tree
+decomposition is a recorded message scope plus at most one variable,
+so its width is at most `inducedTreewidth B + 1`.  Combined with the
+attained minimum, bucket elimination and graph treewidth measure the
+same quantity, offset by the eliminated variable in each bag. -/
+theorem treewidth_primalGraph_le [Fintype V] [∀ v, Nonempty (A v)]
+    (B : List (Finset V × Set (∀ v, A v))) :
+    treewidth (primalGraph B) ≤ inducedTreewidth B + 1 := by
+  obtain ⟨order₀, hcov₀, hwidth₀⟩ := achievesWidth_inducedTreewidth B
+  obtain ⟨order₁, hnd₁, helim₁, hbags₁⟩ := exists_nodup_order order₀
+  have hcov₁ : ∀ q ∈ B, (↑q.1 : Set V) ⊆ eliminated order₁ := by
+    intro q hq
+    rw [helim₁]
+    exact hcov₀ q hq
+  have hnd : ((order₁ ++ padOrder order₁).map Sigma.fst).Nodup := by
+    rw [List.map_append, List.nodup_append']
+    refine ⟨hnd₁, ?_, ?_⟩
+    · rw [padOrder_map_fst]
+      exact (Finset.nodup_toList _).filter _
+    · intro x hx₁ hx₂
+      rw [padOrder_map_fst] at hx₂
+      exact of_decide_eq_true (List.mem_filter.mp hx₂).2 hx₁
+  have hcov : ∀ q ∈ B,
+      (↑q.1 : Set V) ⊆ eliminated (order₁ ++ padOrder order₁) := by
+    intro q hq
+    rw [eliminated_append]
+    exact (hcov₁ q hq).trans Set.subset_union_left
+  have hwidth : ∀ q ∈ bucketBags (order₁ ++ padOrder order₁) B,
+      q.1.card ≤ inducedTreewidth B + 1 := by
+    intro q hq
+    rw [bucketBags_append] at hq
+    rcases List.mem_append.mp hq with hq | hq
+    · exact hwidth₀ q ((hbags₁ B).subset hq)
+    · have h0 := bucketBags_fst_empty
+        (bucketEliminate_scopes_empty hcov₁) q hq
+      rw [h0, Finset.card_empty]
+      omega
+  obtain ⟨bags, parent, hlen, hpg, hpl, hsc, hec, hvc, hprov, hri, hwb⟩ :=
+    exists_elim_treeDecomposition (order₁ ++ padOrder order₁) B hnd hcov
+  have hvcover : ∀ v : V, ∃ b ∈ bags, v ∈ b := by
+    intro v
+    refine hvc v (mem_eliminated.mp ?_)
+    rw [eliminated_append_padOrder]
+    trivial
+  have hcard : ∀ b ∈ bags, b.card ≤ (inducedTreewidth B + 1) + 1 := by
+    intro b hb
+    rcases hwb b hb with rfl | ⟨q, hq, x, rfl⟩
+    · simp
+    · have h1 := hwidth q hq
+      have h2 := Finset.card_insert_le x q.1
+      omega
+  exact le_trans
+    (treewidth_le_width
+      ⟨bags, parent, hpg, hpl, hvcover, fun u v huv => hec u v huv, hri⟩)
+    (TreeDecomposition.width_le _ hcard)
 
 end STE
