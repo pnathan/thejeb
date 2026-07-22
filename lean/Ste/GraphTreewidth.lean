@@ -64,10 +64,12 @@ contains both. -/
 def primalGraph (B : List (Finset V × Set (∀ v, A v))) : SimpleGraph V where
   Adj u v := u ≠ v ∧ ∃ q ∈ B, u ∈ q.1 ∧ v ∈ q.1
   symm := by
+    constructor
     intro u v h
     obtain ⟨huv, q, hq, hu, hv⟩ := h
     exact ⟨huv.symm, q, hq, hv, hu⟩
   loopless := by
+    constructor
     intro u h
     exact h.1 rfl
 
@@ -173,8 +175,12 @@ theorem treewidth_le_width [Fintype V] {G : SimpleGraph V}
 /-- **The treewidth is attained**: some tree decomposition has width at
 most `treewidth G`. -/
 theorem exists_treeDecomposition_width_le_treewidth [Fintype V]
-    (G : SimpleGraph V) : ∃ td : TreeDecomposition G, td.width ≤ treewidth G :=
-  Nat.sInf_mem ⟨(TreeDecomposition.single G).width, TreeDecomposition.single G, le_rfl⟩
+    (G : SimpleGraph V) : ∃ td : TreeDecomposition G, td.width ≤ treewidth G := by
+  have h : sInf {w | ∃ td : TreeDecomposition G, td.width ≤ w}
+      ∈ {w | ∃ td : TreeDecomposition G, td.width ≤ w} :=
+    Nat.sInf_mem ⟨(TreeDecomposition.single G).width,
+      ⟨TreeDecomposition.single G, le_rfl⟩⟩
+  exact h
 
 /-- The treewidth of a graph on `n` vertices is at most `n - 1`. -/
 theorem treewidth_le_card [Fintype V] (G : SimpleGraph V) :
@@ -243,12 +249,16 @@ theorem elimBags_card_le {order : List ((v : V) × A v)}
       intro b hb
       rw [elimBags_cons] at hb
       rcases List.mem_cons.mp hb with rfl | hb
-      · have h1 : (bucketHead p B).1.card ≤ w + 1 :=
-          h (bucketHead p B) (by rw [bucketBags_cons]; exact List.mem_cons_self)
+      · have h1 : (bucketHead p B).1.card ≤ w + 1 := by
+          refine h (bucketHead p B) ?_
+          rw [bucketBags_cons]
+          exact List.mem_cons_self
         have h2 := Finset.card_insert_le p.1 (bucketHead p B).1
         omega
-      · exact ih (fun q hq => h q (by rw [bucketBags_cons];
-          exact List.mem_cons_of_mem _ hq)) b hb
+      · refine ih (fun q hq => ?_) b hb
+        refine h q ?_
+        rw [bucketBags_cons]
+        exact List.mem_cons_of_mem _ hq
 
 /-- **Vertex coverage.**  Every eliminated variable occurs in the
 elimination bag of its own step. -/
@@ -262,16 +272,17 @@ theorem elimBags_mem_of_eliminated (order : List ((v : V) × A v))
       exact absurd hv (Set.notMem_empty v)
   | cons p order ih =>
       rcases List.mem_cons.mp (mem_eliminated.mp hv) with h1 | h1
-      · subst h1
-        exact ⟨insert v (bucketHead p B).1, List.mem_cons_self,
-          Finset.mem_insert_self v _⟩
+      · refine ⟨insert p.1 (bucketHead p B).1, List.mem_cons_self, ?_⟩
+        rw [h1]
+        exact Finset.mem_insert_self p.1 (bucketHead p B).1
       · obtain ⟨b, hb, hvb⟩ := ih (bucketStep p B) (mem_eliminated.mpr h1)
         exact ⟨b, List.mem_cons_of_mem _ hb, hvb⟩
 
 private theorem mem_insert_erase {s : Finset V} {a u : V} (hu : u ∈ s) :
     u ∈ insert a (s.erase a) := by
   by_cases h : u = a
-  · exact h ▸ Finset.mem_insert_self a _
+  · rw [h]
+    exact Finset.mem_insert_self a _
   · exact Finset.mem_insert_of_mem (Finset.mem_erase.mpr ⟨h, hu⟩)
 
 /-- **Edge coverage.**  For a complete order, every primal edge of the
@@ -353,7 +364,7 @@ theorem elimBags_card_le_one {order : List ((v : V) × A v)}
       rw [elimBags_cons] at hb
       rcases List.mem_cons.mp hb with rfl | hb
       · rw [bucketHead_fst_eq_empty h]
-        simpa using Finset.card_insert_le p.1 ∅
+        simp
       · exact ih (bucketStep_scopes_empty p h) b hb
 
 /-- After a complete order, every live scope is empty. -/
