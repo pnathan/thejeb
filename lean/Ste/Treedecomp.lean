@@ -78,4 +78,66 @@ theorem achievesWidth_card [Fintype V] [∀ v, Nonempty (A v)]
   · intro q _
     exact le_trans (Finset.card_le_univ q.1) (Nat.le_succ _)
 
+/-! ### Induced treewidth: the attained minimum -/
+
+/-- **Induced treewidth** of the instance `B`: the least width any
+complete elimination order achieves on `B`.  Well-defined as a natural
+number because `achievesWidth_card` makes the set nonempty (over a
+finite variable set with inhabited alphabets), and *attained*
+(`achievesWidth_inducedTreewidth`): some concrete optimal order
+realizes it. -/
+noncomputable def inducedTreewidth
+    (B : List (Finset V × Set (∀ v, A v))) : ℕ :=
+  sInf {w | AchievesWidth B w}
+
+/-- **The minimum width is attained.**  Some complete elimination order
+achieves the induced treewidth of the instance: the infimum defining
+`inducedTreewidth` is a minimum, realized by a concrete optimal
+order. -/
+theorem achievesWidth_inducedTreewidth [Fintype V] [∀ v, Nonempty (A v)]
+    (B : List (Finset V × Set (∀ v, A v))) :
+    AchievesWidth B (inducedTreewidth B) :=
+  Nat.sInf_mem ⟨Fintype.card V, achievesWidth_card B⟩
+
+/-- The induced treewidth is a lower bound on every achievable width. -/
+theorem inducedTreewidth_le {B : List (Finset V × Set (∀ v, A v))}
+    {w : ℕ} (h : AchievesWidth B w) : inducedTreewidth B ≤ w :=
+  Nat.sInf_le h
+
+/-- The induced treewidth never exceeds the number of variables. -/
+theorem inducedTreewidth_le_card [Fintype V] [∀ v, Nonempty (A v)]
+    (B : List (Finset V × Set (∀ v, A v))) :
+    inducedTreewidth B ≤ Fintype.card V :=
+  inducedTreewidth_le (achievesWidth_card B)
+
+/-! ### The unconditional bound: the width hypothesis discharged -/
+
+/-- **Bucket elimination at the attained induced treewidth.**  For any
+instance `B` of scoped constraints (each supported on its scope) over a
+finite variable set with inhabited alphabets of size at most `k`, there
+EXISTS a complete elimination order that (i) covers every scope,
+(ii) decides the substituted joint constraint — the elimination residue
+is `univ` or `∅` — and (iii) materializes at most
+`n * k^(inducedTreewidth B + 1)` total table rows, where `n` is the
+length of the order.  The width hypothesis of
+`bucketEliminate_total_space` is discharged: the bound holds at the
+instance's own attained induced treewidth, with no free width
+parameter. -/
+theorem bucketEliminate_treewidth_bound [Fintype V]
+    [∀ v, Nonempty (A v)] [∀ u, Fintype (A u)]
+    (B : List (Finset V × Set (∀ v, A v))) {k : ℕ} (hk : 0 < k)
+    (halpha : ∀ u : V, Fintype.card (A u) ≤ k)
+    (hsupp : ∀ q ∈ B, HasSupport q.2 (↑q.1 : Set V)) :
+    ∃ order : List ((v : V) × A v),
+      (∀ q ∈ B, (↑q.1 : Set V) ⊆ eliminated order)
+        ∧ (eliminate order (joinConstraint B) = Set.univ
+            ∨ eliminate order (joinConstraint B) = ∅)
+        ∧ ((bucketBags order B).map
+              fun q => (table (↑q.1 : Set V) q.2).encard).sum
+            ≤ (order.length : ℕ∞)
+                * ((k ^ (inducedTreewidth B + 1) : ℕ) : ℕ∞) := by
+  obtain ⟨order, hcover, hwidth⟩ := achievesWidth_inducedTreewidth B
+  exact ⟨order, hcover, (bucketEliminate_decides order hsupp hcover).2,
+    bucketEliminate_total_space order B hk halpha hwidth⟩
+
 end STE
