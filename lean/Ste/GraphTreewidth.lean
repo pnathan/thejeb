@@ -285,6 +285,18 @@ private theorem mem_insert_erase {s : Finset V} {a u : V} (hu : u ∈ s) :
     exact Finset.mem_insert_self a _
   · exact Finset.mem_insert_of_mem (Finset.mem_erase.mpr ⟨h, hu⟩)
 
+/-- **Coverage passes to the next state.**  After the step at `p`, the
+live scopes are covered by the remaining order. -/
+theorem bucketStep_cov (p : (v : V) × A v) {order : List ((v : V) × A v)}
+    {B : List (Finset V × Set (∀ v, A v))}
+    (hcov : ∀ q ∈ B, (↑q.1 : Set V) ⊆ eliminated (p :: order)) :
+    ∀ q ∈ bucketStep p B, (↑q.1 : Set V) ⊆ eliminated order := by
+  intro r hr x hx
+  obtain ⟨hxe, hxne⟩ := bucketStep_scope_subset p hcov r hr hx
+  rcases List.mem_cons.mp (mem_eliminated.mp hxe) with h1 | h1
+  · exact absurd (Set.mem_singleton_iff.mpr h1) hxne
+  · exact mem_eliminated.mpr h1
+
 /-- **Edge coverage.**  For a complete order, every primal edge of the
 instance lands inside some elimination bag: an edge `{u, v}` witnessed
 by a scope survives (possibly merged into message constraints) until
@@ -312,12 +324,7 @@ theorem elimBags_edge_cover {order : List ((v : V) × A v)}
         · exact mem_insert_erase (mem_joinScope.mpr ⟨q, hqf, hv⟩)
       · -- the scope of `q` survives untouched into the next state
         have hcov' : ∀ r ∈ bucketStep p B,
-            (↑r.1 : Set V) ⊆ eliminated order := by
-          intro r hr x hx
-          obtain ⟨hxe, hxne⟩ := bucketStep_scope_subset p hcov r hr hx
-          rcases List.mem_cons.mp (mem_eliminated.mp hxe) with h1 | h1
-          · exact absurd (Set.mem_singleton_iff.mpr h1) hxne
-          · exact mem_eliminated.mpr h1
+            (↑r.1 : Set V) ⊆ eliminated order := bucketStep_cov p hcov
         have hq' : q ∈ bucketStep p B :=
           List.mem_cons_of_mem _
             (List.mem_filter.mpr ⟨hq, decide_eq_true hp⟩)
@@ -437,5 +444,267 @@ theorem primalGraph_elimination_cover [Fintype V] [∀ v, Nonempty (A v)]
     · have h1 := elimBags_card_le_one
         (bucketEliminate_scopes_empty hcov) b hb
       omega
+
+/-! ### Inert constraints and duplicate-free orders
+
+An empty-scope constraint never joins any bucket: it is *inert* for
+bucket elimination.  `InertLe B B'` says `B'` is `B` with inert
+constraints interleaved; such states materialize the same bags.  A
+step whose variable no live scope contains only produces an inert
+residue, so it can be dropped without changing the remaining bags —
+in particular any *duplicated* elimination step.  Hence every instance
+runs on a duplicate-free order with a sublist of the original bags
+(`exists_nodup_order`). -/
+
+/-- `InertLe B B'`: `B'` is `B` with extra empty-scope (inert)
+constraints interleaved. -/
+inductive InertLe : List (Finset V × Set (∀ v, A v)) →
+    List (Finset V × Set (∀ v, A v)) → Prop
+  | nil : InertLe [] []
+  | cons (q) {B B'} : InertLe B B' → InertLe (q :: B) (q :: B')
+  | inert (T) {B B'} : InertLe B B' → InertLe B ((∅, T) :: B')
+
+theorem InertLe.refl (B : List (Finset V × Set (∀ v, A v))) :
+    InertLe B B := by
+  induction B with
+  | nil => exact .nil
+  | cons q B ih => exact .cons q ih
+
+/-- Inert constraints never enter a bucket. -/
+theorem InertLe.filter_mem {B B' : List (Finset V × Set (∀ v, A v))}
+    (h : InertLe B B') (v : V) :
+    (B.filter fun q => v ∈ q.1) = B'.filter fun q => v ∈ q.1 := by
+  induction h with
+  | nil => rfl
+  | cons q h ih =>
+      by_cases hv : v ∈ q.1
+      · rw [List.filter_cons_of_pos (decide_eq_true hv),
+          List.filter_cons_of_pos (decide_eq_true hv), ih]
+      · rw [List.filter_cons_of_neg (by simpa using hv),
+          List.filter_cons_of_neg (by simpa using hv), ih]
+  | inert T h ih =>
+      rw [List.filter_cons_of_neg (by simp), ih]
+
+/-- Inert constraints survive the complement filter, inertly. -/
+theorem InertLe.filter_not_mem {B B' : List (Finset V × Set (∀ v, A v))}
+    (h : InertLe B B') (v : V) :
+    InertLe (B.filter fun q => v ∉ q.1) (B'.filter fun q => v ∉ q.1) := by
+  induction h with
+  | nil => exact .nil
+  | cons q h ih =>
+      by_cases hv : v ∈ q.1
+      · rw [List.filter_cons_of_neg (by simp [hv]),
+          List.filter_cons_of_neg (by simp [hv])]
+        exact ih
+      · rw [List.filter_cons_of_pos (decide_eq_true hv),
+          List.filter_cons_of_pos (decide_eq_true hv)]
+        exact .cons q ih
+  | inert T h ih =>
+      rw [List.filter_cons_of_pos (by simp)]
+      exact .inert T ih
+
+theorem InertLe.bucketHead_eq {B B' : List (Finset V × Set (∀ v, A v))}
+    (h : InertLe B B') (p : (v : V) × A v) :
+    bucketHead p B = bucketHead p B' := by
+  show ((joinScope (B.filter fun q => p.1 ∈ q.1)).erase p.1,
+      condition (joinConstraint (B.filter fun q => p.1 ∈ q.1)) p.1 p.2)
+    = ((joinScope (B'.filter fun q => p.1 ∈ q.1)).erase p.1,
+      condition (joinConstraint (B'.filter fun q => p.1 ∈ q.1)) p.1 p.2)
+  rw [h.filter_mem p.1]
+
+theorem InertLe.bucketStep_le {B B' : List (Finset V × Set (∀ v, A v))}
+    (h : InertLe B B') (p : (v : V) × A v) :
+    InertLe (bucketStep p B) (bucketStep p B') := by
+  rw [bucketStep_eq, bucketStep_eq, h.bucketHead_eq p]
+  exact .cons _ (h.filter_not_mem p.1)
+
+/-- **Inert constraints do not change the recorded bags.** -/
+theorem InertLe.bucketBags_eq {B B' : List (Finset V × Set (∀ v, A v))}
+    (h : InertLe B B') (order : List ((v : V) × A v)) :
+    bucketBags order B = bucketBags order B' := by
+  induction order generalizing B B' with
+  | nil => rfl
+  | cons p order ih =>
+      rw [bucketBags_cons, bucketBags_cons, h.bucketHead_eq p,
+        ih (h.bucketStep_le p)]
+
+/-- A step at a variable no live scope contains only adds an inert
+residue. -/
+theorem inertLe_bucketStep_self {p : (v : V) × A v}
+    {B : List (Finset V × Set (∀ v, A v))} (h : ∀ q ∈ B, p.1 ∉ q.1) :
+    InertLe B (bucketStep p B) := by
+  have hfilter : (B.filter fun q => p.1 ∉ q.1) = B :=
+    List.filter_eq_self.mpr fun q hq => decide_eq_true (h q hq)
+  have hbag : (bucketHead p B).1 = ∅ := by
+    have hf : (B.filter fun q => p.1 ∈ q.1) = [] :=
+      List.filter_eq_nil_iff.mpr fun q hq hmem =>
+        h q hq (of_decide_eq_true hmem)
+    rw [bucketHead_fst, hf, joinScope_nil, Finset.erase_empty]
+  have hpair : bucketHead p B = (∅, (bucketHead p B).2) := by
+    rw [← hbag]
+  rw [bucketStep_eq, hfilter, hpair]
+  exact .inert _ (InertLe.refl B)
+
+/-- Such a step leaves all later bags unchanged. -/
+theorem bucketBags_cons_of_forall_not_mem {p : (v : V) × A v}
+    {B : List (Finset V × Set (∀ v, A v))} (h : ∀ q ∈ B, p.1 ∉ q.1)
+    (order : List ((v : V) × A v)) :
+    bucketBags (p :: order) B = bucketHead p B :: bucketBags order B := by
+  rw [bucketBags_cons]
+  congr 1
+  exact ((inertLe_bucketStep_self h).bucketBags_eq order).symm
+
+/-- After the step at `p`, no live scope contains `p.1`. -/
+theorem bucketStep_not_mem_scope (p : (v : V) × A v)
+    (B : List (Finset V × Set (∀ v, A v))) :
+    ∀ q ∈ bucketStep p B, p.1 ∉ q.1 := by
+  intro q hq
+  rw [bucketStep_eq] at hq
+  rcases List.mem_cons.mp hq with rfl | hq
+  · rw [bucketHead_fst]
+    exact Finset.notMem_erase p.1 _
+  · exact of_decide_eq_true (List.mem_filter.mp hq).2
+
+/-- A variable absent from all live scopes stays absent. -/
+theorem bucketStep_not_mem_scope_of (p : (v : V) × A v)
+    {B : List (Finset V × Set (∀ v, A v))} {x : V}
+    (h : ∀ q ∈ B, x ∉ q.1) : ∀ q ∈ bucketStep p B, x ∉ q.1 := by
+  intro q hq
+  rw [bucketStep_eq] at hq
+  rcases List.mem_cons.mp hq with rfl | hq
+  · rw [bucketHead_fst]
+    intro hx
+    obtain ⟨q', hq', hxq'⟩ := mem_joinScope.mp (Finset.mem_of_mem_erase hx)
+    exact h q' (List.mem_of_mem_filter hq') hxq'
+  · exact h q (List.mem_of_mem_filter hq)
+
+/-- **Dropping a redundant step.**  A step whose variable was already
+eliminated earlier (or never occurs in any live scope) can be removed:
+the remaining bags form a sublist of the original ones. -/
+theorem bucketBags_removal (p : (v : V) × A v)
+    (pre : List ((v : V) × A v)) :
+    ∀ (post : List ((v : V) × A v))
+      (B : List (Finset V × Set (∀ v, A v))),
+      (p.1 ∈ pre.map Sigma.fst ∨ ∀ q ∈ B, p.1 ∉ q.1) →
+      (bucketBags (pre ++ post) B).Sublist
+        (bucketBags (pre ++ p :: post) B) := by
+  induction pre with
+  | nil =>
+      intro post B h
+      rcases h with h | h
+      · simp at h
+      · rw [List.nil_append, List.nil_append,
+          bucketBags_cons_of_forall_not_mem h post]
+        exact List.sublist_cons_self _ _
+  | cons r pre ih =>
+      intro post B h
+      rw [List.cons_append, List.cons_append, bucketBags_cons,
+        bucketBags_cons]
+      refine List.Sublist.cons₂ _ (ih post (bucketStep r B) ?_)
+      rcases h with h | h
+      · rw [List.map_cons] at h
+        rcases List.mem_cons.mp h with h1 | h1
+        · refine Or.inr ?_
+          rw [h1]
+          exact bucketStep_not_mem_scope r B
+        · exact Or.inl h1
+      · exact Or.inr (bucketStep_not_mem_scope_of r h)
+
+/-- A repetition in an order splits it around a step whose variable
+already occurred. -/
+theorem exists_dup_decomposition {order : List ((v : V) × A v)}
+    (h : ¬ (order.map Sigma.fst).Nodup) :
+    ∃ (pre : List ((v : V) × A v)) (p : (v : V) × A v)
+      (post : List ((v : V) × A v)),
+      order = pre ++ p :: post ∧ p.1 ∈ pre.map Sigma.fst := by
+  induction order with
+  | nil => exact absurd List.nodup_nil h
+  | cons r order ih =>
+      by_cases h1 : (order.map Sigma.fst).Nodup
+      · have hr : r.1 ∈ order.map Sigma.fst := by
+          by_contra hr
+          rw [List.map_cons, List.nodup_cons] at h
+          exact h ⟨hr, h1⟩
+        obtain ⟨p, hp, hpfst⟩ := List.mem_map.mp hr
+        obtain ⟨s, t, rfl⟩ := List.append_of_mem hp
+        refine ⟨r :: s, p, t, rfl, ?_⟩
+        rw [List.map_cons]
+        exact List.mem_cons.mpr (Or.inl hpfst)
+      · obtain ⟨pre, p, post, rfl, hp⟩ := ih h1
+        refine ⟨r :: pre, p, post, rfl, ?_⟩
+        rw [List.map_cons]
+        exact List.mem_cons_of_mem _ hp
+
+/-- Removing a duplicated step does not change the eliminated set. -/
+theorem eliminated_middle {pre post : List ((v : V) × A v)}
+    {p : (v : V) × A v} (hp : p.1 ∈ pre.map Sigma.fst) :
+    eliminated (pre ++ post) = eliminated (pre ++ p :: post) := by
+  ext u
+  simp only [mem_eliminated, List.map_append, List.mem_append,
+    List.map_cons, List.mem_cons]
+  constructor
+  · rintro (h | h)
+    · exact Or.inl h
+    · exact Or.inr (Or.inr h)
+  · rintro (h | h | h)
+    · exact Or.inl h
+    · refine Or.inl ?_
+      rw [h]
+      exact hp
+    · exact Or.inr h
+
+/-- **Every order dedupes.**  Some duplicate-free order eliminates the
+same variables and materializes, on every instance, a sublist of the
+original bags. -/
+theorem exists_nodup_order (order : List ((v : V) × A v)) :
+    ∃ order' : List ((v : V) × A v),
+      (order'.map Sigma.fst).Nodup
+        ∧ eliminated order' = eliminated order
+        ∧ ∀ B : List (Finset V × Set (∀ v, A v)),
+            (bucketBags order' B).Sublist (bucketBags order B) := by
+  generalize hn : order.length = n
+  induction n using Nat.strong_induction_on generalizing order with
+  | _ n ih =>
+      by_cases hnd : (order.map Sigma.fst).Nodup
+      · exact ⟨order, hnd, rfl, fun B => List.Sublist.refl _⟩
+      · obtain ⟨pre, p, post, heq, hp⟩ := exists_dup_decomposition hnd
+        subst heq
+        obtain ⟨order', h1, h2, h3⟩ :=
+          ih (pre ++ post).length
+            (by rw [← hn]
+                simp only [List.length_append, List.length_cons]
+                omega)
+            (pre ++ post) rfl
+        refine ⟨order', h1, ?_, fun B => (h3 B).trans
+          (bucketBags_removal p pre post B (Or.inl hp))⟩
+        rw [h2]
+        exact eliminated_middle hp
+
+/-! ### Auxiliary facts about appended orders -/
+
+theorem bucketBags_append (o₁ o₂ : List ((v : V) × A v))
+    (B : List (Finset V × Set (∀ v, A v))) :
+    bucketBags (o₁ ++ o₂) B
+      = bucketBags o₁ B ++ bucketBags o₂ (bucketEliminate o₁ B) := by
+  induction o₁ generalizing B with
+  | nil => rfl
+  | cons p o₁ ih =>
+      rw [List.cons_append, bucketBags_cons, bucketBags_cons, ih,
+        bucketEliminate_cons, List.cons_append]
+
+/-- On a fully decided state, all recorded bags are empty. -/
+theorem bucketBags_fst_empty {order : List ((v : V) × A v)}
+    {B : List (Finset V × Set (∀ v, A v))} (h : ∀ q ∈ B, q.1 = ∅) :
+    ∀ q ∈ bucketBags order B, q.1 = ∅ := by
+  induction order generalizing B with
+  | nil =>
+      intro q hq
+      simp at hq
+  | cons p order ih =>
+      intro q hq
+      rw [bucketBags_cons] at hq
+      rcases List.mem_cons.mp hq with rfl | hq
+      · exact bucketHead_fst_eq_empty h
+      · exact ih (bucketStep_scopes_empty p h) q hq
 
 end STE
