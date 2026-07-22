@@ -35,3 +35,4 @@ import Ste.Treedecomp
 import Ste.GraphTreewidth
 import Ste.TreewidthConverse
 import Ste.JunctionTree
+import Ste.CechObstruction
