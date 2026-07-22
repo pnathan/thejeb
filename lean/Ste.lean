@@ -28,3 +28,4 @@ import Ste.Support
 import Ste.Conditioning
 import Ste.Treewidth
 import Ste.Elimination
+import Ste.Treedecomp
