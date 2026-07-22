@@ -300,8 +300,10 @@ noncomputable def junctionWidth
 order. -/
 theorem achievesWidthNodup_junctionWidth [Fintype V]
     [∀ v, Nonempty (A v)] (B : List (Finset V × Set (∀ v, A v))) :
-    AchievesWidthNodup B (junctionWidth B) :=
-  Nat.sInf_mem ⟨Fintype.card V, achievesWidthNodup_card B⟩
+    AchievesWidthNodup B (junctionWidth B) := by
+  have h : sInf {w | AchievesWidthNodup B w} ∈ {w | AchievesWidthNodup B w} :=
+    Nat.sInf_mem ⟨Fintype.card V, achievesWidthNodup_card B⟩
+  exact h
 
 /-- Duplicate-free orders are in particular orders: the induced
 treewidth is at most the junction width.  (That the two coincide —
