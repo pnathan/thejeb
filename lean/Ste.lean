@@ -29,3 +29,4 @@ import Ste.Conditioning
 import Ste.Treewidth
 import Ste.Elimination
 import Ste.Treedecomp
+import Ste.GraphTreewidth
