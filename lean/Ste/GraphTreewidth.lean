@@ -478,8 +478,8 @@ theorem InertLe.filter_mem {B B' : List (Finset V × Set (∀ v, A v))}
   | nil => rfl
   | cons q h ih =>
       by_cases hv : v ∈ q.1
-      · rw [List.filter_cons_of_pos (decide_eq_true hv),
-          List.filter_cons_of_pos (decide_eq_true hv), ih]
+      · rw [List.filter_cons_of_pos (by simpa using hv),
+          List.filter_cons_of_pos (by simpa using hv), ih]
       · rw [List.filter_cons_of_neg (by simpa using hv),
           List.filter_cons_of_neg (by simpa using hv), ih]
   | inert T h ih =>
@@ -496,8 +496,8 @@ theorem InertLe.filter_not_mem {B B' : List (Finset V × Set (∀ v, A v))}
       · rw [List.filter_cons_of_neg (by simp [hv]),
           List.filter_cons_of_neg (by simp [hv])]
         exact ih
-      · rw [List.filter_cons_of_pos (decide_eq_true hv),
-          List.filter_cons_of_pos (decide_eq_true hv)]
+      · rw [List.filter_cons_of_pos (by simpa using hv),
+          List.filter_cons_of_pos (by simpa using hv)]
         exact .cons q ih
   | inert T h ih =>
       rw [List.filter_cons_of_pos (by simp)]
@@ -600,7 +600,7 @@ theorem bucketBags_removal (p : (v : V) × A v)
       intro post B h
       rw [List.cons_append, List.cons_append, bucketBags_cons,
         bucketBags_cons]
-      refine List.Sublist.cons₂ _ (ih post (bucketStep r B) ?_)
+      refine List.Sublist.cons_cons _ (ih post (bucketStep r B) ?_)
       rcases h with h | h
       · rw [List.map_cons] at h
         rcases List.mem_cons.mp h with h1 | h1
