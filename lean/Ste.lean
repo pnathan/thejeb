@@ -34,3 +34,4 @@ import Ste.Projection
 import Ste.Treedecomp
 import Ste.GraphTreewidth
 import Ste.TreewidthConverse
+import Ste.JunctionTree
