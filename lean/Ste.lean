@@ -32,3 +32,4 @@ import Ste.Elimination
 import Ste.Projection
 import Ste.Treedecomp
 import Ste.GraphTreewidth
+import Ste.CechObstruction
