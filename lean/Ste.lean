@@ -24,6 +24,7 @@ import Ste.Carlson
 import Ste.HyperFrame
 import Ste.Sheaf
 import Ste.Decomposition
+import Ste.Factorization
 import Ste.Support
 import Ste.Conditioning
 import Ste.Treewidth
