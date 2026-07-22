@@ -79,13 +79,25 @@ well-defined and \emph{attained} by a concrete optimal order
 (\lean{achievesWidth\_inducedTreewidth}), so some complete order
 decides the substituted problem in $n \cdot
 k^{\operatorname{tw}(B)+1}$ total table space \emph{unconditionally}
-(\lean{bucketEliminate\_treewidth\_bound}).  A clearly-labelled
-outlook sketches the unproven remainder: projective
-($\exists$-)elimination, the equivalence of elimination width with
-tree-decomposition treewidth and junction trees, $k$-consistency as
-higher gluing, $\check{H}^1$ as the measure of intractability, and a
-treewidth-style tractability dichotomy
-\citep{freuder1982backtrack,dechter2003constraint}.
+(\lean{bucketEliminate\_treewidth\_bound}).  A breadth-first sweep then
+closes six further leads, each machine-checked: projective
+($\exists$-)elimination decides feasibility \emph{unconditionally}
+(\lean{projectEliminate\_decides\_feasibility}); elimination width
+equals tree-decomposition treewidth in \emph{both} directions
+(\lean{treewidth\_primalGraph\_eq}, over a from-scratch
+Robertson--Seymour tree-decomposition datatype); the block law becomes
+an $n$-ary product (\lean{encard\_feasibilitySet\_blocks}); the
+variable-side presheaf glues for rectangles and provably fails for the
+coupling (\lean{rectangular\_glue}, \lean{diagonal\_gluing\_fails}); the
+\v{C}ech obstruction is computed ($0$ for rectangles, $2$ for the
+diagonal, \lean{diagonal\_cechObstruction}); and the junction-tree
+representation is polynomial-size and faithful
+(\lean{junctionTree\_size\_le}).  The remaining outlook is the general
+cohomological programme --- the full $\check{H}^1$ functor, $k$-consistency
+as higher gluing, and the matching intractability lower bounds
+\citep{freuder1982backtrack,grohe2007complexity,dechter2003constraint}
+--- together with efficient computation of treewidth, which is NP-hard
+\citep{arnborg1987complexity}.
 \end{abstract}
 
 \section{The problem: the $2^N$ wall}
@@ -619,17 +631,21 @@ is discharged: the bound holds at the instance's own attained induced
 treewidth, with no free width parameter.
 \end{theorem}
 
-Two honest limits of this discharge, stated plainly.  First, the
-substitution caveat above still applies: the run decides the problem
-\emph{conditioned on the chosen values}.  Second,
+Two former limits of this discharge, both now resolved.  First, the
+substitution caveat --- that the run decides feasibility only
+\emph{conditioned on the chosen values} --- is removed by projective
+elimination (\S\ref{sec:projection}): eliminating by projection instead
+of substitution decides \emph{unconditional} feasibility.  Second,
 $\operatorname{tw}(B)$ is elimination width (Dechter's induced width
 over all complete orders); its \emph{equivalence} with the
-tree-decomposition treewidth of the primal graph is now half
-mechanized --- the constructive inequality is machine-checked
-(next section), the converse remains outlook --- and no efficient
-computation of $\operatorname{tw}(B)$ is claimed: the optimal order is
-obtained by minimization over a nonempty set, and computing it is
-NP-hard in general.
+tree-decomposition treewidth of the primal graph is now \emph{fully}
+mechanized in both directions (next section,
+\lean{treewidth\_primalGraph\_eq}).  What remains genuinely out of
+reach is only \emph{efficient} computation of $\operatorname{tw}(B)$:
+the optimal order is obtained by minimization over a nonempty set, and
+computing treewidth is NP-hard
+\citep{arnborg1987complexity} --- a settled hardness result, not a gap
+in this development.
 
 \section{The graph-treewidth bridge, machine-checked}
 
@@ -713,14 +729,140 @@ $\max_v |\bagof{v}|$ (the largest message scope), while our slack
 parameter \lean{inducedTreewidth} equals $\operatorname{tw}(G_B) - 1$
 for any coupled instance.  For a \emph{fixed} order the induced width is
 $\ge \operatorname{tw}(G_B)$ (GTE); minimized over orders they are equal
---- the classical Bodlaender/Dechter theorem.  What is machine-checked
-here is the tractable half of that equality, in the honest direction:
-an elimination order of width $w$ yields a tree decomposition of width
-$\le w+1$.  The converse --- that no tree decomposition beats
-elimination, i.e.\ $\operatorname{tw}(G_B) \ge \operatorname{tw}(B)+1$
---- is the deep half (it needs a simplicial-vertex / chordal-completion
-argument turning any decomposition into an order of no greater width)
-and remains outlook.
+--- the classical Bodlaender/Dechter theorem
+\citep{bodlaender1998arboretum,dechter2003constraint}.
+
+\emph{Both halves are now machine-checked.}  The forward (tractable)
+half, \lean{treewidth\_primalGraph\_le} above, turns an elimination
+order of width $w$ into a tree decomposition of width $\le w+1$.  The
+converse --- the deep half, that no tree decomposition beats
+elimination --- is \lean{Ste.TreewidthConverse}: from any tree
+decomposition of width $w$ we \emph{extract} a complete elimination
+order of message-scope $\le w$ by eliminating variables in ascending
+order of their topmost bag position.  The combinatorial heart is the
+chain lemma \lean{TreeDecomposition.mem\_top\_of\_shared\_bag} (if $u$
+and $x$ share a bag and $\operatorname{top} u \le \operatorname{top} x$
+then $x$ lies in $u$'s topmost bag --- the rooted-tree avatar of
+running intersection), which drives
+\lean{bucketBags\_card\_le\_of\_pairwise\_top}: eliminating in
+ascending-top order keeps every message scope inside
+$\mathrm{bags}[\operatorname{top} u] \setminus \{u\}$, of size $\le w$.
+Hence \lean{inducedTreewidth\_le\_treewidth\_sub\_one}
+($\operatorname{tw}(B) \le \operatorname{tw}(G_B) - 1$,
+unconditional) and, whenever the primal graph has an edge,
+
+\begin{theorem}[\lean{treewidth\_primalGraph\_eq}]
+$\operatorname{tw}(G_B) = \operatorname{tw}(B) + 1$.
+\end{theorem}
+
+\noindent The edge hypothesis is sharp: an edgeless instance has
+$\operatorname{tw}(G_B) = \operatorname{tw}(B) = 0$, so the unconditional
+statement is \lean{max\_treewidth\_primalGraph\_one\_eq}:
+$\max(\operatorname{tw}(G_B), 1) = \operatorname{tw}(B) + 1$.  The
+equivalence of Robertson--Seymour treewidth and bucket-elimination
+induced width is thus fully mechanized, no longer outlook.
+
+\section{Four more leads, run down}
+
+The breadth-first sweep of the remaining ``outlook'' claims closed four
+further leads, each machine-checked sorry-free.
+
+\subsection{Projective elimination: unconditional feasibility}
+\label{sec:projection}
+The conditioning fold decides
+feasibility only relative to the substituted values.  Projective
+elimination (\lean{Ste.Projection}) removes that caveat.  Define
+$\operatorname{project}(T, v) = \{f \mid \exists a,\ f[v \mapsto a] \in
+T\}$: eliminate $v$ by projecting it out, not by fixing a value.
+
+\begin{theorem}[\lean{project\_nonempty\_iff}]
+$\operatorname{project}(T, v) \ne \emptyset \iff T \ne \emptyset$.
+\end{theorem}
+
+\noindent The exists-step preserves nonemptiness \emph{exactly} (given
+$g \in T$, take the value $g(v)$; the reverse is immediate).  Folding
+over a complete elimination list therefore decides unconditional
+feasibility (\lean{projectEliminate\_decides\_feasibility},
+\lean{projectEliminate\_joinConstraint\_decides}): the residue is
+$\Xii$ iff the instance is feasible and $\emptyset$ iff it is not, with
+no chosen values.  The exists-step is the union of all conditionings
+(\lean{project\_eq\_iUnion\_condition}), tying it to the existing
+machinery.
+
+\subsection{Quantitative factorization over a partition}
+The binary block law generalizes to arbitrarily
+many independent blocks (\lean{Ste.Factorization}).  For a finite index
+$\iota$ and per-block constraints $C_i$, the feasible set is
+$\prod_i C_i$ (as \lean{Set.pi}) and
+
+\begin{theorem}[\lean{encard\_feasibilitySet\_blocks}]
+$\bigl|\operatorname{feas}\bigr| = \prod_{i} |C_i|$
+\end{theorem}
+
+\noindent so the exponential representation cost is confined to each
+coupled block --- an estimator pays $\sum_i \operatorname{cost}(C_i)$
+across blocks, not $\prod_i$ for the joint set.  This is the
+$\sum$-across, $\prod$-within law made quantitative at the cardinality
+level.
+
+\subsection{The variable-side presheaf and its gluing dichotomy}
+An earlier section proved gluing on the \emph{constraint} poset; the
+open direction was the \emph{variable} side.  \lean{Ste.VariablePresheaf}
+assigns to each variable set $W$ the local sections
+$\operatorname{localSections}(T, W)$ with functorial restriction
+(\lean{restrict\_restrict}), a genuine presheaf.  Its sheaf/gluing
+condition over the singleton cover of $V$ \emph{succeeds} for
+rectangular constraints --- \lean{rectangular\_glue} gives a
+\emph{unique} global glue --- and provably \emph{fails} for the
+coupling: \lean{diagonal\_gluing\_fails} exhibits local sections
+($\mathsf{false}$ at $x$, $\mathsf{true}$ at $y$), each individually
+extendable to the diagonal, that no global diagonal section restricts
+to.  The glue of the diagonal's singletons has four points to the
+diagonal's two (\lean{singletonGlue\_diagonal\_encard}).  The full
+characterization (gluing holds \emph{precisely} on the tractable
+fragments) stays outlook; the checkable core is proven.
+
+\subsection{The concrete \v{C}ech obstruction}
+Following \citet{abramsky2011sheaf}, the obstruction to gluing
+compatible local sections into a global one is a \v{C}ech $\check{H}^1$ class.
+\lean{Ste.CechObstruction} computes it concretely for the singleton
+cover: with $\operatorname{compatible}(T)$ the rectangle of $T$'s
+projections and $\operatorname{glued}(T) = T$, the obstruction is
+$\operatorname{cechObstruction}(T) = |\operatorname{compatible}(T)| -
+|\operatorname{glued}(T)|$.
+
+\begin{theorem}[\lean{rectangular\_cechObstruction};
+\lean{diagonal\_cechObstruction}]
+The obstruction vanishes for every rectangular constraint ($\check{H}^1 = 0$)
+and equals $2 \ne 0$ for the diagonal.
+\end{theorem}
+
+\noindent Vanishing forces rectangularity
+(\lean{rectangular\_of\_cechVanishes}), bridging the cohomological
+obstruction to the representation obstruction of the coupling.
+The general theory (arbitrary covers, the full $\check{H}^1$ functor, the
+quantitative ``obstruction size $=$ representation blow-up'' claim)
+remains cited framework and outlook.
+
+\subsection{The junction-tree representation}
+\lean{Ste.JunctionTree} packages the bucket-elimination trace as one
+projected bag table per eliminated bucket.  The representation is
+\emph{faithful} --- each materialized constraint is the preimage of its
+bag table (\lean{junctionTables\_faithful}) --- and
+
+\begin{theorem}[\lean{junctionTree\_size\_le};
+\lean{junctionTree\_size\_linear}]
+Some complete order decides feasibility with a faithful bag-table
+representation of total size $\le n \cdot k^{\operatorname{tw}(B)+1}$;
+at fixed width $w$ and alphabet bound $k$ this is $n \cdot C$ with
+$C = k^{w+1}$ a constant --- linear in the number of variables.
+\end{theorem}
+
+\noindent This is the tractable direction of the CSP dichotomy
+\citep{freuder1982backtrack,grohe2007complexity,dechter2003constraint}:
+bounded treewidth yields a polynomial-size exact representation of a
+feasible set that may itself be exponential.  The matching lower bound
+(unbounded coupling forces exponential representation) stays outlook.
 
 \section{Outlook: the cohomological program (not proven)}
 
