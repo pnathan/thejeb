@@ -96,13 +96,16 @@ achieves the induced treewidth of the instance: the infimum defining
 order. -/
 theorem achievesWidth_inducedTreewidth [Fintype V] [∀ v, Nonempty (A v)]
     (B : List (Finset V × Set (∀ v, A v))) :
-    AchievesWidth B (inducedTreewidth B) :=
-  Nat.sInf_mem ⟨Fintype.card V, achievesWidth_card B⟩
+    AchievesWidth B (inducedTreewidth B) := by
+  have h : sInf {w | AchievesWidth B w} ∈ {w | AchievesWidth B w} :=
+    Nat.sInf_mem ⟨Fintype.card V, achievesWidth_card B⟩
+  exact h
 
 /-- The induced treewidth is a lower bound on every achievable width. -/
 theorem inducedTreewidth_le {B : List (Finset V × Set (∀ v, A v))}
-    {w : ℕ} (h : AchievesWidth B w) : inducedTreewidth B ≤ w :=
-  Nat.sInf_le h
+    {w : ℕ} (h : AchievesWidth B w) : inducedTreewidth B ≤ w := by
+  have hw : w ∈ {w' | AchievesWidth B w'} := h
+  exact Nat.sInf_le hw
 
 /-- The induced treewidth never exceeds the number of variables. -/
 theorem inducedTreewidth_le_card [Fintype V] [∀ v, Nonempty (A v)]
