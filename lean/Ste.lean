@@ -26,6 +26,7 @@ import Ste.Sheaf
 import Ste.Decomposition
 import Ste.Factorization
 import Ste.Support
+import Ste.VariablePresheaf
 import Ste.Conditioning
 import Ste.Treewidth
 import Ste.Elimination
