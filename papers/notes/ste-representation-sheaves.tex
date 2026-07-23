@@ -106,11 +106,21 @@ of the \v{C}ech obstruction is lifted to \emph{arbitrary} covers
 glue to a unique global section over any cover, non-vacuously ---
 \lean{diagonal\_not\_cechVanishesCover}), and Freuder's tractability is
 extended from chains to arbitrary rooted \emph{trees}
-(\lean{treeArcConsistent\_solvable}).  The genuine remaining outlook is
-narrow: the full linearized $\check{H}^1$ cochain complex (cohomology as
-$\ker/\operatorname{im}$) with its quantitative obstruction-size claim,
-higher-width $k$-consistency ($k \ge 2$, cyclic graphs), and efficient
-computation of treewidth, which is NP-hard
+(\lean{treeArcConsistent\_solvable}).  A fourth sweep builds the full
+linearized $\check{H}^1$ cochain complex over a module --- coboundaries
+with $d \circ d = 0$, cohomology $\ker/\operatorname{im}$, exactness and
+$\check{H}^1 = 0$ for the constant nerve, and the section-linearization
+bridge (\lean{Ste.CechComplex}) --- and the higher-width tractability
+theorem: directional (bucket) consistency along an elimination order
+with separators of \emph{any} size yields a global solution
+(\lean{directionalConsistent\_solvable}), with \lean{twoParent\_solvable}
+the genuinely cyclic width-$2$ case.  The residue is now sharply
+delimited and honestly open: a \emph{nonzero graded} $\check{H}^1$
+locating the coupling (twisted, not constant, coefficients) with the
+quantitative obstruction-size $=$ representation-blow-up equality; the
+\emph{enforcement} half of adaptive consistency (that bucket elimination
+\emph{establishes} it in width-bounded cost); and efficient computation
+of treewidth, which is NP-hard
 \citep{arnborg1987complexity,freuder1982backtrack,grohe2007complexity,dechter2003constraint}.
 \end{abstract}
 
@@ -878,11 +888,35 @@ arbitrary covers, not just the singleton one; the singleton instance
 recovers the earlier result exactly
 (\lean{cechVanishesCover\_singleton\_iff}), and gluing provably
 \emph{fails} for the diagonal (\lean{diagonal\_not\_cechVanishesCover}),
-so the theorem has real content.  What remains outlook is only the
-\emph{full} $\check{H}^1$ as a linearized cochain complex (cohomology as
-$\ker/\operatorname{im}$ over a free module) and the quantitative
-``obstruction size $=$ representation blow-up'' claim --- the
-$\check{H}^0$/sheaf-gluing level is now mechanized for all covers.
+so the theorem has real content.
+
+\subsection{The linearized cochain complex}
+\lean{Ste.CechComplex} builds the module-level machinery
+A--B use to \emph{grade} the obstruction.  Over any commutative ring $R$
+and $R$-module $M$, the Čech cochains $C^0 = (\iota \to M)$,
+$C^1 = (\iota \to \iota \to M)$, $C^2, C^3$ carry the alternating
+coboundaries $d^0, d^1, d^2$ (e.g.\ $(d^0 f)_{ij} = f_j - f_i$), and
+
+\begin{theorem}[\lean{cechComplex\_d\_comp\_d};
+\lean{cechComplex\_d2\_comp\_d1}]
+$d^1 \circ d^0 = 0$ and $d^2 \circ d^1 = 0$ --- a genuine cochain complex.
+\end{theorem}
+
+\noindent Cohomology is then the honest quotient of modules
+$\check{H}^1 = \ker d^1 / \operatorname{im} d^0$ (and $\check{H}^2$ one
+degree up); over a nonempty index type every cocycle is a coboundary
+(basepoint primitive), so $\check{H}^1 = \check{H}^2 = 0$
+(\lean{cechH1\_subsingleton}) --- the constant-coefficient full nerve is
+an acyclic simplex --- while $\check{H}^0 \cong M$.  A global section
+linearizes to a $0$-cocycle in the free module $(\forall v,\ A_v) \to_0
+R$ (\lean{globalZeroCochain\_mem\_cechH0}), injectively
+(\lean{globalZeroCochain\_injective}), and the set-level gluing of
+the general-cover gluing above lands in this linearized $\check{H}^0$
+(\lean{CompatibleFamily.exists\_cechH0}).  What remains genuinely open
+is a \emph{nonzero graded} $\check{H}^1$ locating the coupling --- which
+needs twisted (locally varying) coefficients or a non-full nerve, not
+the constant ones vanishing here --- and the quantitative ``obstruction
+size $=$ smallest-representation blow-up'' equality.
 
 \subsection{The junction-tree representation}
 \lean{Ste.JunctionTree} packages the bucket-elimination trace as one
@@ -987,9 +1021,40 @@ tree by induction, and extends across the final edge by the parent's
 already-assigned value --- the greedy root-to-leaf search of
 \citet{freuder1982backtrack}, now for arbitrary acyclic width-1
 structure (the chain is the special case
-$\operatorname{parent}(i) = i$).  What remains outlook is genuine
-higher width: $k$-consistency for $k \ge 2$ and cyclic constraint
-graphs.
+$\operatorname{parent}(i) = i$).
+
+\lean{Ste.AdaptiveConsistency} then breaks the acyclic restriction.
+Replace a node's single parent by a \emph{separator} $\operatorname{sep}(i)
+: \mathrm{Finset}$ of earlier neighbours --- its induced-graph
+neighbourhood, of any size --- with a bucket constraint on
+$\operatorname{sep}(i) \cup \{i\}$.  \emph{Directional} (width-bounded)
+consistency asks that, for every domain-respecting assignment to the
+earlier nodes, node $i$ has a value satisfying its bucket.
+
+\begin{theorem}[\lean{directionalConsistent\_solvable};
+\lean{twoParent\_solvable}]
+A nonempty directionally-consistent bucket network admits a global
+solution.  In particular, when each node has \emph{two} earlier
+neighbours and a ternary bucket constraint --- the shape a triangulated
+cycle produces under elimination --- the cyclic width-$2$ network is
+solvable.
+\end{theorem}
+
+\noindent This is Dechter's adaptive consistency / Freuder's
+strong-$k$-consistency-plus-width theorem
+\citep{freuder1982backtrack,dechter2003constraint}: $|\operatorname{sep}(i)|
+\ge 2$ is exactly how bounded induced width $> 1$ and cyclic primal
+graphs arise (fill-in), and the same leaf-peel induction --- reduced to
+Dechter's prefix-dependence to kill the separator bookkeeping --- closes
+it; the tree is the width-$1$ special case
+(\lean{treeArcConsistent\_solvable\_of\_adaptive}).  One subtlety made
+honest in the mechanization: directional consistency is vacuous when a
+later domain is empty, so the theorem carries a nonemptiness hypothesis
+(the faithful root-value analogue holds for Dechter's stronger
+earlier-variables-only \lean{PrefixConsistent}).  What remains outlook is
+the \emph{enforcement} half --- that bucket elimination \emph{establishes}
+directional consistency at width-bounded cost --- and the converse
+(width-$\ge k$ networks where $k$-consistency fails).
 
 \section{Outlook: the cohomological program (not proven)}
 
