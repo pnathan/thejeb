@@ -219,7 +219,8 @@ theorem allEqual_not_rectangular [Fintype α] (hn : 2 ≤ n)
   -- … so it would be all-equal, forcing `a = b`
   rw [← hP] at hmix
   have hne : (1 : Fin (m + 2)) ≠ 0 := Fin.ne_of_val_ne (by simp)
-  have h01 := hmix 0 1
+  have h01 : (if (0 : Fin (m + 2)) = 0 then a else b)
+      = (if (1 : Fin (m + 2)) = 0 then a else b) := hmix 0 1
   rw [if_pos rfl, if_neg hne] at h01
   exact hab h01
 
