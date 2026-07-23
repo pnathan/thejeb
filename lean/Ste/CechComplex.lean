@@ -366,7 +366,7 @@ variable (R : Type*) [CommRing R]
 with coefficients in the free `R`-module on global assignments.  This
 is the object-level piece of the Abramsky–Brandenburger linearization
 functor applied to the section presheaf of `Ste.VariablePresheaf`. -/
-def globalZeroCochain (f : ∀ v, A v) : cechC0 J ((∀ v, A v) →₀ R) :=
+noncomputable def globalZeroCochain (f : ∀ v, A v) : cechC0 J ((∀ v, A v) →₀ R) :=
   fun _ => Finsupp.single f 1
 
 /-- The linearization of a global section is a 0-cocycle: constant
