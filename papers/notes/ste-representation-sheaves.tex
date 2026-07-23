@@ -92,12 +92,19 @@ coupling (\lean{rectangular\_glue}, \lean{diagonal\_gluing\_fails}); the
 \v{C}ech obstruction is computed ($0$ for rectangles, $2$ for the
 diagonal, \lean{diagonal\_cechObstruction}); and the junction-tree
 representation is polynomial-size and faithful
-(\lean{junctionTree\_size\_le}).  The remaining outlook is the general
-cohomological programme --- the full $\check{H}^1$ functor, $k$-consistency
-as higher gluing, and the matching intractability lower bounds
-\citep{freuder1982backtrack,grohe2007complexity,dechter2003constraint}
---- together with efficient computation of treewidth, which is NP-hard
-\citep{arnborg1987complexity}.
+(\lean{junctionTree\_size\_le}).  A second sweep then closes the
+dichotomy's hard side --- singleton-cover gluing succeeds \emph{iff} the
+constraint is a rectangle (\lean{cechVanishes\_iff\_rectangular}) and the
+$n$-fold coupling has \v{C}ech obstruction $\ge 2^n - 2$ against a
+constant-size feasible set (\lean{cechObstruction\_allEqual\_ge}), so
+unbounded coupling is exponential where bounded width is linear --- and
+mechanizes Freuder's width-1 tractability (a nonempty arc-consistent
+chain is solvable, \lean{arcConsistent\_chain\_solvable}).  The genuine
+remaining outlook is the general cohomological programme --- the full
+$\check{H}^1$ functor over arbitrary covers and the quantitative
+obstruction-size claim --- together with higher-width $k$-consistency and
+efficient computation of treewidth, which is NP-hard
+\citep{arnborg1987complexity,freuder1982backtrack,grohe2007complexity,dechter2003constraint}.
 \end{abstract}
 
 \section{The problem: the $2^N$ wall}
@@ -818,9 +825,12 @@ coupling: \lean{diagonal\_gluing\_fails} exhibits local sections
 ($\mathsf{false}$ at $x$, $\mathsf{true}$ at $y$), each individually
 extendable to the diagonal, that no global diagonal section restricts
 to.  The glue of the diagonal's singletons has four points to the
-diagonal's two (\lean{singletonGlue\_diagonal\_encard}).  The full
-characterization (gluing holds \emph{precisely} on the tractable
-fragments) stays outlook; the checkable core is proven.
+diagonal's two (\lean{singletonGlue\_diagonal\_encard}).  For the
+singleton cover the characterization is in fact an \emph{iff} ---
+gluing succeeds precisely for rectangles
+(\lean{cechVanishes\_iff\_rectangular}, next-but-one section); the
+general-cover version (gluing precisely on the tractable fragments)
+stays outlook.
 
 \subsection{The concrete \v{C}ech obstruction}
 Following \citet{abramsky2011sheaf}, the obstruction to gluing
@@ -862,7 +872,71 @@ $C = k^{w+1}$ a constant --- linear in the number of variables.
 \citep{freuder1982backtrack,grohe2007complexity,dechter2003constraint}:
 bounded treewidth yields a polynomial-size exact representation of a
 feasible set that may itself be exponential.  The matching lower bound
-(unbounded coupling forces exponential representation) stays outlook.
+is the next section.
+
+\section{The dichotomy's hard side: unbounded coupling is exponential}
+
+The tractable direction above is only half a dichotomy without a
+matching lower bound.  \lean{Ste.CouplingLowerBound} supplies the
+concrete hard side.  First it upgrades the presheaf gluing dichotomy of
+the variable-side presheaf (above) to a genuine \emph{iff} for the singleton
+cover:
+
+\begin{theorem}[\lean{cechVanishes\_iff\_rectangular}]
+The \v{C}ech obstruction of the singleton cover vanishes ---
+equivalently, every compatible family of local sections glues --- iff
+the constraint is a rectangle $\mathrm{univ.pi}\,P$.
+\end{theorem}
+
+\noindent So coupling is \emph{exactly} the obstruction to
+singleton-cover gluing.  Then it scales the two-bit diagonal to the
+\emph{n-fold all-equal coupling} $\Delta_n = \{f : \mathrm{Fin}\,n \to
+\alpha \mid \forall i\,j,\ f_i = f_j\}$ --- the maximal coupling, whose
+primal graph is complete (induced width $n-1$).  Its feasible set is
+tiny (\lean{allEqual\_encard}: $|\Delta_n| = |\alpha|$, one constant vector
+per value), yet every margin is full, so:
+
+\begin{theorem}[\lean{cechObstruction\_allEqual};
+\lean{cechObstruction\_allEqual\_ge}]
+$\operatorname{cechObstruction}(\Delta_n) = |\alpha|^n - |\alpha|$, and
+for $|\alpha| \ge 2$ this is $\ge 2^n - 2$.
+\end{theorem}
+
+\noindent The gap between the $|\alpha|$ genuine solutions and the
+$|\alpha|^n$ margin-compatible families grows exponentially in the
+number of variables (\lean{allEqual\_not\_rectangular},
+\lean{allEqual\_not\_cechVanishes} record non-rectangularity at every
+arity).  Set against \lean{junctionTree\_size\_linear}'s $n \cdot
+k^{w+1}$ at bounded width, this is the STE form of the bounded-width
+tractability dichotomy \citep{dechter2003constraint}, now machine-checked
+on both sides: bounded coupling is linear, unbounded coupling is
+exponential.
+
+\section{Local consistency: the width-1 tractable case}
+
+The constructive counterpart of bounded width is that a locally
+consistent, acyclic instance is \emph{solvable} --- Freuder's
+backtrack-free theorem \citep{freuder1982backtrack}.
+\lean{Ste.Consistency} mechanizes the chain (width-1) case.  For a path
+of variables $\mathrm{Fin}(n+1)$ with domains $D_i$ and binary
+constraints $R_i$ between consecutive variables, \emph{arc consistency}
+asks that every domain value have a forward and a backward support.
+
+\begin{theorem}[\lean{arcConsistent\_chain\_solvable};
+\lean{arcConsistent\_backtrackFree}]
+A nonempty arc-consistent chain has a global solution $f$ with $f_i \in
+D_i$ and $R_i(f_i, f_{i+1})$ for every edge; moreover \emph{every} value
+of \emph{every} domain lies on such a solution --- extended rightward by
+forward supports and leftward by backward supports, with no choice ever
+retracted.
+\end{theorem}
+
+\noindent The solution set is the `feasibilitySet` of the chain
+constraints (\lean{chainSet\_eq\_feasibilitySet}), and arc consistency
+is the statement that the two-variable edge sections cover the margins
+--- the concrete, width-1 instance of ``$k$-consistency as higher
+gluing.''  The general (forest, and higher-width $k$-consistency) cases
+remain outlook.
 
 \section{Outlook: the cohomological program (not proven)}
 
