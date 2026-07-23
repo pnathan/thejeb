@@ -282,7 +282,8 @@ truncated network can see the deleted coordinate, so restricting along
 last coordinate. -/
 theorem snoc_eq_snoc_of_lt {m : ℕ} (g : Fin (m + 1) → α) (b c : α)
     {u : Fin (m + 2)} (hu : u.val < m + 1) :
-    Fin.snoc g b u = Fin.snoc g c u := by
+    (Fin.snoc g b : Fin (m + 2) → α) u
+      = (Fin.snoc g c : Fin (m + 2) → α) u := by
   have hu' : u = (⟨u.val, hu⟩ : Fin (m + 1)).castSucc := by
     apply Fin.ext
     simp
@@ -336,7 +337,7 @@ theorem prefixConsistent_solvable_from :
         (fun j g => R j.castSucc (Fin.snoc g a)) := by
       intro j g hg
       have hgz : ∀ u : Fin (m + 2), u.val ≤ (j.castSucc).val →
-          Fin.snoc g a u ∈ D u := by
+          (Fin.snoc g a : Fin (m + 2) → α) u ∈ D u := by
         intro u hu
         have hj := j.isLt
         have hum : u.val < m + 1 := by
@@ -362,7 +363,7 @@ theorem prefixConsistent_solvable_from :
     -- the last node's separator is fully assigned; prefix consistency
     -- hands over a value for the final bucket
     have hgz : ∀ u : Fin (m + 2), u.val ≤ (Fin.last m).val →
-        Fin.snoc g a u ∈ D u := by
+        (Fin.snoc g a : Fin (m + 2) → α) u ∈ D u := by
       intro u hu
       have hum : u.val < m + 1 := by
         simp only [Fin.val_last] at hu
