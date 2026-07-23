@@ -37,3 +37,4 @@ import Ste.TreewidthConverse
 import Ste.JunctionTree
 import Ste.CechObstruction
 import Ste.Consistency
+import Ste.CouplingLowerBound
