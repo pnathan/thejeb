@@ -99,11 +99,18 @@ $n$-fold coupling has \v{C}ech obstruction $\ge 2^n - 2$ against a
 constant-size feasible set (\lean{cechObstruction\_allEqual\_ge}), so
 unbounded coupling is exponential where bounded width is linear --- and
 mechanizes Freuder's width-1 tractability (a nonempty arc-consistent
-chain is solvable, \lean{arcConsistent\_chain\_solvable}).  The genuine
-remaining outlook is the general cohomological programme --- the full
-$\check{H}^1$ functor over arbitrary covers and the quantitative
-obstruction-size claim --- together with higher-width $k$-consistency and
-efficient computation of treewidth, which is NP-hard
+chain is solvable, \lean{arcConsistent\_chain\_solvable}).  A third
+sweep pushes into the documented open questions: the sheaf/gluing level
+of the \v{C}ech obstruction is lifted to \emph{arbitrary} covers
+(\lean{rectangular\_cechVanishesCover}: a rectangle's local sections
+glue to a unique global section over any cover, non-vacuously ---
+\lean{diagonal\_not\_cechVanishesCover}), and Freuder's tractability is
+extended from chains to arbitrary rooted \emph{trees}
+(\lean{treeArcConsistent\_solvable}).  The genuine remaining outlook is
+narrow: the full linearized $\check{H}^1$ cochain complex (cohomology as
+$\ker/\operatorname{im}$) with its quantitative obstruction-size claim,
+higher-width $k$-consistency ($k \ge 2$, cyclic graphs), and efficient
+computation of treewidth, which is NP-hard
 \citep{arnborg1987complexity,freuder1982backtrack,grohe2007complexity,dechter2003constraint}.
 \end{abstract}
 
@@ -850,9 +857,32 @@ and equals $2 \ne 0$ for the diagonal.
 \noindent Vanishing forces rectangularity
 (\lean{rectangular\_of\_cechVanishes}), bridging the cohomological
 obstruction to the representation obstruction of the coupling.
-The general theory (arbitrary covers, the full $\check{H}^1$ functor, the
-quantitative ``obstruction size $=$ representation blow-up'' claim)
-remains cited framework and outlook.
+The singleton cover is the finest; \lean{Ste.CechCover} lifts the
+gluing level to an \emph{arbitrary} cover $U : J \to \mathcal{P}(V)$
+with substantive overlaps.  A \emph{compatible family} assigns each
+context $U_j$ a local section agreeing with its neighbours on overlaps
+(the Čech cocycle condition); it \emph{glues} when it is the restriction
+of a single global section.
+
+\begin{theorem}[\lean{rectangular\_cechVanishesCover};
+\lean{rectangular\_glueCover\_existsUnique}]
+For a rectangular constraint and \emph{any} cover of the variable set,
+every compatible family of local sections glues to a \emph{unique}
+global section.
+\end{theorem}
+
+\noindent The glue picks, for each variable, a context containing it and
+reads off the section there --- well-defined because overlap agreement
+makes the choice immaterial.  This is a genuine sheaf theorem over
+arbitrary covers, not just the singleton one; the singleton instance
+recovers the earlier result exactly
+(\lean{cechVanishesCover\_singleton\_iff}), and gluing provably
+\emph{fails} for the diagonal (\lean{diagonal\_not\_cechVanishesCover}),
+so the theorem has real content.  What remains outlook is only the
+\emph{full} $\check{H}^1$ as a linearized cochain complex (cohomology as
+$\ker/\operatorname{im}$ over a free module) and the quantitative
+``obstruction size $=$ representation blow-up'' claim --- the
+$\check{H}^0$/sheaf-gluing level is now mechanized for all covers.
 
 \subsection{The junction-tree representation}
 \lean{Ste.JunctionTree} packages the bucket-elimination trace as one
@@ -931,12 +961,35 @@ forward supports and leftward by backward supports, with no choice ever
 retracted.
 \end{theorem}
 
-\noindent The solution set is the `feasibilitySet` of the chain
+\noindent The solution set is the \lean{feasibilitySet} of the chain
 constraints (\lean{chainSet\_eq\_feasibilitySet}), and arc consistency
 is the statement that the two-variable edge sections cover the margins
 --- the concrete, width-1 instance of ``$k$-consistency as higher
-gluing.''  The general (forest, and higher-width $k$-consistency) cases
-remain outlook.
+gluing.''
+
+\lean{Ste.ConsistencyTree} then removes the path restriction: an
+arbitrary rooted \emph{tree} (a parent function on the non-root nodes of
+$\mathrm{Fin}(n{+}1)$ with the topological-order hypothesis
+$\operatorname{parent}(i) \le i$, so the last node is always a leaf).
+\emph{Directional} arc consistency asks that every value of a node's
+parent domain have a supporting child value.
+
+\begin{theorem}[\lean{treeArcConsistent\_solvable};
+\lean{treeArcConsistent\_solvable\_from}]
+A nonempty directionally-arc-consistent rooted tree has a global
+solution $f$ with $f_i \in D_i$ and $R_i(f_{\operatorname{parent}(i)},
+f_{i})$ across every edge; moreover every root value extends to one
+(backtrack-free).
+\end{theorem}
+
+\noindent The proof peels the last (leaf) node, solves the truncated
+tree by induction, and extends across the final edge by the parent's
+already-assigned value --- the greedy root-to-leaf search of
+\citet{freuder1982backtrack}, now for arbitrary acyclic width-1
+structure (the chain is the special case
+$\operatorname{parent}(i) = i$).  What remains outlook is genuine
+higher width: $k$-consistency for $k \ge 2$ and cyclic constraint
+graphs.
 
 \section{Outlook: the cohomological program (not proven)}
 
