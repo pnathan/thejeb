@@ -142,10 +142,21 @@ obstruction \emph{fail}
 \lean{not\_forall\_cechObstruction\_le\_rectCoverNumber}); what holds
 instead is the fooling sandwich $\mathrm{fool}(T) \le \rho(T) \le |T|$
 with $\rho(T) = 1$ iff the obstruction vanishes and
-$\rho(\mathrm{allEqual}) = |\alpha|$ exactly.  What stays genuinely open
-is now narrower: the fusion of enforcement and extraction into a single
-``adaptive consistency is a complete, width-bounded solver'' theorem; and
-efficient computation of treewidth, which is NP-hard
+$\rho(\mathrm{allEqual}) = |\alpha|$ exactly.  The
+``adaptive consistency is a complete, width-bounded solver'' theorem is
+now also mechanized (\lean{Ste.AdaptiveSolver}): projective bucket
+elimination on an order achieving width $w$ decides feasibility,
+extracts a concrete solution backtrack-free, and stays within
+$\operatorname{tw} \le w$, all in one statement
+(\lean{projectBucketEliminate\_complete\_solver}); moreover the abstract
+bucket network of \lean{Ste.AdaptiveConsistency} is realized as a scoped
+list whose joint constraint is \emph{literally} the network's solution
+set (\lean{joinConstraint\_bucketNetworkList}), so the solver operates on
+it directly and returns a genuine \lean{AdaptiveSolution}
+(\lean{adaptiveNetwork\_solved\_by\_elimination}) --- joining the two
+formalisms in Lean.  What stays genuinely open is now narrower still:
+constructing the width-$w$ elimination order from a separator width
+bound, and efficient computation of treewidth, which is NP-hard
 \citep{arnborg1987complexity,freuder1982backtrack,grohe2007complexity,dechter2003constraint}.
 \end{abstract}
 
@@ -1076,9 +1087,16 @@ it; the tree is the width-$1$ special case
 honest in the mechanization: directional consistency is vacuous when a
 later domain is empty, so the theorem carries a nonemptiness hypothesis
 (the faithful root-value analogue holds for Dechter's stronger
-earlier-variables-only \lean{PrefixConsistent}).  What remains outlook is
-the \emph{enforcement} half --- that bucket elimination \emph{establishes}
-directional consistency at width-bounded cost --- and the converse
+earlier-variables-only \lean{PrefixConsistent}).  The \emph{enforcement}
+half --- that projective bucket elimination \emph{establishes} the
+recorded condition while preserving the solution set, and that the run
+is a complete, width-bounded solver that extracts a genuine
+\lean{AdaptiveSolution} --- is now mechanized in \lean{Ste.AdaptiveSolver}
+(\lean{adaptiveNetwork\_solved\_by\_elimination},
+\lean{adaptiveNetwork\_complete\_solver}), the abstract network being
+realized as a scoped constraint list whose joint constraint is exactly
+\lean{adaptiveSet}.  What remains outlook is building the width-$w$
+elimination order from a separator width bound, and the converse
 (width-$\ge k$ networks where $k$-consistency fails).
 
 \section{Obstruction size versus representation blow-up: a sandwich, not an equality}
