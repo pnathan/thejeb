@@ -103,6 +103,8 @@ import Ste.CechComplex
 
 namespace STE
 
+noncomputable section
+
 open Set
 
 variable {V : Type*} {A : V → Type*} {J : Type*}
@@ -262,6 +264,14 @@ abbrev twistedH0 : Submodule R (twistedC0 R T U) :=
 def twistedCoboundaries1 : Submodule R (LinearMap.ker (twistedD1 R T U)) :=
   (LinearMap.range (twistedD0 R T U)).comap
     (LinearMap.ker (twistedD1 R T U)).subtype
+
+-- Diagnostic instance checks for the quotient below.
+example : AddCommGroup (twistedC1 R T U) := inferInstance
+example : Module R (twistedC1 R T U) := inferInstance
+example : AddCommGroup ↥(LinearMap.ker (twistedD1 R T U)) := inferInstance
+example :
+    HasQuotient ↥(LinearMap.ker (twistedD1 R T U))
+      (Submodule R ↥(LinearMap.ker (twistedD1 R T U))) := inferInstance
 
 /-- **The twisted `Ȟ¹ = ker d¹ ⧸ im d⁰`** with section-presheaf
 coefficients, as an honest quotient `R`-module.  Whether this module
@@ -548,5 +558,7 @@ theorem diagonal_twisted_obstruction_detects [Nontrivial R] :
       (obstructionClass_eq_zero_of_gluesCover R diagonal twoCover
         mixedFamily_compatible hg),
     diagonal_obstructionClass_ne_zero R⟩
+
+end
 
 end STE

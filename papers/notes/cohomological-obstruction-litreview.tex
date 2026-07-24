@@ -1,0 +1,493 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+\title{The Graded Cohomological Obstruction to Gluing in Set Theoretic
+Estimation:\\ Literature Review, a Machine-Checked Twisted \v{C}ech
+Complex,\\ and the Location of the Coupling Class}
+\author{Project \texttt{thejeb}}
+\date{\today}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem*{conjecture}{Conjecture (outlook)}
+
+\newcommand{\lean}[1]{\texttt{#1}}
+\newcommand{\cech}{\v{C}ech}
+\newcommand{\Hc}[1]{\check{H}^{#1}}
+\newcommand{\FR}{\mathcal{F}_R}
+\newcommand{\Sec}{\mathcal{S}}
+\newcommand{\coker}{\mathrm{coker}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The project's linearized \cech{} complex with \emph{constant}
+coefficients (\lean{Ste.CechComplex}) has $\Hc{1}=0$ identically: the
+full nerve of a cover is an acyclic simplex, so constant coefficients
+cannot see the coupling obstruction that the set-level theory
+(\lean{Ste.CechObstruction}, \lean{Ste.CechCover}) locates at the
+two-bit diagonal and the $n$-fold \lean{allEqual}.  This note attacks
+the open question: does a \emph{twisted}, section-presheaf-valued
+\cech{} cohomology produce a nonzero class locating the coupling, in
+the sense of the Abramsky--Brandenburger--Mansfield--Barbosa
+cohomological-contextuality program
+\citep{abramsky2011sheaf,abramsky2012cohomology}?  We review that
+program and its known \emph{false-negative} phenomenon, then report a
+machine-checked answer (\lean{Ste.TwistedCech}, Lean~4 over Mathlib,
+CI-verified, no \lean{sorry}): (i) the AMB \emph{per-section}
+$\Hc{1}$-obstruction $\gamma(s)$ \emph{degenerates structurally} in
+STE---the extension condition equivalent to $\gamma(s)=0$
+\citep[Prop.~4.2]{abramsky2012cohomology} holds for every local section
+of every constraint over every cover, because STE's section presheaf
+bakes global extendability into its stalks; (ii) the obstruction that
+\emph{does} fire lives one degree down, in
+$\coker\bigl(\FR(V)\to\Hc{0}(\mathcal{U},\FR)\bigr)$: for the diagonal
+with its singleton cover, the mixed family's class in that cokernel is
+nonzero over \emph{every} nontrivial commutative ring---no signed or
+formal linear combination of global solutions explains the mixed
+margins.  The verdict is thus a sharp \emph{partial positive}: a
+twisted cohomological invariant does locate the STE coupling, but at
+graded degree $0$ (modulo global sections), while the degree-$1$
+per-section obstruction of the transplanted AMB theory is provably
+blind here---a structural instance of the false-negative phenomenon.
+We close with a quantitative conjecture relating the cokernel rank to
+the logarithm of the forced representation blow-up.
+\end{abstract}
+
+\section{The problem}
+\label{sec:problem}
+
+Fix variables $v \in V$ with value types $A_v$ and a constraint
+(feasible set) $T \subseteq \prod_v A_v$.  For a cover
+$\mathcal{U} = \{U_j\}_{j \in J}$ of $V$, the \emph{local sections} of
+$T$ over a context $W \subseteq V$ are the restrictions to $W$ of
+global solutions,
+$\Sec(W) = \{\, f|_W : f \in T \,\}$
+(\lean{Ste.VariablePresheaf.localSections}); $W \mapsto \Sec(W)$ is a
+presheaf under restriction.  A \emph{compatible family} assigns to each
+$j$ a local section $s_j \in \Sec(U_j)$ agreeing on overlaps; it
+\emph{glues} if a single $f \in T$ restricts to every $s_j$
+(\lean{Ste.CechCover}).  The set-level theory is closed in the project:
+rectangular (variable-separable) constraints glue over every cover
+(\lean{rectangular\_cechVanishesCover}); the two-bit coupling
+$\Delta = \{f : f(0) = f(1)\} \subseteq \mathrm{Bool}^2$ fails to glue
+at the mixed family over the singleton cover
+(\lean{diagonal\_gluing\_fails}), with the quantitative counts
+$4$ compatible vs.\ $2$ glued families
+(\lean{diagonal\_cechObstruction} $= 2$), scaling to $2^n - 2$ stuck
+families for the $n$-fold coupling
+(\lean{cechObstruction\_allEqual\_ge}).
+
+The open question addressed here: \emph{grade} this obstruction
+cohomologically.  \lean{Ste.CechComplex} showed that the naive grading
+with constant coefficients is vacuous: for any nonempty index type the
+full-nerve complex is exact at $C^1$ and $C^2$, so $\Hc{1} = \Hc{2} =
+0$ (\lean{cechH1\_subsingleton})---a simplex is acyclic, and the
+coupling is invisible.  The Abramsky--Mansfield--Barbosa (AMB) program
+\citep{abramsky2012cohomology} says the correct coefficients are the
+\emph{linearized section presheaf}
+\[
+\FR(W) \;=\; R^{(\Sec(W))} \;=\; \text{the free $R$-module on }
+\Sec(W),
+\]
+with restriction maps the linear extensions of section restriction.
+Does the resulting \emph{twisted} $\Hc{1}$ produce a nonzero class
+locating the coupling?  And is there a quantitative ``obstruction size
+$=$ smallest exact-representation blow-up'' relationship?  A known
+subtlety looms: the AMB obstruction is \emph{sufficient but not
+necessary}---it can vanish on genuinely non-gluing scenarios (AMB
+themselves call these ``false positives'' of the linearized
+extendability test; from the obstruction's viewpoint they are
+\emph{false negatives}, and we use that convention).
+
+\section{Background: the cohomology of contextuality}
+\label{sec:background}
+
+\subsection{\cech{} cohomology of a cover with presheaf coefficients}
+
+Let $X$ be a set, $\mathcal{U} = \{C_i\}$ a cover, and $\mathcal{F}$ a
+presheaf of abelian groups on (the subsets generated by) $\mathcal{U}$.
+The \cech{} cochain complex of the \emph{fixed} cover---no direct limit
+over refinements is taken, matching \citet[Ch.~II]{bott1982forms} and
+\citet[\S3]{abramsky2012cohomology}---has
+$C^q(\mathcal{U},\mathcal{F}) = \prod_{\sigma}
+\mathcal{F}(|\sigma|)$ over $q$-simplices $\sigma$ of the nerve, with
+$|\sigma|$ the intersection of the members of $\sigma$, and coboundary
+$\delta^q(\omega)(\sigma) = \sum_k (-1)^k
+\rho\,\omega(\partial_k\sigma)$, where $\rho$ is presheaf restriction.
+Then $\delta^{q+1}\delta^q = 0$ and $\Hc{q}(\mathcal{U},\mathcal{F}) =
+\ker \delta^q / \mathrm{im}\, \delta^{q-1}$.  Two structural facts
+drive everything below: $\Hc{0}(\mathcal{U},\mathcal{F})$ is exactly
+the group of \emph{compatible families} of $\mathcal{F}$
+\citep[Prop.~3.2]{abramsky2012cohomology}; and for the \emph{constant}
+presheaf on the full nerve the complex is acyclic in positive degrees
+(mechanized in \lean{Ste.CechComplex})---all cohomological information
+about gluing must come from the twist.
+
+\subsection{The AMB obstruction $\gamma(s)$}
+
+An empirical model in the sheaf-theoretic framework
+\citep{abramsky2011sheaf} is a compatible family of distributions
+$\{e_C\}$ over the contexts of a measurement cover; compatibility is
+exactly no-signalling.  Its \emph{support presheaf} $\Sec_e$ records
+the possibilistic content.  The model is \emph{logically contextual}
+at $s$ if the support section $s$ extends to no compatible family of
+$\Sec_e$; \emph{strongly contextual} if $\Sec_e$ has no global
+section at all.  AMB \citep{abramsky2012cohomology} linearize:
+$\FR = F_R \Sec_e$ with $F_R$ the free-module functor (the left
+adjoint to the forgetful functor $R\text{-Mod} \to \mathrm{Set}$,
+\citealp[Def.~17]{abramsky2015paradox}), and form, for a fixed context
+$C_1$, the \emph{relative} presheaf $\tilde{\mathcal{F}}$ fitting in
+$0 \to \tilde{\mathcal{F}} \to \FR \to \FR|_{C_1} \to 0$.  The
+connecting homomorphism of the long exact sequence sends (the class
+of) a section $s_1 \in \Sec_e(C_1)$ to
+\[
+\gamma(s_1) \;\in\; \Hc{1}(\mathcal{U}, \tilde{\mathcal{F}}),
+\]
+concretely: pick $s_i$ with matching restrictions, set $c = (s_i)_i
+\in C^0$, and $\gamma(s_1) = [\delta^0 c]$.  The pivotal
+characterization is
+\citep[Prop.~4.2]{abramsky2012cohomology}:
+\begin{quote}
+$\gamma(s_1) = 0$ \emph{iff there is a compatible family $\{r_i \in
+\FR(C_i)\}$ of the linearized presheaf with $r_1 = s_1$.}
+\end{quote}
+Since a genuine (set-level) extension is in particular an
+$\FR$-extension with $0/1$ coefficients, $\gamma(s_1) \neq 0$ implies
+logical contextuality at $s_1$; nonvanishing for all sections implies
+strong contextuality \citep[Prop.~4.3]{abramsky2012cohomology}.  The
+obstruction fires on the PR box (by hand: the forced coefficients
+derive $1 = 0$), and machine computations mod~$2$ verify nonvanishing
+for GHZ, the 18-vector Kochen--Specker configuration, and the
+Peres--Mermin square \citep{abramsky2012cohomology}.
+
+\subsection{False negatives, AvN, and coefficient functoriality}
+\label{sec:falseneg}
+
+Necessity fails, in two escalating stages.  First, AMB's own \S5
+computes the \emph{Hardy model}: it is logically contextual at $s_1$,
+yet $\gamma(s_1) = 0$, witnessed by an explicit $\Z$-linear compatible
+family with a negative coefficient ($r_2 = s_6 + s_7 - s_8$)---formal
+linear combinations can cancel where genuine sections cannot.  Their
+\S8 then constructs a \emph{strongly contextual} model with vanishing
+obstruction, and Conjecture~8.1 proposed that symmetry and
+connectedness restore completeness.  Second,
+\citet{caru2017cohomology} refuted that conjecture: strongly
+contextual, symmetric, connected models with vanishing obstruction
+exist, and the failure persists for the higher-degree generalizations
+$\Hc{q}$ he introduces; \citet{caru2018complete} refines the invariant
+to cover ``the vast majority'' of models, with full completeness still
+open.  On the positive side, \citet[Thm.~21]{abramsky2015paradox}
+delimits the reliable regime: every model admitting an
+\emph{All-vs-Nothing} argument over a ring $R$ (an inconsistent
+$R$-linear theory of its supports) is cohomologically strongly
+contextual, with the implication chain $\mathrm{AvN}_R \Rightarrow
+\mathrm{SC}(\mathrm{Aff}\,S) \Rightarrow \mathrm{CSC}_R \Rightarrow
+\mathrm{CSC}_\Z \Rightarrow \mathrm{SC}$; and ring homomorphisms
+$R' \to R$ give $\mathrm{CSC}_R \Rightarrow \mathrm{CSC}_{R'}$, so
+$\Z$ is the strongest coefficient choice.  All known quantum
+strongly-contextual models are AvN, hence detected.  A complementary
+fact from \citet{abramsky2011sheaf} calibrates what linearization can
+possibly see: over the \emph{signed} reals, every no-signalling model
+has a global section (``negative probabilities''), so the linear
+invariants live strictly between no-signalling and classicality.
+
+\section{The STE transplant: two machine-checked results}
+\label{sec:ste}
+
+The STE analogue substitutes, for the support presheaf $\Sec_e$ of an
+empirical model, the section presheaf $\Sec$ of a constraint $T$.
+This is a mathematically consequential substitution: \emph{every}
+$s \in \Sec(W)$ extends to a global solution \emph{by definition of}
+$\Sec$.  In sheaf-theoretic terms the presheaf is flabby-at-sections
+in a way empirical supports are not; the stuck objects of STE are
+compatible \emph{families}, never single sections.  The module
+\lean{Ste.TwistedCech} (Lean~4, Mathlib, CI-verified, no \lean{sorry},
+no axioms) builds the twisted complex honestly---coefficients
+$\FR(W) = \Sec(W) \to_{f.s.} R$ (finitely supported functions,
+Mathlib's \lean{Finsupp}), restrictions
+\lean{Finsupp.lmapDomain} along section restriction, cochain modules
+$C^0, C^1, C^2$ over an arbitrary cover, coboundaries $d^0, d^1$ with
+$d^1 \circ d^0 = 0$ (\lean{twisted\_d1\_comp\_d0}), and the honest
+quotient module $\Hc{1} = \ker d^1 / \mathrm{im}\, d^0$
+(\lean{twistedH1})---and proves:
+
+\begin{theorem}[Structural false negative;
+\lean{amb\_extension\_always}]
+\label{thm:degenerate}
+For every commutative ring $R$, every constraint $T$, every cover
+$\mathcal{U} = \{U_j\}$, every context index $j_1$, and every local
+section $s_1 \in \Sec(U_{j_1})$, there is a twisted $0$-cocycle $r \in
+\Hc{0}(\mathcal{U}, \FR)$ with $r_{j_1} = \delta_{s_1}$ (the point
+mass).  Hence the extension condition that
+\citet[Prop.~4.2]{abramsky2012cohomology} proves equivalent to
+$\gamma(s_1) = 0$ is \emph{identically satisfied} on STE section
+presheaves: the transplanted per-section $\Hc{1}$-obstruction is
+uniformly zero, for reasons independent of any coupling.
+\end{theorem}
+
+The proof is two lines of mathematics: $s_1 = f|_{U_{j_1}}$ for some
+$f \in T$, and the family of point masses $(\delta_{f|_{U_j}})_j$ is a
+twisted $0$-cocycle restricting correctly.  The content is the
+diagnosis, not the difficulty: AMB's $\gamma$ measures
+per-section extendability, and STE grants that for free.  This is the
+false-negative phenomenon of \S\ref{sec:falseneg} in structural form:
+an entire class of genuinely non-gluing scenarios (all STE couplings)
+on which the degree-$1$ per-section obstruction vanishes identically.
+
+\begin{theorem}[The coupling class fires in degree $0$;
+\lean{diagonal\_obstructionClass\_ne\_zero},
+\lean{mixedFamily\_not\_linearlyGlues}]
+\label{thm:fires}
+Let $R$ be any nontrivial commutative ring.  For the two-bit coupling
+$\Delta$ with its singleton cover, the point-mass cocycle of the mixed
+family $(x \mapsto \mathrm{ff},\, y \mapsto \mathrm{tt})$ defines a
+\emph{nonzero} class in the quotient module
+\[
+\coker\bigl(\FR(V) \longrightarrow \Hc{0}(\mathcal{U}, \FR)\bigr),
+\qquad \FR(V) = R^{(T)},
+\]
+i.e., no finitely supported $R$-linear combination $\varphi$ of the
+two global solutions of $\Delta$ has $\varphi$'s restriction point
+masses equal to the family's in both contexts.  Moreover set-level
+gluing kills the class
+(\lean{obstructionClass\_eq\_zero\_of\_gluesCover}) and rectangular
+constraints have vanishing class over every cover
+(\lean{rectangular\_obstructionClass\_eq\_zero}), so the class is a
+genuine obstruction invariant, zero on the tractable fragment and
+nonzero at the coupling (\lean{diagonal\_twisted\_obstruction\_detects}).
+\end{theorem}
+
+The proof pins coefficients exactly as in AMB's PR-box computation:
+evaluating the putative lift at the all-true solution forces its
+coefficient to be $0$ (context $0$) and $1$ (context $1$), so $1 = 0$
+in $R$.  Note the contrast with the AMB world: there, no-signalling
+guarantees a global section over the signed reals
+\citep{abramsky2011sheaf}, so the analogous real-coefficient test
+\emph{must} pass; here the global module is free on the solution set
+$T$ itself and the margins are point masses, and even signed real
+coefficients fail.  Theorem~\ref{thm:fires} is strictly stronger than
+the set-level \lean{diagonal\_gluing\_fails}: ``negative
+probabilities'' cannot repair the STE coupling.
+
+\begin{remark}[Where the grading puts the class]
+The compatible family's cocycle lives in
+$\Hc{0}(\mathcal{U},\FR)$---Prop.~3.2 of
+\citet{abramsky2012cohomology} again---and the obstruction is its
+image in the cokernel of the global-to-local comparison map.  In the
+long-exact-sequence picture this cokernel embeds in the $\Hc{1}$ of a
+relative presheaf, which is exactly how AMB's $\gamma$ arises; what
+Theorems~\ref{thm:degenerate} and \ref{thm:fires} jointly show is that
+after transplant to STE, the per-\emph{section} relative class
+degenerates while the per-\emph{family} comparison class survives.  A
+direct mechanization of the relative complex and connecting map, and a
+proof (or refutation) that the absolute twisted $\Hc{1}$ of a
+pairwise-disjoint cover vanishes, are left open; the latter would make
+the degeneracy of Theorem~\ref{thm:degenerate} an instance of blanket
+$\Hc{1}$-triviality for singleton covers.
+\end{remark}
+
+\section{The quantitative question}
+\label{sec:quant}
+
+Is there an ``obstruction size $=$ representation blow-up''
+relationship?  The literature offers no such theorem: the established
+quantitative measure of contextuality is the \emph{contextual
+fraction} \citep{abramsky2017contextualfraction}---the linear-programming
+distance to the noncontextual polytope, equal to the normalized maximal
+Bell violation---which is a convex-geometric, probabilistic-level
+quantity with no known link to the rank or order of the cohomological
+class.  The nearest comparative result is \citet{aasnaess2022comparing},
+which proves the AMB \cech{} obstruction and the group-cohomological
+obstruction of \citet{okay2017topological} equally strong as
+detectors, and converts contextuality into shallow-circuit quantum
+advantage---computational, not representational, blow-up.  The gap is
+real, and STE offers a clean testbed, because the project has already
+mechanized both sides separately: the obstruction counts
+(\lean{diagonal\_cechObstruction} $=2$;
+$\geq 2^n - 2$ for \lean{allEqual}) and the blow-up
+(\lean{rectangle\_superset\_diagonal\_encard}: every rectangle
+containing $\Delta$ has $4$ points against $|\Delta| = 2$).
+
+A hand computation (\emph{not} machine-checked; stated here as data
+for the conjecture queue) for \lean{allEqual} over an $m$-element value
+type with $n$ singleton contexts, coefficients in a field: $C^0$ has
+dimension $nm$; the twisted cocycle condition on the empty overlaps
+equates total masses across contexts, cutting dimension to
+$nm - (n-1)$; the global image is spanned by the $m$ independent
+constant-solution vectors; hence
+\[
+\mathrm{rank}\; \coker\bigl(\FR(V) \to \Hc{0}\bigr)
+ \;=\; nm - (n-1) - m \;=\; (n-1)(m-1),
+\]
+while the forced blow-up factor of the best rectangular
+over-approximation is $m^n / m = m^{\,n-1}$, i.e.\
+$\log_m(\text{blow-up}) = n - 1$.  For the diagonal ($n = m = 2$):
+cokernel rank $1$, blow-up factor $2$, and the two stuck mixed
+families map to $\pm$ the single generator.
+
+\begin{conjecture}
+For $T = \lean{allEqual}\;n\;\alpha$ with $|\alpha| = m \geq 2$ over
+any field, the cokernel of Theorem~\ref{thm:fires} has rank exactly
+$(m-1)(n-1) = (m-1)\log_m(\text{rectangular blow-up factor})$.  In
+particular the twisted degree-$0$ obstruction rank is
+\emph{logarithmic} in the representation blow-up and \emph{polynomial}
+in the number of variables, whereas the set-level stuck-family count
+($m^n - m$) is exponential: the linear invariant is an exponentially
+compressed certificate of the same obstruction.
+\end{conjecture}
+
+\section{Annotated bibliography}
+\label{sec:bib}
+
+Each annotation is an original summary written for this project, with
+relevance to the STE transplant noted.
+
+\paragraph{\citet{abramsky2011sheaf}.}
+Recasts non-locality and contextuality as the failure of a compatible
+family of context-indexed distributions to extend to a global section
+of a presheaf on the measurement cover, proving no-signalling
+equivalent to compatibility and organizing Bell, Hardy, and
+GHZ/Kochen--Specker arguments into a strict hierarchy (probabilistic
+$<$ logical $<$ strong contextuality).  Its coefficient-semiring
+analysis---global sections over $\R_{\geq 0}$ iff noncontextual, over
+the signed reals iff no-signalling---already contains the seed of the
+false-negative phenomenon: linearization with negatives is strictly
+weaker than genuine gluing.  For STE it supplies the exact template:
+constraints as presheaves of local sections over variable covers, with
+the coupling as the non-gluing family (\lean{Ste.VariablePresheaf}).
+
+\paragraph{\citet{abramsky2012cohomology}.}
+The core source for this note: defines the \cech{} cochain complex of
+the fixed measurement cover with presheaf coefficients, linearizes the
+support presheaf by the free-module functor $F_R$, and defines the
+obstruction $\gamma(s_1) \in \Hc{1}(\mathcal{U},\tilde{\mathcal{F}})$
+via the relative presheaf, proving (Prop.~4.2) the extension
+characterization on which our Theorem~\ref{thm:degenerate} pivots.
+Establishes sufficiency (nonvanishing $\Rightarrow$ contextuality),
+verifies the obstruction on PR/GHZ/KS/Peres--Mermin, and honestly
+exhibits its incompleteness on the Hardy model and on a strongly
+contextual model in \S8, conjecturing (8.1) completeness under
+symmetry and connectedness.  Our Lean module mechanizes its \S3--\S4
+apparatus for STE section presheaves.
+
+\paragraph{\citet{abramsky2015paradox}.}
+Connects the cohomological obstruction to logic: All-vs-Nothing
+arguments (inconsistent $R$-linear theories of the support) imply
+cohomological strong contextuality, with the chain
+$\mathrm{AvN}_R \Rightarrow \mathrm{SC}(\mathrm{Aff}\,S) \Rightarrow
+\mathrm{CSC}_R \Rightarrow \mathrm{CSC}_\Z \Rightarrow \mathrm{SC}$
+(Thm.~21) and the observation that $\Z$ is the strongest coefficient
+ring; also aligns contextuality with Liar-type paradoxes and database
+consistency.  Relevant here twice: it gives the cleanest
+connecting-map definition of $\gamma$, and its affine-coefficient
+analysis (compatibility over the empty context forces coefficient sums
+to one) is precisely the mass-balance phenomenon visible in our
+singleton-cover $\Hc{0}$ computation in \S\ref{sec:quant}.
+
+\paragraph{\citet{caru2017cohomology} and \citet{caru2018complete}.}
+The definitive study of the false-negative phenomenon: refutes AMB's
+Conjecture~8.1 by exhibiting symmetric, connected, strongly contextual
+models with vanishing obstruction, and shows the failure persists for
+the higher-cohomology generalizations it introduces; the follow-up
+constructs a refined invariant complete for a large class of models
+while leaving a fully general complete invariant open.  For STE these
+papers calibrate expectations: obstruction-vanishing arguments must be
+diagnosed structurally (as our Theorem~\ref{thm:degenerate} does)
+rather than patched degree-by-degree.
+
+\paragraph{\citet{bott1982forms}.}
+Standard reference for \cech{} cohomology of a \emph{fixed} cover with
+coefficients in a presheaf (Ch.~II), including the cochain complex on
+the nerve and the acyclicity mechanisms that make constant
+coefficients on a simplex trivial---the phenomenon
+\lean{Ste.CechComplex} mechanizes and that forces the twist studied
+here.
+
+\paragraph{\citet{abramsky2017contextualfraction}.}
+Defines the contextual fraction---the maximal noncontextual weight
+subtractable from an empirical model, computable by linear
+programming---and proves it equals the normalized maximal violation of
+generalized Bell inequalities and behaves as a monotone under the free
+operations of a resource theory.  It is the field's quantitative
+measure of contextuality, but it is convex-geometric, not
+cohomological; the absence of any theorem linking it (or any rank
+datum) to representation blow-up is the gap our
+\S\ref{sec:quant} conjecture addresses on the STE side.
+
+\paragraph{\citet{okay2017topological}.}
+Develops a cohomological framework for quantum contextuality attached
+to the topology of Pauli/Weyl operator relations rather than to the
+measurement cover, subsuming Mermin-style parity proofs in both
+state-dependent and state-independent forms.  It is the principal
+rival grading of the same phenomenon; its existence sharpens the
+question of \emph{which} cohomology carries the STE coupling class.
+
+\paragraph{\citet{aasnaess2022comparing}.}
+Proves the two rival obstructions---AMB's \cech{} class and the
+Okay--Roberts--Bartlett--Raussendorf class---detect contextuality with
+exactly equal strength, and generalizes the Bravyi--Gosset--K\"onig
+construction to manufacture shallow-circuit quantum advantage from any
+suitable contextual model.  This is the closest extant result to a
+quantitative ``cohomology $\Rightarrow$ separation'' bridge, and it is
+computational rather than representational---supporting our reading
+that the representation-blow-up question is open.
+
+\paragraph{\citet{combettes1993}.}
+The STE anchor: estimation as feasibility---the solution set is the
+intersection of context/property sets derived from data and priors,
+computed by projection methods.  The cohomological program of this
+note is exactly a local-to-global analysis of Combettes-style
+feasibility: contexts are variable subsets, and the coupling class of
+Theorem~\ref{thm:fires} is a certificate that local feasibility data
+cannot be recombined linearly into global feasibility.
+
+\paragraph{\citet{ganter1999fca}.}
+The mathematical foundations of formal concept analysis: concept
+lattices arise from the Galois connection between objects and
+attributes.  The project's constraint/feasibility polarity
+(\lean{Ste.HyperFrame}) is an instance of the same adjunction, and the
+theories/models Galois connection used by
+\citet[\S4]{abramsky2015paradox} to define affine closures is its
+linear-algebraic cousin---the natural bridge between the FCA side of
+STE and the cohomological side studied here.
+
+\paragraph{\citet{abramsky2014contextualsemantics}.}
+A survey transplanting the sheaf-theoretic and cohomological apparatus
+from quantum mechanics to databases, constraint satisfaction, and
+complexity---evidence that the AMB machinery is designed for exactly
+the kind of classical, constraint-based setting STE inhabits, and the
+methodological license for this project's transplant.
+
+\section{Verdict and outlook}
+\label{sec:verdict}
+
+\textbf{Verdict: partially solved, with a machine-checked negative
+component.}  A twisted, section-presheaf-valued \cech{} invariant
+\emph{does} locate the STE coupling obstruction---but not where the
+transplanted AMB theory grades it.  The per-section
+$\Hc{1}$-obstruction $\gamma$ degenerates identically on STE section
+presheaves (Theorem~\ref{thm:degenerate}, CI-verified): a structural
+false negative explained by the flabbiness of \lean{localSections}.
+The surviving invariant is the family-level class in
+$\coker(\FR(V) \to \Hc{0})$, nonzero at the diagonal over every
+nontrivial ring (Theorem~\ref{thm:fires}, CI-verified), vanishing on
+rectangles over every cover.  Open: mechanizing the relative complex
+and connecting map; the vanishing of the absolute twisted $\Hc{1}$ for
+pairwise-disjoint covers; nonzero twisted $\Hc{1}$ classes for covers
+with substantive overlaps (the XOR/parity triangle is the natural
+candidate, being AvN over $\Z_2$); and the rank conjecture of
+\S\ref{sec:quant}.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
