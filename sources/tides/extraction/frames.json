@@ -1,0 +1,68 @@
+{
+  "schema_version": "primary_cause, moon_role, mechanism, sun_role, spring_neap_dependence, earth_motion_required, quantitative",
+  "frames": {
+    "pliny": {
+      "primary_cause": {"value": "sun_and_moon", "quote": "The tides...are caused by the sun and the moon"},
+      "moon_role": {"value": "attraction", "quote": "Never are the waters moved but the moon draws them"},
+      "mechanism": {"value": "direct_correspondence", "quote": "As the moon rises the seas swell, and again they sink as she declines from the meridian"},
+      "sun_role": {"value": "reinforces_at_syzygy", "quote": "The sun's influence is joined to hers, adding to the swelling at the conjunctions"},
+      "spring_neap_dependence": {"value": "springs_at_syzygy", "quote": "The tides are greatest at the new and the full moon"},
+      "earth_motion_required": {"value": "silent"},
+      "quantitative": {"value": "silent"}
+    },
+    "bede": {
+      "primary_cause": {"value": "moon", "quote": "The moon it is that lifts the waters and lets them fall"},
+      "moon_role": {"value": "attraction", "quote": "The moon it is that lifts the waters and lets them fall"},
+      "mechanism": {"value": "direct_correspondence", "quote": "The ocean is the companion of the moon's course: with her rising it comes on, with her setting it withdraws"},
+      "sun_role": {"value": "silent"},
+      "spring_neap_dependence": {"value": "springs_at_syzygy", "quote": "At the new moon and the full the springs run highest"},
+      "earth_motion_required": {"value": "silent"},
+      "quantitative": {"value": "silent"}
+    },
+    "kepler": {
+      "primary_cause": {"value": "moon", "quote": "The moon, being cognate to the waters of the earth, attracts them"},
+      "moon_role": {"value": "attraction", "quote": "The moon, being cognate to the waters of the earth, attracts them"},
+      "mechanism": {"value": "gravitational_attraction", "quote": "The tides, therefore, are the attraction of the waters by the moon"},
+      "sun_role": {"value": "silent"},
+      "spring_neap_dependence": {"value": "silent"},
+      "earth_motion_required": {"value": "silent"},
+      "quantitative": {"value": "silent"}
+    },
+    "galileo": {
+      "primary_cause": {"value": "earth_motion", "quote": "The tides follow from the Earth's motion"},
+      "moon_role": {"value": "rejected", "quote": "The moon having nothing to do with it"},
+      "mechanism": {"value": "basin_motion", "quote": "The continual alteration of speed makes the contained waters run now toward one end of their basins, now toward the other"},
+      "sun_role": {"value": "silent"},
+      "spring_neap_dependence": {"value": "silent"},
+      "earth_motion_required": {"value": "required", "quote": "The tides follow from the Earth's motion, and that a motionless Earth could show no tides at all"},
+      "quantitative": {"value": "silent"}
+    },
+    "descartes": {
+      "primary_cause": {"value": "sun_and_moon", "quote": "The sun, straitening the vortex likewise, augments the effect at the new and full moon"},
+      "moon_role": {"value": "pressure", "quote": "By the pressure of the subtle matter that the tides are caused"},
+      "mechanism": {"value": "pressure_of_vortex", "quote": "The fluid heaven presses more strongly upon the waters lying under the moon, and depresses them there"},
+      "sun_role": {"value": "reinforces_at_syzygy", "quote": "The sun, straitening the vortex likewise, augments the effect at the new and full moon"},
+      "spring_neap_dependence": {"value": "springs_at_syzygy", "quote": "The sun augments the effect at the new and full moon"},
+      "earth_motion_required": {"value": "silent"},
+      "quantitative": {"value": "silent"}
+    },
+    "newton": {
+      "primary_cause": {"value": "sun_and_moon", "quote": "The flux and reflux of the sea arise from the actions of the sun and moon"},
+      "moon_role": {"value": "attraction", "quote": "The sun and moon, by their gravitation, draw up the waters of the sea"},
+      "mechanism": {"value": "gravitational_attraction", "quote": "The sun and moon, by their gravitation, draw up the waters of the sea"},
+      "sun_role": {"value": "weaker_than_moon", "quote": "The moon's force to raise the sea is greater than the sun's, being nearer the earth"},
+      "spring_neap_dependence": {"value": "springs_at_syzygy", "quote": "When the sun and moon are in conjunction or opposition, their forces conspire, and the greatest, or spring, tides are produced"},
+      "earth_motion_required": {"value": "silent"},
+      "quantitative": {"value": "mathematized", "quote": "The heights of the tides may be computed from the masses and distances of the two luminaries"}
+    },
+    "laplace": {
+      "primary_cause": {"value": "sun_and_moon", "quote": "The tides are the oscillations of the sea produced by the gravitational attractions of the sun and the moon"},
+      "moon_role": {"value": "attraction", "quote": "The gravitational attractions of the sun and the moon"},
+      "mechanism": {"value": "dynamical_oscillation", "quote": "The waters respond to the periodic forces of the two bodies as a dynamical system of forced oscillations"},
+      "sun_role": {"value": "silent"},
+      "spring_neap_dependence": {"value": "silent"},
+      "earth_motion_required": {"value": "silent"},
+      "quantitative": {"value": "mathematized", "quote": "One must integrate the differential equations of the moving ocean; from it the observed heights and times at each port may be deduced by calculation"}
+    }
+  }
+}

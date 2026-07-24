@@ -1,0 +1,107 @@
+{
+  "variables": [
+    {
+      "name": "primary_cause",
+      "domain": ["moon", "sun_and_moon", "earth_motion"],
+      "description": "The fundamental agent(s) the author identifies as the cause of the tides."
+    },
+    {
+      "name": "moon_role",
+      "domain": ["attraction", "pressure", "rejected"],
+      "description": "The kind of causal role, if any, attributed specifically to the moon's action on the waters: it draws/attracts them, it presses on them via an intervening medium, or its causal role is explicitly denied."
+    },
+    {
+      "name": "mechanism",
+      "domain": ["direct_correspondence", "gravitational_attraction", "basin_motion", "pressure_of_vortex", "dynamical_oscillation"],
+      "description": "The physical (or pre-physical) process by which the primary cause is held to produce the rise and fall of the waters."
+    },
+    {
+      "name": "sun_role",
+      "domain": ["reinforces_at_syzygy", "weaker_than_moon"],
+      "description": "How the sun's contribution to the tides is characterized relative to the moon's."
+    },
+    {
+      "name": "spring_neap_dependence",
+      "domain": ["springs_at_syzygy", "neaps_at_quadrature"],
+      "description": "Whether tidal range is tied to the alignment of moon and sun, i.e. greatest at new/full moon (syzygy) or least at the half moon (quadrature)."
+    },
+    {
+      "name": "earth_motion_required",
+      "domain": ["required"],
+      "description": "Whether the theory holds that the Earth's own motion (rotation and/or revolution) is a necessary cause of the tides."
+    },
+    {
+      "name": "quantitative",
+      "domain": ["mathematized"],
+      "description": "Whether the account gives a mathematically predictive treatment of tidal heights and times, rather than a purely qualitative description."
+    }
+  ],
+  "synonyms": {
+    "variable": {
+      "primary_cause": "primary_cause",
+      "mechanism": "mechanism",
+      "force_type": "moon_role",
+      "causation_type": "moon_role",
+      "tidal_strength_pattern": "spring_neap_dependence",
+      "sun_role": "sun_role",
+      "moon_role": "moon_role",
+      "moon_necessity": "moon_role",
+      "moon_tide_correspondence": "mechanism",
+      "tidal_delay_pattern": "mechanism",
+      "tidal_frequency": "mechanism",
+      "earth_motions": "earth_motion_required",
+      "inertial_effect": "mechanism",
+      "cosmic_medium": "mechanism",
+      "matter_dynamics": "moon_role",
+      "pressure_mechanism": "mechanism",
+      "water_behavior": "mechanism",
+      "relative_force": "sun_role",
+      "tidal_range": "spring_neap_dependence",
+      "tidal_height_law": "quantitative",
+      "dynamical_approach": "quantitative",
+      "true_theory": "mechanism",
+      "moon_driven_swelling": "mechanism",
+      "earth_restraint": "mechanism",
+      "force_law": "quantitative"
+    },
+    "value": {
+      "primary_cause::sun_and_moon": "primary_cause::sun_and_moon",
+      "moon_driven_swelling::moon_rises_seas_swell": "mechanism::direct_correspondence",
+      "tidal_strength_pattern::greatest_new_full_moon": "spring_neap_dependence::springs_at_syzygy",
+      "moon_necessity::moon_always_moves_waters": "moon_role::attraction",
+      "sun_role::additive_at_conjunction": "sun_role::reinforces_at_syzygy",
+      "moon_tide_correspondence::faithful_following": "mechanism::direct_correspondence",
+      "tidal_delay_pattern::matches_moon_delay": "mechanism::direct_correspondence",
+      "tidal_frequency::twice_per_lunar_day": "mechanism::direct_correspondence",
+      "tidal_strength_pattern::springs_at_new_full_moon": "spring_neap_dependence::springs_at_syzygy",
+      "primary_cause::moon": "primary_cause::moon",
+      "force_type::mutual_gravity": "moon_role::attraction",
+      "mechanism::moon_attracts_waters": "mechanism::gravitational_attraction",
+      "earth_restraint::earth_attracts_to_prevent_loss": "mechanism::gravitational_attraction",
+      "primary_cause::moon_attraction": "primary_cause::moon",
+      "water_behavior::heaps_toward_moon": "mechanism::gravitational_attraction",
+      "mechanism::basin_motion": "mechanism::basin_motion",
+      "earth_motions::diurnal_and_annual": "earth_motion_required::required",
+      "inertial_effect::speed_alteration_causes_slosh": "mechanism::basin_motion",
+      "primary_cause::earth_motion": "primary_cause::earth_motion",
+      "moon_role::rejected": "moon_role::rejected",
+      "cosmic_medium::celestial_vortex": "mechanism::pressure_of_vortex",
+      "matter_dynamics::pressed_beneath_moon": "moon_role::pressure",
+      "pressure_mechanism::depression_under_moon_raised_quarter_distant": "mechanism::pressure_of_vortex",
+      "causation_type::pressure_not_attraction": "moon_role::pressure",
+      "sun_role::augments_at_new_full_moon": "sun_role::reinforces_at_syzygy",
+      "primary_cause::sun_and_moon_actions": "primary_cause::sun_and_moon",
+      "force_law::universal_gravitation": "quantitative::mathematized",
+      "mechanism::gravitation_draws_water": "mechanism::gravitational_attraction",
+      "relative_force::moon_stronger_than_sun": "sun_role::weaker_than_moon",
+      "tidal_range::spring_tides_conjunction_opposition": "spring_neap_dependence::springs_at_syzygy",
+      "tidal_range::neaps_tides_quadratures": "spring_neap_dependence::neaps_at_quadrature",
+      "tidal_range::neap_tides_quadratures": "spring_neap_dependence::neaps_at_quadrature",
+      "tidal_height_law::proportional_to_forces": "quantitative::mathematized",
+      "primary_cause::gravitational_attractions": "primary_cause::sun_and_moon",
+      "water_behavior::delayed_equilibrium": "mechanism::dynamical_oscillation",
+      "dynamical_approach::differential_equations_required": "quantitative::mathematized",
+      "true_theory::dynamical_gravitation": "mechanism::dynamical_oscillation"
+    }
+  }
+}
