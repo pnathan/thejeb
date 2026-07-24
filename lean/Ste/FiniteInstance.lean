@@ -101,10 +101,11 @@ theorem consistent_of_nonempty {frame : A → V → Option W}
 variable take some author's asserted value (any will do, by consistency);
 fall back to `default` where every author is silent. Noncomputable (it
 chooses a witness), used only to prove the converse. -/
-open Classical in
 noncomputable def frameWitness [Inhabited W] (frame : A → V → Option W) :
     V → W :=
-  fun v => if h : ∃ p : A × W, frame p.1 v = some p.2 then h.choose.2 else default
+  fun v =>
+    letI : Decidable (∃ p : A × W, frame p.1 v = some p.2) := Classical.propDecidable _
+    if h : ∃ p : A × W, frame p.1 v = some p.2 then h.choose.2 else default
 
 /-- The canonical reading satisfies every author's property set, provided
 the corpus is consistent. -/
