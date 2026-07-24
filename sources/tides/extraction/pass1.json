@@ -1,0 +1,95 @@
+{
+  "authors": {
+    "pliny": {
+      "claims": [
+        {"variable": "primary_cause", "value": "sun_and_moon", "quote": "the alternate flowing and ebbing of the tides, which exists indeed under various forms, but is caused by the sun and the moon"},
+        {"variable": "moon_driven_swelling", "value": "moon_rises_seas_swell", "quote": "First, as the moon rises the seas swell, and again they sink as she declines from the meridian; and after her setting they rise once more until she comes again beneath the earth"},
+        {"variable": "tidal_strength_pattern", "value": "greatest_new_full_moon", "quote": "The tides are greatest at the new and the full moon, and least when the moon is at the half"},
+        {"variable": "moon_necessity", "value": "moon_always_moves_waters", "quote": "Never are the waters moved but the moon draws them"},
+        {"variable": "sun_role", "value": "additive_at_conjunction", "quote": "the sun's influence is joined to hers, adding to the swelling at the conjunctions"}
+      ]
+    },
+    "bede": {
+      "claims": [
+        {"variable": "moon_tide_correspondence", "value": "faithful_following", "quote": "The ocean is the companion of the moon's course: with her rising it comes on, with her setting it withdraws, and it follows her faithfully by day and by night"},
+        {"variable": "tidal_delay_pattern", "value": "matches_moon_delay", "quote": "As the moon each day rises later, so the tide each day comes later by the like measure"},
+        {"variable": "tidal_frequency", "value": "twice_per_lunar_day", "quote": "Twice in the lunar day the sea is drawn up and twice let down"},
+        {"variable": "tidal_strength_pattern", "value": "springs_at_new_full_moon", "quote": "at the new moon and the full the springs run highest, for then the moon's power over the waters is greatest"},
+        {"variable": "primary_cause", "value": "moon", "quote": "The moon it is that lifts the waters and lets them fall"}
+      ]
+    },
+    "kepler": {
+      "claims": [
+        {"variable": "force_type", "value": "mutual_gravity", "quote": "Gravity is a mutual bodily affection between cognate bodies towards union"},
+        {"variable": "mechanism", "value": "moon_attracts_waters", "quote": "The moon, being cognate to the waters of the earth, attracts them; and the seas are drawn toward the body of the moon by that same faculty"},
+        {"variable": "earth_restraint", "value": "earth_attracts_to_prevent_loss", "quote": "Were the earth to cease to attract its waters, all the sea-water would be raised up and would flow to the body of the moon"},
+        {"variable": "primary_cause", "value": "moon_attraction", "quote": "The tides, therefore, are the attraction of the waters by the moon"},
+        {"variable": "water_behavior", "value": "heaps_toward_moon", "quote": "the moon draws them upward as she passes overhead, and so the waters heap toward her"}
+      ]
+    },
+    "galileo": {
+      "claims": [
+        {"variable": "mechanism", "value": "basin_motion", "quote": "The ebbing and flowing of the seas cannot be produced except by the motion of their basins"},
+        {"variable": "earth_motions", "value": "diurnal_and_annual", "quote": "the Earth has two motions: the diurnal rotation upon its axis and the annual revolution about the sun"},
+        {"variable": "inertial_effect", "value": "speed_alteration_causes_slosh", "quote": "This continual alteration of speed makes the contained waters run now toward one end of their basins, now toward the other, and so they rise and fall"},
+        {"variable": "primary_cause", "value": "earth_motion", "quote": "I hold it therefore as certain that the tides follow from the Earth's motion, and that a motionless Earth could show no tides at all"},
+        {"variable": "moon_role", "value": "rejected", "quote": "As for those who refer the cause to the moon, attributing to her some dominion over the water by an occult property, I will not give ear to such notions"}
+      ]
+    },
+    "descartes": {
+      "claims": [
+        {"variable": "cosmic_medium", "value": "celestial_vortex", "quote": "The earth is surrounded and carried along by a great vortex of the subtle celestial matter, and the moon swims within this same fluid heaven"},
+        {"variable": "matter_dynamics", "value": "pressed_beneath_moon", "quote": "Because the space between the moon and the earth is not sufficient to let the celestial matter pass freely, that matter is pressed and its motion straitened beneath the moon"},
+        {"variable": "pressure_mechanism", "value": "depression_under_moon_raised_quarter_distant", "quote": "the fluid heaven presses more strongly upon the waters lying under the moon, and depresses them there, while raising the waters at the parts a quarter distant"},
+        {"variable": "causation_type", "value": "pressure_not_attraction", "quote": "It is not by any attraction, for I admit no attraction at a distance, but by the pressure of the subtle matter that the tides are caused"},
+        {"variable": "sun_role", "value": "augments_at_new_full_moon", "quote": "the sun, straitening the vortex likewise, augments the effect at the new and full moon"}
+      ]
+    },
+    "newton": {
+      "claims": [
+        {"variable": "primary_cause", "value": "sun_and_moon_actions", "quote": "The flux and reflux of the sea arise from the actions of the sun and moon"},
+        {"variable": "force_law", "value": "universal_gravitation", "quote": "By the theory of universal gravitation, every body attracts every other with a force proportional to the masses and inversely as the square of the distance"},
+        {"variable": "mechanism", "value": "gravitation_draws_water", "quote": "the sun and moon, by their gravitation, draw up the waters of the sea"},
+        {"variable": "relative_force", "value": "moon_stronger_than_sun", "quote": "The moon's force to raise the sea is greater than the sun's, being nearer the earth"},
+        {"variable": "tidal_range", "value": "spring_tides_conjunction_opposition", "quote": "When the sun and moon are in conjunction or opposition, their forces conspire, and the greatest, or spring, tides are produced"},
+        {"variable": "tidal_range", "value": "neap_tides_quadratures", "quote": "when they are in the quadratures, the sun's force takes away from the moon's, and the least, or neap, tides ensue"},
+        {"variable": "tidal_height_law", "value": "proportional_to_forces", "quote": "The heights of the tides answer in proportion to these forces, and may be computed from the masses and distances of the two luminaries"}
+      ]
+    },
+    "laplace": {
+      "claims": [
+        {"variable": "primary_cause", "value": "gravitational_attractions", "quote": "The tides are the oscillations of the sea produced by the gravitational attractions of the sun and the moon"},
+        {"variable": "water_behavior", "value": "delayed_equilibrium", "quote": "the sea does not assume at every instant the figure of equilibrium; the waters, being fluid and possessed of inertia, respond to the periodic forces of the two bodies as a dynamical system of forced oscillations"},
+        {"variable": "dynamical_approach", "value": "differential_equations_required", "quote": "it is not enough to compute the equilibrium tide; one must integrate the differential equations of the moving ocean under the disturbing forces, which vary with the positions of the moon and sun"},
+        {"variable": "true_theory", "value": "dynamical_gravitation", "quote": "The cause is the gravitation of these bodies; the true theory is the dynamical one, and from it the observed heights and times at each port may be deduced by calculation"}
+      ]
+    }
+  },
+  "proposed_variables": {
+    "primary_cause": {"gloss": "The fundamental agent or process causing tides", "values_seen": ["sun_and_moon", "moon", "moon_attraction", "earth_motion", "sun_and_moon_actions", "gravitational_attractions"]},
+    "mechanism": {"gloss": "The physical process by which tides are generated", "values_seen": ["moon_attracts_waters", "basin_motion", "gravitation_draws_water"]},
+    "force_type": {"gloss": "The kind of force involved in tidal causation", "values_seen": ["mutual_gravity", "universal_gravitation"]},
+    "causation_type": {"gloss": "The metaphysical nature of causation", "values_seen": ["pressure_not_attraction"]},
+    "tidal_strength_pattern": {"gloss": "When tides are strongest or weakest", "values_seen": ["greatest_new_full_moon", "springs_at_new_full_moon"]},
+    "sun_role": {"gloss": "How the sun contributes to tidal effects", "values_seen": ["additive_at_conjunction", "augments_at_new_full_moon"]},
+    "moon_role": {"gloss": "Assessment of the moon's role in tides", "values_seen": ["rejected"]},
+    "moon_necessity": {"gloss": "Whether the moon is required for tides", "values_seen": ["moon_always_moves_waters"]},
+    "moon_tide_correspondence": {"gloss": "How closely tide follows moon's course", "values_seen": ["faithful_following"]},
+    "tidal_delay_pattern": {"gloss": "Timing relationship between moon's motion and tide", "values_seen": ["matches_moon_delay"]},
+    "tidal_frequency": {"gloss": "How many tides occur per period", "values_seen": ["twice_per_lunar_day"]},
+    "earth_motions": {"gloss": "Motions of the Earth relevant to tides", "values_seen": ["diurnal_and_annual"]},
+    "inertial_effect": {"gloss": "Role of inertia in water movement", "values_seen": ["speed_alteration_causes_slosh"]},
+    "cosmic_medium": {"gloss": "The substance or medium surrounding Earth", "values_seen": ["celestial_vortex"]},
+    "matter_dynamics": {"gloss": "Behavior of celestial matter", "values_seen": ["pressed_beneath_moon"]},
+    "pressure_mechanism": {"gloss": "How pressure differentials affect water", "values_seen": ["depression_under_moon_raised_quarter_distant"]},
+    "water_behavior": {"gloss": "How water responds to forces", "values_seen": ["heaps_toward_moon", "delayed_equilibrium"]},
+    "relative_force": {"gloss": "Comparative strength of forces from different bodies", "values_seen": ["moon_stronger_than_sun"]},
+    "tidal_range": {"gloss": "Variation in tidal magnitude with celestial position", "values_seen": ["spring_tides_conjunction_opposition", "neap_tides_quadratures"]},
+    "tidal_height_law": {"gloss": "Mathematical relationship of tidal height to forces", "values_seen": ["proportional_to_forces"]},
+    "dynamical_approach": {"gloss": "Methodological framework for explaining tides", "values_seen": ["differential_equations_required"]},
+    "true_theory": {"gloss": "Identification of the correct theory", "values_seen": ["dynamical_gravitation"]},
+    "moon_driven_swelling": {"gloss": "Direct connection of moon position to water level", "values_seen": ["moon_rises_seas_swell"]},
+    "earth_restraint": {"gloss": "How Earth prevents loss of water to moon", "values_seen": ["earth_attracts_to_prevent_loss"]},
+    "force_law": {"gloss": "Mathematical form of gravitational force", "values_seen": ["universal_gravitation"]}
+  }
+}
