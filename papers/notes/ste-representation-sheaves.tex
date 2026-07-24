@@ -114,13 +114,27 @@ bridge (\lean{Ste.CechComplex}) --- and the higher-width tractability
 theorem: directional (bucket) consistency along an elimination order
 with separators of \emph{any} size yields a global solution
 (\lean{directionalConsistent\_solvable}), with \lean{twoParent\_solvable}
-the genuinely cyclic width-$2$ case.  The residue is now sharply
-delimited and honestly open: a \emph{nonzero graded} $\check{H}^1$
-locating the coupling (twisted, not constant, coefficients) with the
-quantitative obstruction-size $=$ representation-blow-up equality; the
-\emph{enforcement} half of adaptive consistency (that bucket elimination
-\emph{establishes} it in width-bounded cost); and efficient computation
-of treewidth, which is NP-hard
+the genuinely cyclic width-$2$ case.  A final pair of PhD-level studies
+then pushes into the two hardest items, each with a machine-checked
+partial result.  For the graded obstruction (\lean{Ste.TwistedCech}): a
+\emph{twisted}, section-presheaf-valued \v{C}ech complex over which the
+classic per-section Abramsky--Mansfield--Barbosa $\check{H}^1$ obstruction
+provably \emph{degenerates} (\lean{amb\_extension\_always}: a false
+negative), while a twisted degree-$0$ cokernel invariant \emph{does}
+detect the coupling (\lean{diagonal\_twisted\_obstruction\_detects},
+nonzero for the diagonal, zero for rectangles) --- one degree below the
+AMB class.  For adaptive consistency (\lean{Ste.BucketConsistency}):
+projective bucket elimination is proved to preserve the solution set and
+admit backtrack-free extraction
+(\lean{exists\_extension\_of\_mem\_projectBucketEliminate}), the relative
+(Dechter) directional consistency it actually establishes is proved
+sufficient (\lean{bucketRelativeConsistent\_solvable}), and the bucket
+separators are tied to the induced treewidth (\lean{runSep\_link}).  What
+stays genuinely open is now narrow and precise: the \emph{quantitative}
+obstruction-size $=$ representation-blow-up equality; the fusion of
+enforcement and extraction into a single ``adaptive consistency is a
+complete, width-bounded solver'' theorem; and efficient computation of
+treewidth, which is NP-hard
 \citep{arnborg1987complexity,freuder1982backtrack,grohe2007complexity,dechter2003constraint}.
 \end{abstract}
 
