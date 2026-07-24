@@ -244,7 +244,7 @@ an entire class of genuinely non-gluing scenarios (all STE couplings)
 on which the degree-$1$ per-section obstruction vanishes identically.
 
 \begin{theorem}[The coupling class fires in degree $0$;
-\lean{diagonal\_obstructionClass\_ne\_zero},
+\lean{diagonal\_mixed\_cocycle\_not\_in\_globalRange},
 \lean{mixedFamily\_not\_linearlyGlues}]
 \label{thm:fires}
 Let $R$ be any nontrivial commutative ring.  For the two-bit coupling
@@ -258,12 +258,21 @@ family $(x \mapsto \mathrm{ff},\, y \mapsto \mathrm{tt})$ defines a
 i.e., no finitely supported $R$-linear combination $\varphi$ of the
 two global solutions of $\Delta$ has $\varphi$'s restriction point
 masses equal to the family's in both contexts.  Moreover set-level
-gluing kills the class
-(\lean{obstructionClass\_eq\_zero\_of\_gluesCover}) and rectangular
-constraints have vanishing class over every cover
-(\lean{rectangular\_obstructionClass\_eq\_zero}), so the class is a
+gluing implies $R$-linear gluing
+(\lean{GluesCover.linearlyGlues}) and rectangular
+constraints glue linearly over every cover
+(\lean{rectangular\_linearlyGlues}), so the class is a
 genuine obstruction invariant, zero on the tractable fragment and
 nonzero at the coupling (\lean{diagonal\_twisted\_obstruction\_detects}).
+In the mechanization the cokernel statement is rendered at
+representative level---``class $=0$ iff the representative cocycle
+lies in the image submodule''
+(\lean{linearlyGlues\_iff\_mem\_range})---because the literal quotient
+type over the submodule coercion $\ker d^1$ hits a typeclass-instance
+diamond in current Mathlib (\lean{HasQuotient} fails to synthesize for
+these concrete \lean{Finsupp}/\lean{Pi} coefficient modules, while
+each component instance synthesizes); the submodule-level formulation
+is mathematically equivalent.
 \end{theorem}
 
 The proof pins coefficients exactly as in AMB's PR-box computation:

@@ -22,9 +22,14 @@ restriction, over an arbitrary cover `U : J → Set V`.
   its linearization, functorial (`twistedRes_twistedRes`).
 * `twistedC0/C1/C2`, `twistedD0/D1`: the twisted cochain modules on
   the full nerve and their coboundaries; `twisted_d1_comp_d0` proves
-  `d¹ ∘ d⁰ = 0`, so `twistedH0 = ker d⁰`, and
-  `twistedH1 = ker d¹ ⧸ im d⁰` is an honest quotient `R`-module —
-  the twisted `Ȟ⁰` and `Ȟ¹` of the cover.
+  `d¹ ∘ d⁰ = 0`, so `twistedH0 = ker d⁰` is the twisted `Ȟ⁰`, and the
+  twisted `Ȟ¹` is carried by the pair (`ker d¹`,
+  `twistedCoboundaries1 = im d⁰`), with `im d⁰ ≤ ker d¹`
+  (`twistedD0_range_le_ker`) and triviality of the quotient expressed
+  as `TwistedH1Trivial : im d⁰ = ⊤` — see the note there on why the
+  literal quotient TYPE is not formed (a `HasQuotient` typeclass
+  diamond on submodule coercions of these concrete coefficient
+  modules).
 * `familyCochain_mem_twistedH0`: every set-level compatible family of
   local sections (`Ste.CechCover`) yields, via point masses, a twisted
   0-COCYCLE — an element of `Ȟ⁰(U, F_R)`.  This is Prop. 3.2 of
@@ -52,26 +57,29 @@ restriction, over an arbitrary cover `U : J → Set V`.
    construction of `γ` is not mechanized.)
 
 2. *The obstruction that DOES fire lives one degree down, in the
-   cokernel of `F_R(V) → Ȟ⁰(U, F_R)`* (`obstructionClass`,
-   `diagonal_obstructionClass_ne_zero`).  The STE coupling obstruction
-   is a FAMILY-level phenomenon: the stuck object is a compatible
-   family, not a section.  Its point-mass cocycle is a class in the
-   twisted `Ȟ⁰`; the family glues `R`-LINEARLY (`LinearlyGlues`) iff
-   that class lifts to a linearized global section.  For the
-   two-bit coupling `diagonal` with its singleton cover, the mixed
-   family's class in `coker(F_R(V) → Ȟ⁰)` is NONZERO over every
-   nontrivial commutative ring (`mixedFamily_not_linearlyGlues`):
-   no `R`-linear combination of the two diagonal global sections —
-   negative and mixed coefficients allowed — restricts to the mixed
-   point masses.  This is strictly stronger than the set-level failure
+   cokernel of `F_R(V) → Ȟ⁰(U, F_R)`*
+   (`diagonal_mixed_cocycle_not_in_globalRange`).  The STE coupling
+   obstruction is a FAMILY-level phenomenon: the stuck object is a
+   compatible family, not a section.  Its point-mass cocycle is a
+   class in the twisted `Ȟ⁰`; the family glues `R`-LINEARLY
+   (`LinearlyGlues`) iff that class lifts to a linearized global
+   section, iff the representative lies in the image submodule of
+   `twistedGlobalToH0` (`linearlyGlues_iff_mem_range` — the
+   representative-level rendering of "class `= 0` in the cokernel").
+   For the two-bit coupling `diagonal` with its singleton cover, the
+   mixed family's cocycle is NOT in that image over every nontrivial
+   commutative ring (`mixedFamily_not_linearlyGlues`): no `R`-linear
+   combination of the two diagonal global sections — negative and
+   mixed coefficients allowed — restricts to the mixed point masses.
+   This is strictly stronger than the set-level failure
    `diagonal_gluing_fails` (`Ste.VariablePresheaf`): even "negative
    probabilities" cannot resolve the STE coupling, in contrast with
    the AMB world where every no-signalling model has a global section
    over the signed reals (`abramsky2011sheaf`).  Rectangular
-   constraints have vanishing class for every cover
-   (`rectangular_obstructionClass_eq_zero`), and set-level gluing
-   always kills the class (`obstructionClass_eq_zero_of_gluesCover`),
-   so the class is a genuine obstruction invariant:
+   constraints glue linearly over every cover
+   (`rectangular_linearlyGlues`), and set-level gluing always implies
+   linear gluing (`GluesCover.linearlyGlues`), so nonmembership is a
+   genuine obstruction invariant:
    `diagonal_twisted_obstruction_detects` packages nonvanishing at
    the coupling.
 
@@ -79,9 +87,10 @@ restriction, over an arbitrary cover `U : J → Set V`.
 `F_C̃₁`, the long exact sequence, and the literal connecting map `γ` —
 result 1 mechanizes the extension condition that AMB Prop. 4.2 proves
 EQUIVALENT to `γ(s₁) = 0`, not the class itself.  Whether the twisted
-`Ȟ¹ = ker d¹ ⧸ im d⁰` defined here vanishes for pairwise-disjoint
-covers (which would make the degeneracy of result 1 an instance of a
-blanket `Ȟ¹`-triviality) is stated as outlook, not proven.  No
+`Ȟ¹ = ker d¹ ⧸ im d⁰` — carried here by the submodule pair, see
+`TwistedH1Trivial` — vanishes for pairwise-disjoint covers (which
+would make the degeneracy of result 1 an instance of a blanket
+`Ȟ¹`-triviality) is stated as outlook, not proven.  No
 quantitative "obstruction rank = representation blow-up" theorem is
 claimed; the set-level counts are in `Ste.CechObstruction` and
 `Ste.CouplingLowerBound`.
@@ -265,20 +274,20 @@ def twistedCoboundaries1 : Submodule R (LinearMap.ker (twistedD1 R T U)) :=
   (LinearMap.range (twistedD0 R T U)).comap
     (LinearMap.ker (twistedD1 R T U)).subtype
 
--- Diagnostic instance checks for the quotient below.
-example : AddCommGroup (twistedC1 R T U) := inferInstance
-example : Module R (twistedC1 R T U) := inferInstance
-example : AddCommGroup ↥(LinearMap.ker (twistedD1 R T U)) := inferInstance
-example :
-    HasQuotient ↥(LinearMap.ker (twistedD1 R T U))
-      (Submodule R ↥(LinearMap.ker (twistedD1 R T U))) := inferInstance
-
-/-- **The twisted `Ȟ¹ = ker d¹ ⧸ im d⁰`** with section-presheaf
-coefficients, as an honest quotient `R`-module.  Whether this module
-vanishes for pairwise-disjoint covers (as its constant-coefficient
-shadow does, `cechH1_subsingleton`) is left open here. -/
-abbrev twistedH1 :=
-  LinearMap.ker (twistedD1 R T U) ⧸ twistedCoboundaries1 R T U
+/-- **Twisted `Ȟ¹`-triviality, submodule form**: the twisted
+1-coboundaries exhaust the twisted 1-cocycles — equivalently, the
+quotient `Ȟ¹ = ker d¹ ⧸ im d⁰` would be the zero module.  The
+cohomology is carried by the pair (`LinearMap.ker (twistedD1)`,
+`twistedCoboundaries1`); the literal quotient TYPE is not formed
+because `Submodule` quotients over the submodule-coercion
+`↥(ker d¹)` fail typeclass synthesis (`HasQuotient`) for these
+concrete `Finsupp`/`Pi` coefficient modules — a diamond on the
+derived `AddCommGroup`/`Module` instances, verified by CI diagnostics;
+the submodule-level formulation is mathematically equivalent and
+diamond-free.  Whether this triviality holds for pairwise-disjoint
+covers (as its constant-coefficient shadow `cechH1_subsingleton`
+does) is left OPEN here. -/
+def TwistedH1Trivial : Prop := twistedCoboundaries1 R T U = ⊤
 
 /-! ### Compatible families land in the twisted `Ȟ⁰` -/
 
@@ -399,51 +408,38 @@ def twistedGlobalToH0 : (↥T →₀ R) →ₗ[R] ↥(twistedH0 R T U) :=
   LinearMap.codRestrict (twistedH0 R T U) (twistedGlobal R T U)
     (twistedGlobal_mem_twistedH0 R T U)
 
-/-- **The cokernel `Ȟ⁰(U, F_R) ⧸ im F_R(V)`**: the twisted 0-cocycles
-modulo those explained by linearized global data.  This quotient
-module is where the STE coupling obstruction genuinely lives — one
-degree below the AMB `Ȟ¹`. -/
-abbrev twistedH0Coker :=
-  ↥(twistedH0 R T U) ⧸ LinearMap.range (twistedGlobalToH0 R T U)
-
-/-- **The obstruction class of a compatible family**: the image of its
-point-mass 0-cocycle in `coker(F_R(V) → Ȟ⁰)`.  Zero iff the family
-glues `R`-linearly. -/
-def obstructionClass {s : ∀ j, ∀ v : (U j), A v}
-    (hs : CompatibleFamily T U s) : twistedH0Coker R T U :=
-  Submodule.Quotient.mk
-    ⟨familyCochain R T U hs.1, familyCochain_mem_twistedH0 R T U hs⟩
-
-/-- The obstruction class vanishes exactly on `R`-linearly gluable
-families. -/
-theorem obstructionClass_eq_zero_iff {s : ∀ j, ∀ v : (U j), A v}
+/-- **The cokernel obstruction, representative form.**  The class of a
+compatible family's point-mass cocycle in the cokernel
+`Ȟ⁰(U, F_R) ⧸ im F_R(V)` is zero iff the representative lies in the
+image submodule `LinearMap.range (twistedGlobalToH0 R T U)` — which is
+exactly `R`-linear gluability.  (The literal quotient module hits the
+same `HasQuotient` typeclass diamond as the twisted `Ȟ¹`, see
+`TwistedH1Trivial`; membership of the
+representative in the image submodule is the equivalent, diamond-free
+rendering of `[cocycle] = 0` in the cokernel.) -/
+theorem linearlyGlues_iff_mem_range {s : ∀ j, ∀ v : (U j), A v}
     (hs : CompatibleFamily T U s) :
-    obstructionClass R T U hs = 0 ↔ LinearlyGlues R T U hs.1 := by
-  unfold obstructionClass
-  rw [Submodule.Quotient.mk_eq_zero]
+    LinearlyGlues R T U hs.1 ↔
+      (⟨familyCochain R T U hs.1, familyCochain_mem_twistedH0 R T U hs⟩ :
+          ↥(twistedH0 R T U)) ∈
+        LinearMap.range (twistedGlobalToH0 R T U) := by
   constructor
   · intro h
     obtain ⟨φ, hφ⟩ := LinearMap.mem_range.mp h
-    exact LinearMap.mem_range.mpr ⟨φ, congrArg Subtype.val hφ⟩
+    exact LinearMap.mem_range.mpr ⟨φ, Subtype.ext hφ⟩
   · intro h
     obtain ⟨φ, hφ⟩ := LinearMap.mem_range.mp h
-    exact LinearMap.mem_range.mpr ⟨φ, Subtype.ext hφ⟩
+    exact LinearMap.mem_range.mpr ⟨φ, congrArg Subtype.val hφ⟩
 
-/-- Set-level gluing kills the obstruction class. -/
-theorem obstructionClass_eq_zero_of_gluesCover
-    {s : ∀ j, ∀ v : (U j), A v} (hs : CompatibleFamily T U s)
-    (hg : GluesCover T U s) : obstructionClass R T U hs = 0 :=
-  (obstructionClass_eq_zero_iff R T U hs).mpr
-    (GluesCover.linearlyGlues R T U hs hg)
-
-/-- **Rectangular constraints have vanishing obstruction class over
-every cover**: their compatible families glue set-theoretically
-(`rectangular_cechVanishesCover`), hence linearly. -/
-theorem rectangular_obstructionClass_eq_zero (P : ∀ v, Set (A v))
+/-- **Rectangular constraints glue linearly over every cover**: their
+compatible families glue set-theoretically
+(`rectangular_cechVanishesCover`), hence linearly — the cokernel class
+of every compatible family of a rectangle vanishes. -/
+theorem rectangular_linearlyGlues (P : ∀ v, Set (A v))
     (hcover : ∀ v, ∃ j, v ∈ U j) {s : ∀ j, ∀ v : (U j), A v}
     (hs : CompatibleFamily (Set.univ.pi P) U s) :
-    obstructionClass R (Set.univ.pi P) U hs = 0 :=
-  obstructionClass_eq_zero_of_gluesCover R _ U hs
+    LinearlyGlues R (Set.univ.pi P) U hs.1 :=
+  GluesCover.linearlyGlues R _ U hs
     (rectangular_cechVanishesCover P U hcover s hs)
 
 /-! ### The computed instance: the two-bit coupling `diagonal` -/
@@ -535,29 +531,36 @@ theorem mixedFamily_not_linearlyGlues [Nontrivial R] :
     heq1, Finsupp.single_eq_same] at e1
   exact one_ne_zero (e1.symm.trans e0)
 
-/-- **The nonzero obstruction class at the coupling**: the mixed
-family's class in `coker(F_R(V) → Ȟ⁰(U, F_R))` is nonzero over every
-nontrivial commutative ring.  A genuine twisted-cohomology class
+/-- **The nonzero cokernel class at the coupling, representative
+form**: the mixed family's point-mass cocycle is an element of the
+twisted `Ȟ⁰` that does NOT lie in the image of the linearized global
+sections — its class in `coker(F_R(V) → Ȟ⁰(U, F_R))` is nonzero over
+every nontrivial commutative ring.  A genuine twisted-cohomology class
 locates the STE coupling obstruction — at degree 0 (mod global
 sections), where the per-section `Ȟ¹` obstruction of
 `amb_extension_always` is structurally blind. -/
-theorem diagonal_obstructionClass_ne_zero [Nontrivial R] :
-    obstructionClass R diagonal twoCover mixedFamily_compatible ≠ 0 :=
+theorem diagonal_mixed_cocycle_not_in_globalRange [Nontrivial R] :
+    (⟨familyCochain R diagonal twoCover mixedFamily_compatible.1,
+        familyCochain_mem_twistedH0 R diagonal twoCover
+          mixedFamily_compatible⟩ :
+        ↥(twistedH0 R diagonal twoCover)) ∉
+      LinearMap.range (twistedGlobalToH0 R diagonal twoCover) :=
   fun h => mixedFamily_not_linearlyGlues R
-    ((obstructionClass_eq_zero_iff R diagonal twoCover
-      mixedFamily_compatible).mp h)
+    ((linearlyGlues_iff_mem_range R diagonal twoCover
+      mixedFamily_compatible).mpr h)
 
 /-- **The twisted obstruction detects the coupling** (headline): the
-mixed family of the two-bit coupling is set-level stuck AND its
-twisted-cohomology class is nonzero — the linearized invariant sees
-exactly the family that the set-level sheaf condition rejects. -/
+mixed family of the two-bit coupling is set-level stuck AND fails even
+`R`-linear gluing — the linearized degree-0 invariant sees exactly the
+family that the set-level sheaf condition rejects, over every
+nontrivial commutative ring. -/
 theorem diagonal_twisted_obstruction_detects [Nontrivial R] :
     ¬ GluesCover diagonal twoCover mixedFamily ∧
-      obstructionClass R diagonal twoCover mixedFamily_compatible ≠ 0 :=
-  ⟨fun hg => diagonal_obstructionClass_ne_zero R
-      (obstructionClass_eq_zero_of_gluesCover R diagonal twoCover
+      ¬ LinearlyGlues R diagonal twoCover mixedFamily_compatible.1 :=
+  ⟨fun hg => mixedFamily_not_linearlyGlues R
+      (GluesCover.linearlyGlues R diagonal twoCover
         mixedFamily_compatible hg),
-    diagonal_obstructionClass_ne_zero R⟩
+    mixedFamily_not_linearlyGlues R⟩
 
 end
 
