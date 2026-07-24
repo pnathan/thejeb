@@ -1,0 +1,11 @@
+# Pliny the Elder, Naturalis Historia, Book II (c. 77 CE)
+# Curated representative passage (public domain work). Provenance: refs.bib pliny77naturalis.
+
+Much has been said of the nature of waters; but the most marvellous circumstance is the
+alternate flowing and ebbing of the tides, which exists indeed under various forms, but is
+caused by the sun and the moon. The tide flows and ebbs twice between each two risings of the
+moon, always in the space of twenty-four hours. First, as the moon rises the seas swell, and
+again they sink as she declines from the meridian; and after her setting they rise once more
+until she comes again beneath the earth. The tides are greatest at the new and the full moon,
+and least when the moon is at the half. Never are the waters moved but the moon draws them;
+the sun's influence is joined to hers, adding to the swelling at the conjunctions.

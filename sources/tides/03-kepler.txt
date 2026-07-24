@@ -1,0 +1,11 @@
+# Johannes Kepler, Astronomia Nova, Introduction (1609)
+# Curated representative passage (public domain work). Provenance: refs.bib kepler1609astronomia.
+
+If two stones were placed anywhere in space near to each other, and beyond the reach of force of a
+third cognate body, they would come together at an intermediate point, each approaching the other in
+proportion to the other's mass. Gravity is a mutual bodily affection between cognate bodies towards
+union. The moon, being cognate to the waters of the earth, attracts them; and the seas are drawn
+toward the body of the moon by that same faculty. Were the earth to cease to attract its waters, all
+the sea-water would be raised up and would flow to the body of the moon. The tides, therefore, are
+the attraction of the waters by the moon. The earth's own attraction restrains them, but the moon
+draws them upward as she passes overhead, and so the waters heap toward her.

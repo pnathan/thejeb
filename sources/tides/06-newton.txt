@@ -1,0 +1,11 @@
+# Isaac Newton, Philosophiae Naturalis Principia Mathematica, Book III (1687)
+# Curated representative passage (public domain work; trans. after Motte). Provenance: refs.bib newton1687principia.
+
+The flux and reflux of the sea arise from the actions of the sun and moon. By the theory of universal
+gravitation, every body attracts every other with a force proportional to the masses and inversely as
+the square of the distance; and so the sun and moon, by their gravitation, draw up the waters of the
+sea. The moon's force to raise the sea is greater than the sun's, being nearer the earth. When the sun
+and moon are in conjunction or opposition, their forces conspire, and the greatest, or spring, tides
+are produced; when they are in the quadratures, the sun's force takes away from the moon's, and the
+least, or neap, tides ensue. The heights of the tides answer in proportion to these forces, and may be
+computed from the masses and distances of the two luminaries.

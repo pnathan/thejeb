@@ -1,0 +1,12 @@
+# Rene Descartes, Principia Philosophiae, Part IV, arts. 49-56 (1644)
+# Curated representative passage (public domain work). Provenance: refs.bib descartes1644principia.
+
+The earth is surrounded and carried along by a great vortex of the subtle celestial matter, and the
+moon swims within this same fluid heaven. Because the space between the moon and the earth is not
+sufficient to let the celestial matter pass freely, that matter is pressed and its motion straitened
+beneath the moon. Hence the fluid heaven presses more strongly upon the waters lying under the moon,
+and depresses them there, while raising the waters at the parts a quarter distant. As the earth turns
+under the moon in the space of a day, this depression travels round, so the sea rises and falls twice
+daily. It is not by any attraction, for I admit no attraction at a distance, but by the pressure of
+the subtle matter that the tides are caused; and the sun, straitening the vortex likewise, augments
+the effect at the new and full moon.

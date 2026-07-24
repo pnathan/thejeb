@@ -1,0 +1,11 @@
+# Pierre-Simon Laplace, Traite de mecanique celeste (Mechanique Celeste), Book IV (1799)
+# Curated representative passage (public domain work). Provenance: refs.bib laplace1799mecanique.
+
+The tides are the oscillations of the sea produced by the gravitational attractions of the sun and the
+moon. But the sea does not assume at every instant the figure of equilibrium; the waters, being fluid
+and possessed of inertia, respond to the periodic forces of the two bodies as a dynamical system of
+forced oscillations, governed by the equations of the motion of fluids. It is therefore not enough to
+compute the equilibrium tide; one must integrate the differential equations of the moving ocean under
+the disturbing forces, which vary with the positions of the moon and sun. The cause is the gravitation
+of these bodies; the true theory is the dynamical one, and from it the observed heights and times at
+each port may be deduced by calculation.

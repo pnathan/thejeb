@@ -1,0 +1,13 @@
+# Galileo Galilei, Dialogue Concerning the Two Chief World Systems, Fourth Day (1632)
+# Curated representative passage (public domain work; trans. after Drake). Provenance: refs.bib galileo1632dialogue.
+
+The ebbing and flowing of the seas cannot be produced except by the motion of their basins. Now the
+Earth carries the basins of the seas, and the Earth has two motions: the diurnal rotation upon its
+axis and the annual revolution about the sun. These two motions compound so that any part of the
+Earth's surface is now accelerated and now retarded in its passage through space. This continual
+alteration of speed makes the contained waters run now toward one end of their basins, now toward the
+other, and so they rise and fall. I hold it therefore as certain that the tides follow from the
+Earth's motion, and that a motionless Earth could show no tides at all. As for those who refer the
+cause to the moon, attributing to her some dominion over the water by an occult property, I will not
+give ear to such notions, for it is the compounding of the two terrestrial motions, twice a day, that
+produces the effect, the moon having nothing to do with it.
