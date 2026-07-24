@@ -45,3 +45,4 @@ import Ste.TwistedCech
 import Ste.ConsistencyTree
 import Ste.AdaptiveConsistency
 import Ste.BucketConsistency
+import Ste.AdaptiveSolver
