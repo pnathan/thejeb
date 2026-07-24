@@ -129,12 +129,23 @@ admit backtrack-free extraction
 (\lean{exists\_extension\_of\_mem\_projectBucketEliminate}), the relative
 (Dechter) directional consistency it actually establishes is proved
 sufficient (\lean{bucketRelativeConsistent\_solvable}), and the bucket
-separators are tied to the induced treewidth (\lean{runSep\_link}).  What
-stays genuinely open is now narrow and precise: the \emph{quantitative}
-obstruction-size $=$ representation-blow-up equality; the fusion of
-enforcement and extraction into a single ``adaptive consistency is a
-complete, width-bounded solver'' theorem; and efficient computation of
-treewidth, which is NP-hard
+separators are tied to the induced treewidth (\lean{runSep\_link}).  The
+\emph{quantitative} obstruction-size $=$ representation-blow-up equality
+is now settled --- as a negative result with a mechanized replacement
+(\lean{Ste.RepresentationBounds}, Section~\ref{sec:repbounds}): reading blow-up as the
+rectangle-cover complexity $\rho(T)$ (the smallest number of product sets
+whose exact union is $T$, the $C^1$ cover number of nondeterministic
+communication complexity \citep{kushilevitz1997communication}), the
+equality and \emph{both} uniform inequalities against the raw Čech
+obstruction \emph{fail}
+(\lean{not\_forall\_rectCoverNumber\_le\_cechObstruction},
+\lean{not\_forall\_cechObstruction\_le\_rectCoverNumber}); what holds
+instead is the fooling sandwich $\mathrm{fool}(T) \le \rho(T) \le |T|$
+with $\rho(T) = 1$ iff the obstruction vanishes and
+$\rho(\mathrm{allEqual}) = |\alpha|$ exactly.  What stays genuinely open
+is now narrower: the fusion of enforcement and extraction into a single
+``adaptive consistency is a complete, width-bounded solver'' theorem; and
+efficient computation of treewidth, which is NP-hard
 \citep{arnborg1987complexity,freuder1982backtrack,grohe2007complexity,dechter2003constraint}.
 \end{abstract}
 
@@ -1070,6 +1081,72 @@ the \emph{enforcement} half --- that bucket elimination \emph{establishes}
 directional consistency at width-bounded cost --- and the converse
 (width-$\ge k$ networks where $k$-consistency fails).
 
+\section{Obstruction size versus representation blow-up: a sandwich, not an equality}
+\label{sec:repbounds}
+
+The one quantitative conjecture at the heart of the cohomological
+programme --- that the \emph{size} of the \v{C}ech obstruction measures
+the \emph{representation blow-up} of a constraint --- is now settled, and
+the answer is negative in the strong reading and precise in the true one.
+Everything in this section is machine-checked in
+\lean{Ste.RepresentationBounds}.
+
+There are two readings of ``blow-up''.  The first is the \emph{box gap}:
+the smallest rectangle containing $T$ is the product of its per-variable
+projections, which is exactly $\mathrm{compatibleFamilies}(T)$, so
+$\mathrm{cechObstruction}(T) = |\mathrm{box}(T)| - |T|$ holds by
+unfolding (\lean{cechObstruction\_eq\_box\_sub\_encard}).  This is
+definitional bookkeeping, not a representation theorem.
+
+The second reading is the honest one: the \emph{rectangle-cover
+complexity} $\rho(T)$, the least number of product sets whose exact union
+is $T$ --- the $C^1$ cover number of nondeterministic communication
+complexity read on the constraint as a $0/1$ tensor
+\citep{aho1983notions,kushilevitz1997communication,yannakakis1991expressing}.
+Here the conjectured equality \emph{fails}, and so does every uniform
+inequality against the raw obstruction magnitude, in \emph{both}
+directions (\lean{not\_forall\_rectCoverNumber\_le\_cechObstruction},
+\lean{not\_forall\_cechObstruction\_le\_rectCoverNumber}): a nonempty
+rectangle has obstruction $0$ but $\rho = 1$, while the coupling
+$\mathrm{allEqual}$ on $n \ge 3$ variables over $|\alpha| = k \ge 2$
+values has $\rho = k$ yet obstruction $k^n - k$ ---
+exponentially larger.  The two invariants are incomparable.
+
+What \emph{is} true is a sandwich, all mechanized:
+\[
+  \mathrm{fool}(T) \;\le\; \rho(T) \;\le\; |T|,
+\]
+where $\mathrm{fool}(T)$ is the fooling number --- the largest set of
+points no sub-rectangle of $T$ can pair
+(\lean{foolingNumber\_le\_rectCoverNumber}, via the pointwise bound
+\lean{IsFoolingSet.encard\_le\_of\_hasRectCover}) --- and the upper bound
+is singletons-are-rectangles (\lean{rectCoverNumber\_le\_encard}).  At the
+bottom of the scale the cover complexity and the cohomology agree
+exactly: for nonempty $T$, $\rho(T) = 1$ iff $T$ is a rectangle iff the
+\v{C}ech obstruction vanishes
+(\lean{rectCoverNumber\_eq\_one\_iff\_cechVanishes}), and $\rho(T) \ge 2$
+iff the obstruction is nonvanishing (\lean{one\_lt\_rectCoverNumber\_iff}).
+For the coupling the sandwich pinches to an exact value: the $k$ constant
+vectors are a fooling set (\lean{isFoolingSet\_allEqual}), forcing
+$\rho(\mathrm{allEqual}\ n\ \alpha) = |\alpha|$
+(\lean{rectCoverNumber\_allEqual}) --- the \emph{true} representation cost
+is linear in $k$, not the exponential $k^n - k$ the raw obstruction
+reports.
+
+The conjecture's plausibility is itself explained: at the minimal
+nonvanishing instance, the two-variable Boolean diagonal
+$= \mathrm{allEqual}\ 2\ \mathrm{Bool}$ (\lean{diagonal\_eq\_allEqual}),
+obstruction and cover complexity coincide, both equal to $2$
+(\lean{diagonal\_cechObstruction\_eq\_rectCoverNumber}).  The equality is
+a coincidence of the smallest example --- it breaks already at
+$\mathrm{allEqual}\ 3\ \mathrm{Bool}$ ($2 < 6$) --- not a law.  What
+remains outlook is quantitative refinement, not the qualitative question:
+the logarithmic relation
+$\log \rho \le \text{communication complexity} \le \log \rho + O(\log|T|)$
+\citep{kushilevitz1997communication}, nonnegative-rank / extension-complexity
+sharpenings \citep{yannakakis1991expressing,fiorini2015exponential}, and cover
+numbers for covers with nonempty overlaps.
+
 \section{Outlook: the cohomological program (not proven)}
 
 \emph{Everything in this section is conjecture or programme.  None of
@@ -1104,12 +1181,15 @@ Following \citet{abramsky2011sheaf}, the obstruction to a family of
 compatible local sections extending to a global one should be captured
 by a \v{C}ech cohomology class in $\check{H}^1$ of the support cover
 with coefficients in the (relative) presheaf of partial solutions; the
-class vanishes iff gluing succeeds.  The conjectured quantitative
-version: the difficulty of an STE instance---the size blow-up of its
-smallest exact representation---is controlled by the size of this
-obstruction, with rectangular families the $\check{H}^1 = 0$ case of
-Section~3 and the diagonal of Section~4 the minimal nonvanishing
-class.
+class vanishes iff gluing succeeds.  \emph{The quantitative version of
+this conjecture is no longer open}: as Section~\ref{sec:repbounds}
+establishes, the difficulty of an STE instance---the size blow-up of its
+smallest exact representation $\rho(T)$---is \emph{not} controlled by the
+raw magnitude of the obstruction in either direction; the correct
+mechanized statement is the fooling sandwich
+$\mathrm{fool}(T) \le \rho(T) \le |T|$, with rectangular families the
+$\rho = 1 \Leftrightarrow \check{H}^1 = 0$ case of Section~3 and the
+diagonal of Section~4 the minimal nonvanishing class.
 \end{conjecture}
 
 \begin{conjecture}[Tractability dichotomy]
