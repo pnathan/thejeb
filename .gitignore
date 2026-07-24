@@ -1,6 +1,9 @@
 # cache and other artifacts produced by Lean's Lake build tool
 .lake/
 
+# local pipeline run outputs (scripts/tides/run_pipeline.sh --out build/tides)
+/build/
+
 # LaTeX build artifacts (PDFs are committed as deliverables)
 *.aux
 *.bbl

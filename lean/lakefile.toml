@@ -1,6 +1,6 @@
 name = "ste"
 version = "0.1.0"
-defaultTargets = ["Ste"]
+defaultTargets = ["Ste", "TidesExe"]
 
 [[require]]
 name = "mathlib"
@@ -9,3 +9,14 @@ rev = "v4.32.0"
 
 [[lean_lib]]
 name = "Ste"
+
+# TidesExe is verified as an olean-only library in CI (cheap: no native link).
+[[lean_lib]]
+name = "TidesExe"
+
+# The runnable executable — built on demand for local runs
+# (`lake exe tides`); NOT a default target, so CI does not do the expensive
+# native compilation of the Mathlib import closure.
+[[lean_exe]]
+name = "tides"
+root = "TidesExe"
