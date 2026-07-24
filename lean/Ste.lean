@@ -40,5 +40,6 @@ import Ste.Consistency
 import Ste.CouplingLowerBound
 import Ste.CechCover
 import Ste.CechComplex
+import Ste.TwistedCech
 import Ste.ConsistencyTree
 import Ste.AdaptiveConsistency
