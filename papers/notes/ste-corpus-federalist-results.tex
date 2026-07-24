@@ -1,0 +1,154 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{natbib}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+
+\newcommand{\lean}[1]{\texttt{#1}}
+\newcommand{\vv}[1]{\textsf{\small #1}}
+
+\title{Set-theoretic estimation at scale: 86 documents through the\\
+chunking pipeline --- The Federalist Papers\\
+\large Haiku/Sonnet extracted the frames; Lean ran the proved algorithm}
+\author{thejeb project note}
+\date{2026-07-24}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We scale the empirical STE pipeline from seven short passages (the tides
+note) to a large corpus of long documents: the \textbf{86 essays of The
+Federalist Papers}. Each essay is one STE ``voice.'' A general,
+topic-parameterized pipeline \emph{chunks} every document, extracts open
+frames per chunk with \textbf{Claude Haiku}, unifies a canonical
+10-variable schema with \textbf{Claude Sonnet}, and re-extracts one frame
+per document against that schema; the 86 frames are then scored by the
+\emph{verified} computable STE layer (\lean{Ste.FiniteInstance}) running in
+a Lean executable that reads the frames at runtime. The verdict, computed
+by the proved algorithm: the corpus is \emph{inconsistent}, but the
+inconsistency is \emph{narrow} --- 7 of 10 variables are unanimous where
+spoken (a large consistent core), and exactly \textbf{3 conflict sites}
+carry the whole obstruction, headlined by a genuine three-way split on how
+Publius characterizes the proposed government. The machine recovered the
+real, well-documented internal tension of The Federalist.
+\end{abstract}
+
+\section{The corpus and the pipeline}
+
+The corpus is the 86 essays of The Federalist \citep{hamilton1788federalist}
+(85 numbers; No.~70 appears twice in the source edition), split from Project
+Gutenberg eBook \#18 into one public-domain file per essay with a provenance
+header. The median essay is $\approx 13$k characters (max $\approx 34$k) ---
+long enough that per-document \emph{chunking} is required, not optional.
+
+The pipeline (\lean{scripts/corpus/}) is the tides pipeline generalized to
+any corpus and topic, with chunking and parallel model calls:
+
+\begin{enumerate}
+\item \textbf{Pass 1 --- Haiku, open, per chunk.} Each document is split into
+  $\approx 9$k-char chunks on paragraph boundaries; each chunk is extracted
+  independently into $(\text{variable},\text{value},\text{quote})$ claims,
+  unioned per document. $86$ documents $\rightarrow$ \textbf{189 chunks}.
+\item \textbf{Pass 2 --- Sonnet, unify, once.} The 189 chunks proposed
+  \textbf{2{,}510 distinct} $(\text{variable},\text{value})$ pairs; Sonnet
+  merged them into a canonical \textbf{10-variable} schema with closed
+  domains and a synonym map.
+\item \textbf{Pass 3 --- Haiku, schema-constrained, per document.} Each of
+  the 86 documents is re-extracted against the canonical schema into one
+  frame (a domain value or \vv{silent} per variable, with a licensing
+  quote).
+\end{enumerate}
+
+The run made $\approx 276$ model calls ($189+1+86$) in parallel
+(\lean{--jobs 8}) in roughly half an hour. The output \lean{frames.json} has
+exactly the shape the verified Lean executable reads.
+
+\section{The verdict --- the proved algorithm on runtime data}
+
+\lean{lake exe tides frames.json} reads the 86 frames and evaluates the
+\emph{verified} \lean{STE.Consistent} and \lean{STE.disagreementDegree} of
+\lean{Ste.FiniteInstance} --- the definitions proved (in that module) to
+characterize the \lean{Set}-level feasibility of \lean{Ste.Basic}
+(\lean{feasibilitySet\_eq\_empty\_iff}). No \lean{native\_decide}; the
+aggregation logic is the proved one, run on the loaded data.
+
+\begin{center}\small
+\begin{tabular}{@{}l c l@{}}
+\toprule
+Variable & degree & reading \\
+\midrule
+ratification\_stance        & 1 & unanimous (supports ratification) \\
+union\_vs\_disunion          & 1 & unanimous (single union essential) \\
+standing\_army\_restriction  & 1 & unanimous \\
+executive\_structure        & 1 & unanimous (single executive) \\
+judicial\_power             & 1 & unanimous (safe, essential check) \\
+bill\_of\_rights\_necessity  & 1 & unanimous \\
+extended\_republic\_theory   & 1 & unanimous (extended republic superior) \\
+\textbf{federal\_power\_scope}     & \textbf{2} & 32 extensive vs.\ 13 strictly-limited \\
+\textbf{senate\_equal\_suffrage}   & \textbf{2} & 5 justified vs.\ 1 unjust \\
+\textbf{government\_character}     & \textbf{3} & mixed / federal / national \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+\item \textbf{Inconsistent} (\lean{STE.Consistent} $=$ \textsf{false}): the
+  feasibility set is empty --- 86 essays by one pseudonymous author do not
+  admit a single joint reading.
+\item \textbf{But narrowly so.} \textbf{7 of 10 variables are unanimous
+  where spoken} (disagreement degree $\le 1$): ratification, union, the
+  standing army, the executive, the judiciary, the bill of rights, and the
+  extended republic. That is a large \emph{consistent core} --- the shared
+  Federalist program.
+\item \textbf{Three conflict sites} carry the whole obstruction. The
+  headline is \vv{government\_character}, a genuine \emph{three-way} split
+  (degree 3): \vv{mixed\_composite} (25 essays, incl.\ Federalist~39's
+  ``neither a national nor a federal Constitution, but a composition of
+  both''), \vv{federal\_confederacy} (11 essays, e.g.\ Federalist~45's
+  ``powers delegated\dots few and defined''), and
+  \vv{national\_consolidated} (Hamilton's Federalist~12/15). The other two
+  are \vv{federal\_power\_scope} (extensive vs.\ strictly limited) and
+  \vv{senate\_equal\_suffrage}.
+\end{itemize}
+
+The pipeline recovered, from raw text and by a proved decision procedure,
+the real internal tension long noted by readers of The Federalist: Publius
+describes the proposed government three different ways depending on
+rhetorical need, and the essays differ on the reach of federal power.
+
+\section{Contrast with the tides}
+
+\begin{center}\small
+\begin{tabular}{@{}l l l@{}}
+\toprule
+ & Tides (7 voices) & Federalist (86 voices) \\
+\midrule
+Consistent? & no & no \\
+Structure & pervasive, multi-camp & consistent core $+$ 3 conflict sites \\
+Worst variable & mechanism (degree 5) & government\_character (degree 3) \\
+Reading & rival theories & one program, few internal tensions \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Same verified algorithm; two qualitatively different disagreement shapes.
+That the verdict is \emph{computed} rather than asserted is exactly what
+lets it distinguish them.
+
+\section{The boundary of trust}
+
+The Lean layer certifies the aggregation, not the reading of the text. Each
+asserted value in \lean{frames.json} carries the source sentence that
+licenses it, so every cell is auditable against the essay; the three
+conflict sites were spot-checked against quotes and are faithful. A
+mis-extraction would move a count, but the verdict itself --- feasibility
+and the disagreement degrees --- is the output of the proved algorithm on
+the frames, not a plausible story about them.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}

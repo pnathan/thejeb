@@ -1,0 +1,3029 @@
+{
+  "schema_version": "ratification_stance, union_vs_disunion, government_character, federal_power_scope, standing_army_restriction, executive_structure, senate_equal_suffrage, judicial_power, bill_of_rights_necessity, extended_republic_theory",
+  "topic": "the design and defense of the proposed U.S. Constitution",
+  "frames": {
+    "fed_001": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "I am clearly of opinion it is your interest to adopt it. I am convinced that this is the safest course for your liberty, your dignity, and your happiness."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "For nothing can be more evident, to those who are able to take an enlarged view of the subject, than the alternative of an adoption of the new Constitution or a dismemberment of the Union."
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "After an unequivocal experience of the inefficacy of the subsisting federal government, you are called upon to deliberate on a new Constitution for the United States of America."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_002": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "To preserve and perpetuate it was the great object of the people in forming that convention, and it is also the great object of the plan which the convention has advised them to adopt."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "it appears as if it was the design of Providence, that an inheritance so proper and convenient for a band of brethren, united to each other by the strongest ties, should never be split into a number of unsocial, jealous, and alien sovereignties."
+      },
+      "government_character": {
+        "value": "federal_confederacy",
+        "quote": "whether it would conduce more to the interest of the people of America that they should, to all general purposes, be one nation, under one federal government"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_003": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "The more attentively I consider and investigate the reasons which appear to have given birth to this opinion, the more I become convinced that they are cogent and conclusive."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "a cordial Union, under an efficient national government, affords them the best security that can be devised against HOSTILITIES from abroad"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_004": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "Wisely, therefore, do they consider union and a good national government as necessary to put and keep them in SUCH A SITUATION as, instead of INVITING war, will tend to repress and discourage it."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "Leave America divided into thirteen or, if you please, into three or four independent governments\u2014what armies could they raise and pay\u2014what fleets could they ever hope to have?"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "It can apply the resources and power of the whole to the defense of any particular part, and that more easily and expeditiously than State governments or separate confederacies can possibly do, for want of concert and unity of system."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "If one was attacked, would the others fly to its succor, and spend their blood and money in its defense? Would there be no danger of their being flattered into neutrality by its specious promises, or seduced by a too great fondness for peace to decline hazarding their tranquillity and present safety for the sake of neighbors, of whom perhaps they have been jealous, and whose importance they are content to see diminished?"
+      }
+    },
+    "fed_005": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "weakness and divisions at home would invite dangers from abroad; and that nothing would tend more to secure us from them than union, strength, and good government within ourselves"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "It must increase your strength, riches, and trade; and by this union the whole island, being joined in affection and free from all apprehensions of different interest, will be ENABLED TO RESIST ALL ITS ENEMIES"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_006": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "neighboring nations are naturally enemies of each other unless their common weakness forces them to league in a CONFEDERATE REPUBLIC, and their constitution prevents the differences that neighborhood occasions"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "if these States should either be wholly disunited, or only united in partial confederacies, the subdivisions into which they might be thrown would have frequent and violent contests with each other"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_007": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "America, if not connected at all, or only by the feeble tie of a simple league, offensive and defensive, would, by the operation of such jarring alliances, be gradually entangled in all the pernicious labyrinths of European politics and wars; and by the destructive contentions of the parts into which she was divided, would be likely to become a prey to the artifices and machinations of powers equally the enemies of them all."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "The dissolution of the Union would lay a foundation for similar claims between them all."
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_008": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "the rejection of which would in all probability put a final period to the Union"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "If we are wise enough to preserve the Union we may for ages enjoy an advantage similar to that of an insulated situation"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "discretion_sufficient",
+        "quote": "a much better one than is to be found in any constitution that has been heretofore framed in America, most of which contain no guard at all on this subject"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "If we are wise enough to preserve the Union we may for ages enjoy an advantage similar to that of an insulated situation. Europe is at a great distance from us. Her colonies in our vicinity will be likely to continue too much disproportioned in strength to be able to give us any dangerous annoyance"
+      }
+    },
+    "fed_009": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "A firm Union will be of the utmost moment to the peace and liberty of the States, as a barrier against domestic faction and insurrection."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "If we therefore take his ideas on this point as the criterion of truth, we shall be driven to the alternative either of taking refuge at once in the arms of monarchy, or of splitting ourselves into an infinity of little, jealous, clashing, tumultuous commonwealths, the wretched nurseries of unceasing discord, and the miserable objects of universal pity or contempt."
+      },
+      "government_character": {
+        "value": "federal_confederacy",
+        "quote": "This fully corresponds, in every rational import of the terms, with the idea of a federal government."
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "To this catalogue of circumstances that tend to the amelioration of popular systems of civil government, I shall venture, however novel it may appear to some, to add one more, on a principle which has been made the foundation of an objection to the new Constitution; I mean the ENLARGEMENT of the ORBIT within which such systems are to revolve, either in respect to the dimensions of a single State or to the consolidation of several smaller States into one great Confederacy."
+      }
+    },
+    "fed_010": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "In the extent and proper structure of the Union, therefore, we behold a republican remedy for the diseases most incident to republican government."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "the same advantage which a republic has over a democracy, in controlling the effects of faction, is enjoyed by a large over a small republic,\u2014is enjoyed by the Union over the States composing it."
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "The federal Constitution forms a happy combination in this respect; the great and aggregate interests being referred to the national, the local and particular to the State legislatures."
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "Extend the sphere, and you take in a greater variety of parties and interests; you make it less probable that a majority of the whole will have a common motive to invade the rights of other citizens; or if such a common motive exists, it will be more difficult for all who feel it to discover their own strength, and to act in unison with each other."
+      }
+    },
+    "fed_011": {
+      "ratification_stance": {
+        "value": "silent"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "Disunion will add another victim to his triumphs. Let Americans disdain to be the instruments of European greatness! Let the thirteen States, bound together in a strict and indissoluble Union, concur in erecting one great American system, superior to the control of all transatlantic force or influence, and able to dictate the terms of the connection between the old and the new world!"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "Under a vigorous national government, the natural strength and resources of the country, directed to a common interest, would baffle all the combinations of European jealousy to restrain our growth."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "It can be conducted upon much better terms with a large number of materials of a given value than with a small number of materials of the same value; arising from the competitions of trade and from the fluctations of markets. Particular articles may be in great demand at certain periods, and unsalable at others; but if there be a variety of articles, it can scarcely happen that they should all be at one time in the latter predicament, and on this account the operations of the merchant would be less liable to any considerable obstruction or stagnation."
+      }
+    },
+    "fed_012": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "What will be the consequence, if we are not able to avail ourselves of the resource in question in its full extent? A nation cannot long exist without revenues. Destitute of this essential support, it must resign its independence, and sink into the degraded condition of a province."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "But public and private distress will keep pace with each other in gloomy concert; and unite in deploring the infatuation of those counsels which led to disunion."
+      },
+      "government_character": {
+        "value": "national_consolidated",
+        "quote": "It is therefore evident, that one national government would be able, at much less expense, to extend the duties on imports, beyond comparison, further than would be practicable to the States separately, or to any partial confederacies."
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "It is therefore evident, that one national government would be able, at much less expense, to extend the duties on imports, beyond comparison, further than would be practicable to the States separately, or to any partial confederacies."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_013": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "Nothing can be more evident than that the thirteen States will be able to support a national government better than one half, or one third, or any number less than the whole."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "The entire separation of the States into thirteen unconnected sovereignties is a project too extravagant and too replete with danger to have many advocates."
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "When the dimensions of a State attain to a certain magnitude, it requires the same energy of government and the same forms of administration which are requisite in one of much greater extent."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "Civil power, properly organized and exerted, is capable of diffusing its force to a very great extent; and can, in a manner, reproduce itself in every part of a great empire by a judicious arrangement of subordinate institutions."
+      }
+    },
+    "fed_014": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "I submit to you, my fellow-citizens, these considerations, in full confidence that the good sense which has so often marked your decisions will allow them their due weight and effect; and that you will never suffer difficulties, however formidable in appearance...to drive you into the gloomy and perilous scene into which the advocates for disunion would conduct you."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "We have seen the necessity of the Union, as our bulwark against foreign danger, as the conservator of peace among ourselves, as the guardian of our commerce and other common interests, as the only substitute for those military establishments which have subverted the liberties of the Old World, and as the proper antidote for the diseases of faction."
+      },
+      "government_character": {
+        "value": "federal_confederacy",
+        "quote": "The general government is not to be charged with the whole power of making and administering laws. Its jurisdiction is limited to certain enumerated objects, which concern all the members of the republic...The subordinate governments, which can extend their care to all those other subjects which can be separately provided for, will retain their due authority and activity."
+      },
+      "federal_power_scope": {
+        "value": "strictly_limited_enumerated",
+        "quote": "Its jurisdiction is limited to certain enumerated objects, which concern all the members of the republic, but which are not to be attained by the separate provisions of any."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "In a democracy, the people meet and exercise the government in person; in a republic, they assemble and administer it by their representatives and agents. A democracy, consequently, will be confined to a small spot. A republic may be extended over a large region."
+      }
+    },
+    "fed_015": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "This is the melancholy situation to which we have been brought by those very maxims and councils which would now deter us from adopting the proposed Constitution; and which, not content with having conducted us to the brink of a precipice, seem resolved to plunge us into the abyss that awaits us below. Here, my countrymen, impelled by every motive that ought to influence an enlightened people, let us make a firm stand for our safety, our tranquillity, our dignity, our reputation."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "In the course of the preceding papers, I have endeavored, my fellow-citizens, to place before you, in a clear and convincing light, the importance of Union to your political safety and happiness. I have unfolded to you a complication of dangers to which you would be exposed, should you permit that sacred knot which binds the people of America together be severed or dissolved by ambition or by avarice, by jealousy or by misrepresentation."
+      },
+      "government_character": {
+        "value": "national_consolidated",
+        "quote": "if we still will adhere to the design of a national government, or, which is the same thing, of a superintending power, under the direction of a common council, we must resolve to incorporate into our plan those ingredients which may be considered as forming the characteristic difference between a league and a government; we must extend the authority of the Union to the persons of the citizens, \u2014the only proper objects of government."
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "The great and radical vice in the construction of the existing Confederation is in the principle of LEGISLATION for STATES or GOVERNMENTS, in their CORPORATE or COLLECTIVE CAPACITIES, and as contradistinguished from the INDIVIDUALS of which they consist...The United States has an indefinite discretion to make requisitions for men and money; but they have no authority to raise either, by regulations extending to the individual citizens of America."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_016": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "if it be possible at any rate to construct a federal government capable of regulating the common concerns and preserving the general tranquillity, it must be founded, as to the objects committed to its care, upon the reverse of the principle contended for by the opponents of the proposed Constitution"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "The first war of this kind would probably terminate in a dissolution of the Union. This may be considered as the violent death of the Confederacy. Its more natural death is what we now seem to be on the point of experiencing, if the federal system be not speedily renovated in a more substantial form."
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "It must carry its agency to the persons of the citizens. It must stand in need of no intermediate legislations; but must itself be empowered to employ the arm of the ordinary magistrate to execute its own resolutions. The majesty of the national authority must be manifested through the medium of the courts of justice."
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "The tendency of the principle of legislation for States, or communities, in their political capacities...may, as truly as emphatically, be styled the parent of anarchy. It must, in short, possess all the means, and have a right to resort to all the methods, of executing the powers with which it is intrusted, that are possessed and exercised by the government of the particular States."
+      },
+      "standing_army_restriction": {
+        "value": "discretion_sufficient",
+        "quote": "It seems to require no pains to prove that the States ought not to prefer a national Constitution which could only be kept in motion by the instrumentality of a large army continually on foot to execute the ordinary requisitions or decrees of the government."
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "safe_essential_check",
+        "quote": "If the judges were not embarked in a conspiracy with the legislature, they would pronounce the resolutions of such a majority to be contrary to the supreme law of the land, unconstitutional, and void."
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_017": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "An objection, of a nature different from that which has been stated and answered, in my last address, may perhaps be likewise urged against the principle of legislation for the individual citizens of America. It may be said that it would tend to render the government of the Union too powerful, and to enable it to absorb those residuary authorities, which it might be judged proper to leave with the States for local purposes."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "there is an inherent and intrinsic weakness in all federal constitutions; and that too much pains cannot be taken in their organization, to give them all the force which is compatible with the principles of liberty."
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "An objection, of a nature different from that which has been stated and answered, in my last address, may perhaps be likewise urged against the principle of legislation for the individual citizens of America."
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "Commerce, finance, negotiation, and war seem to comprehend all the objects which have charms for minds governed by that passion; and all the powers necessary to those objects ought, in the first instance, to be lodged in the national depository."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_018": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "The powers, like those of the present Congress, were administered by deputies appointed wholly by the cities in their political capacities; and exercised over them in the same capacities. Hence the weakness, the disorders, and finally the destruction of the confederacy."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "Had Greece, says a judicious observer on her fate, been united by a stricter confederation, and persevered in her union, she would never have worn the chains of Macedon; and might have proved a barrier to the vast projects of Rome."
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "The powers, like those of the present Congress, were administered by deputies appointed wholly by the cities in their political capacities; and exercised over them in the same capacities. Hence the weakness, the disorders, and finally the destruction of the confederacy."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "According to the primitive constitution, there were two praetors associated in the administration; but on trial a single one was preferred."
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_019": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "The fundamental principle on which it rests, that the empire is a community of sovereigns, that the diet is a representation of sovereigns and that the laws are addressed to sovereigns, renders the empire a nerveless body, incapable of regulating its own members, insecure against external dangers, and agitated with unceasing fermentations in its own bowels."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "The history of Germany is a history of wars between the emperor and the princes and states; of wars among the princes and states themselves; of the licentiousness of the strong, and the oppression of the weak; of foreign intrusions, and foreign intrigues"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "The fundamental principle on which it rests, that the empire is a community of sovereigns, that the diet is a representation of sovereigns and that the laws are addressed to sovereigns, renders the empire a nerveless body, incapable of regulating its own members"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_020": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "a sovereignty over sovereigns, a government over governments, a legislation for communities, as contradistinguished from individuals, as it is a solecism in theory, so in practice it is subversive of the order and ends of civil polity, by substituting VIOLENCE in place of LAW"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "Imbecility in the government; discord among the provinces; foreign influence and indignities; a precarious existence in peace, and peculiar calamities from war"
+      },
+      "government_character": {
+        "value": "federal_confederacy",
+        "quote": "The United Netherlands are a confederacy of republics, or rather of aristocracies of a very remarkable texture"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "a sovereignty over sovereigns, a government over governments, a legislation for communities, as contradistinguished from individuals, as it is a solecism in theory, so in practice it is subversive of the order and ends of civil polity"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "Notwithstanding the calamities produced by the stadtholdership, it has been supposed that without his influence in the individual provinces, the causes of anarchy manifest in the confederacy would long ago have dissolved it"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_021": {
+      "ratification_stance": {
+        "value": "silent"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "This inequality would of itself be sufficient in America to work the eventual destruction of the Union, if any mode of enforcing a compliance with its requisitions could be devised."
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "There is no method of steering clear of this inconvenience, but by authorizing the national government to raise its own revenues in its own way."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_022": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "It must be by this time evident to all men of reflection, who can divest themselves of the prepossessions of preconceived opinions, that it is a system so radically vicious and unsound, as to admit not of amendment but by an entire change in its leading features and characters."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "If that plan should not be adopted, and if the necessity of the Union should be able to withstand the ambitious aims of those men who may indulge magnificent schemes of personal aggrandizement from its dissolution, the probability would be, that we should run into the project of conferring supplementary powers upon Congress"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "The system of quotas and requisitions, whether it be applied to men or money, is, in every view, a system of imbecility in the Union, and of inequality and injustice among the members."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "unjust_violates_majority_rule",
+        "quote": "Every idea of proportion and every rule of fair representation conspire to condemn a principle, which gives to Rhode Island an equal weight in the scale of power with Massachusetts, or Connecticut, or New York"
+      },
+      "judicial_power": {
+        "value": "safe_essential_check",
+        "quote": "A circumstance which crowns the defects of the Confederation remains yet to be mentioned, the want of a judiciary power. Laws are a dead letter without courts to expound and define their true meaning and operation."
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_023": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "the necessity of a Constitution, at least equally energetic with the one proposed, to the preservation of the Union, is the point at the examination of which we are now arrived"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "the very difficulty itself, drawn from the extent of the country, is the strongest argument in favor of an energetic government; for any other can certainly never preserve the Union of so large an empire"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "If the circumstances of our country are such as to demand a compound instead of a simple, a confederate instead of a sole, government"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "These powers ought to exist without limitation, BECAUSE IT IS IMPOSSIBLE TO FORESEE OR DEFINE THE EXTENT AND VARIETY OF NATIONAL EXIGENCIES, OR THE CORRESPONDENT EXTENT AND VARIETY OF THE MEANS WHICH MAY BE NECESSARY TO SATISFY THEM"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "the very difficulty itself, drawn from the extent of the country, is the strongest argument in favor of an energetic government; for any other can certainly never preserve the Union of so large an empire"
+      }
+    },
+    "fed_024": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "the whole power of raising armies was lodged in the LEGISLATURE, not in the EXECUTIVE; that this legislature was to be a popular body, consisting of the representatives of the people periodically elected; and that instead of the provision he had supposed in favor of standing armies, there was to be found, in respect to this object, an important qualification even of the legislative discretion, in that clause which forbids the appropriation of money for the support of an army for any longer period than two years a precaution which, upon a nearer view of it, will appear to be a great and real security against the keeping up of troops without evident necessity."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "The latter resource of permanent corps in the pay of the government amounts to a standing army in time of peace; a small one, indeed, but not the less real for being small. Here is a simple view of the subject, that shows us at once the impropriety of a constitutional interdiction of such establishments, and the necessity of leaving the matter to the discretion and prudence of the legislature."
+      },
+      "standing_army_restriction": {
+        "value": "discretion_sufficient",
+        "quote": "From a close examination it will appear that restraints upon the discretion of the legislature in respect to military establishments in time of peace, would be improper to be imposed, and if imposed, from the necessities of society, would be unlikely to be observed."
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_025": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "It may perhaps be urged that the objects enumerated in the preceding number ought to be provided for by the State governments, under the direction of the Union. But this would be, in reality, an inversion of the primary principle of our political association"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "a project oppressive to some States, dangerous to all, and baneful to the Confederacy"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "the impropriety of restraints on the discretion of the national legislature will be equally manifest"
+      },
+      "standing_army_restriction": {
+        "value": "discretion_sufficient",
+        "quote": "it is therefore improper in this respect to control the legislative discretion"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "unnecessary_or_dangerous",
+        "quote": "Wise politicians will be cautious about fettering the government with restrictions that cannot be observed, because they know that every breach of the fundamental laws, though dictated by necessity, impairs that sacred reverence which ought to be maintained in the breast of rulers towards the constitution of a country, and forms a precedent for other breaches where the same plea of necessity does not exist at all, or is less urgent and palpable"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_026": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "the opponents of the proposed Constitution combat, in this respect, the general decision of America; and instead of being taught by experience the propriety of correcting any extremes into which we may have heretofore run, they appear disposed to conduct us into others still more dangerous, and more extravagant"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "it is an evil infinitely less likely to attend us in a united than in a disunited state; nay, it may be safely asserted that it is an evil altogether unlikely to attend us in the latter situation"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "that no precise bounds could be set to the national exigencies; that a power equal to every possible contingency must exist somewhere in the government"
+      },
+      "standing_army_restriction": {
+        "value": "discretion_sufficient",
+        "quote": "The provision for the support of a military force will always be a favorable topic for declamation. As often as the question comes forward, the public attention will be roused and attracted to the subject, by the party in opposition; and if the majority should be really disposed to exceed the proper limits, the community will be warned of the danger, and will have an opportunity of taking measures to guard against it"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "In a state of disunion (as has been fully shown in another place), the contrary of this supposition would become not only probable, but almost unavoidable"
+      }
+    },
+    "fed_027": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "The plan reported by the convention, by extending the authority of the federal head to the individual citizens of the several States, will enable the government to employ the ordinary magistracy of each, in the execution of its laws."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "A turbulent faction in a State may easily suppose itself able to contend with the friends to the government in that State; but it can hardly be so infatuated as to imagine itself a match for the combined efforts of the Union."
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "the laws of the Confederacy, as to the ENUMERATED and LEGITIMATE objects of its jurisdiction, will become the SUPREME LAW of the land; to the observance of which all officers, legislative, executive, and judicial, in each State, will be bound by the sanctity of an oath."
+      },
+      "federal_power_scope": {
+        "value": "strictly_limited_enumerated",
+        "quote": "Thus the legislatures, courts, and magistrates, of the respective members, will be incorporated into the operations of the national government AS FAR AS ITS JUST AND CONSTITUTIONAL AUTHORITY EXTENDS"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "the extension of the spheres of election will present a greater option, or latitude of choice, to the people...and that they will be less apt to be tainted by the spirit of faction, and more out of the reach of those occasional ill-humors, or temporary prejudices and propensities, which, in smaller societies, frequently contaminate the public councils"
+      }
+    },
+    "fed_028": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "Is it not surprising that men who declare an attachment to the Union in the abstract, should urge as an objection to the proposed Constitution what applies with tenfold weight to the plan for which they contend"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "Who would not prefer that possibility to the unceasing agitations and frequent revolutions which are the continual scourges of petty republics?"
+      },
+      "government_character": {
+        "value": "federal_confederacy",
+        "quote": "In a confederacy the people, without exaggeration, may be said to be entirely the masters of their own fate. Power being almost always the rival of power, the general government will at all times stand ready to check the usurpations of the state governments, and these will have the same disposition towards the general government."
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "That there may happen cases in which the national government may be necessitated to resort to force, cannot be denied. Our own experience has corroborated the lessons taught by the examples of other nations; that emergencies of this sort will sometimes arise in all societies"
+      },
+      "standing_army_restriction": {
+        "value": "discretion_sufficient",
+        "quote": "It is a full answer to those who require a more peremptory provision against military establishments in time of peace, to say that the whole power of the proposed government is to be in the hands of the representatives of the people. This is the essential, and, after all, only efficacious security for the rights and privileges of the people"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "The obstacles to usurpation and the facilities of resistance increase with the increased extent of the state, provided the citizens understand their rights and are disposed to defend them. The natural strength of the people in a large community, in proportion to the artificial strength of the government, is greater than in a small, and of course more competent to a struggle with the attempts of the government to establish a tyranny."
+      }
+    },
+    "fed_029": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "It is, therefore, with the most evident propriety, that the plan of the convention proposes to empower the Union 'to provide for organizing, arming, and disciplining the militia, and for governing such part of them as may be employed in the service of the United States, RESERVING TO THE STATES RESPECTIVELY THE APPOINTMENT OF THE OFFICERS, AND THE AUTHORITY OF TRAINING THE MILITIA ACCORDING TO THE DISCIPLINE PRESCRIBED BY CONGRESS.'"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "The power of regulating the militia, and of commanding its services in times of insurrection and invasion are natural incidents to the duties of superintending the common defense, and of watching over the internal peace of the Confederacy."
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "This desirable uniformity can only be accomplished by confiding the regulation of the militia to the direction of the national authority... RESERVING TO THE STATES RESPECTIVELY THE APPOINTMENT OF THE OFFICERS, AND THE AUTHORITY OF TRAINING THE MILITIA ACCORDING TO THE DISCIPLINE PRESCRIBED BY CONGRESS."
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "It would be as absurd to doubt, that a right to pass all laws NECESSARY AND PROPER to execute its declared powers, would include that of requiring the assistance of the citizens to the officers who may be intrusted with the execution of those laws, as it would be to believe, that a right to enact laws necessary and proper for the imposition and collection of taxes would involve that of varying the rules of descent and of the alienation of landed property..."
+      },
+      "standing_army_restriction": {
+        "value": "discretion_sufficient",
+        "quote": "To render an army unnecessary, will be a more certain method of preventing its existence than a thousand prohibitions upon paper."
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_030": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "The conclusion is, that there must be interwoven, in the frame of the government, a general power of taxation, in one shape or another."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "In America, from a like cause, the government of the Union has gradually dwindled into a state of decay, approaching nearly to annihilation."
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "Its future necessities admit not of calculation or limitation; and upon the principle, more than once adverted to, the power of making provision for them as they arise ought to be equally unconfined."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_031": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "positions so clear as those which manifest the necessity of a general power of taxation in the government of the Union, should have to encounter any adversaries among men of discernment"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "As the duties of superintending the national defense and of securing the public peace against foreign or domestic violence involve a provision for casualties and dangers to which no possible limits can be assigned, the power of making that provision ought to know no other bounds than the exigencies of the nation and the resources of the community."
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "it is to be hoped, will always take care to preserve the constitutional equilibrium between the general and the State governments"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "the power of making that provision ought to know no other bounds than the exigencies of the nation and the resources of the community"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_032": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "I affirm that (with the sole exception of duties on imports and exports) they would, under the plan of the convention, retain that authority in the most absolute and unqualified sense; and that an attempt on the part of the national government to abridge them in the exercise of it, would be a violent assumption of power, unwarranted by any article or clause of its Constitution."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "But as the plan of the convention aims only at a partial union or consolidation, the State governments would clearly retain all the rights of sovereignty which they before had, and which were not, by that act, EXCLUSIVELY delegated to the United States."
+      },
+      "federal_power_scope": {
+        "value": "strictly_limited_enumerated",
+        "quote": "There is plainly no expression in the granting clause which makes that power EXCLUSIVE in the Union. There is no independent clause or sentence which prohibits the States from exercising it."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_033": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "The constitutional operation of the intended government would be precisely the same, if these clauses were entirely obliterated, as if they were repeated in every article."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "the danger which most threatens our political welfare is that the State governments will finally sap the foundations of the Union"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "If a number of political societies enter into a larger political society, the laws which the latter may enact, pursuant to the powers intrusted to it by its constitution, must necessarily be supreme over those societies, and the individuals of whom they are composed."
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "a power to lay and collect taxes must be a power to pass all laws NECESSARY and PROPER for the execution of that power"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_034": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "the particular States, under the proposed Constitution, would have COEQUAL authority with the Union in the article of revenue, except as to duties on imports. As this leaves open to the States far the greatest part of the resources of the community, there can be no color for the assertion that they would not possess means as abundant as could be desired for the supply of their own wants"
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "A CONCURRENT JURISDICTION in the article of taxation was the only admissible substitute for an entire subordination, in respect to this branch of power, of State authority to that of the Union."
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "There ought to be a CAPACITY to provide for future contingencies as they may happen; and as these are illimitable in their nature, it is impossible safely to limit that capacity."
+      },
+      "standing_army_restriction": {
+        "value": "discretion_sufficient",
+        "quote": "Admitting that we ought to try the novel and absurd experiment in politics of tying up the hands of government from offensive war founded upon reasons of state, yet certainly we ought not to disable it from guarding the community against the ambition or enmity of other nations."
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_035": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "if the jurisdiction of the national government, in the article of revenue, should be restricted to particular objects, it would naturally occasion an undue proportion of the public burdens to fall upon those objects. Two evils would spring from this source: the oppression of particular branches of industry; and an unequal distribution of the taxes, as well among the several States as among the citizens of the same State."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "There is no part of the administration of government that requires extensive information and a thorough knowledge of the principles of political economy, so much as the business of taxation. The man who understands those principles best will be least likely to resort to oppressive expedients, or sacrifice any particular class of citizens to the procurement of revenue."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_036": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "The exercise of that power, if convenient, will be preferable, because it will be more effectual; and it is impossible to prove in theory, or otherwise than by the experiment, that it cannot be advantageously exercised. The contrary, indeed, appears most probable."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "I still feel a thorough conviction that the power of having recourse to it ought to exist in the federal government. There are certain emergencies of nations, in which expedients, that in the ordinary state of things ought to be forborne, become essential to the public weal. And the government, from the possibility of such emergencies, ought ever to have the option of making use of them."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_037": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "the ultimate object of these papers is to determine clearly and fully the merits of this Constitution, and the expediency of adopting it"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "Energy in government is essential to that security against external and internal danger, and to that prompt and salutary execution of the laws which enter into the very definition of good government."
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "energy in government requires not only a certain duration of power, but the execution of it by a single hand."
+      },
+      "senate_equal_suffrage": {
+        "value": "justified_compromise",
+        "quote": "We may well suppose that neither side would entirely yield to the other, and consequently that the struggle could be terminated only by compromise."
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_038": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "is it not manifest that most of the capital objections urged against the new system lie with tenfold weight against the existing Confederation?"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "A dissolution or usurpation is the dreadful dilemma to which it is continually exposed."
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "This one tells us that the proposed Constitution ought to be rejected, because it is not a confederation of the States, but a government over individuals. Another admits that it ought to be a government over individuals to a certain extent..."
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "if the Union is to continue, and no better government be substituted, effective powers must either be granted to, or assumed by, the existing Congress"
+      },
+      "standing_army_restriction": {
+        "value": "discretion_sufficient",
+        "quote": "Is an indefinite power to raise troops dangerous? The Confederation gives to Congress that power also; and they have already begun to make use of it."
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "the fears of discord and disunion among a number of counsellours exceeded the apprehension of treachery or incapacity in a single individual"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_039": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "On comparing the Constitution planned by the convention with the standard here fixed, we perceive at once that it is, in the most rigid sense, conformable to it."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "The proposed Constitution, therefore, is, in strictness, neither a national nor a federal Constitution, but a composition of both."
+      },
+      "federal_power_scope": {
+        "value": "strictly_limited_enumerated",
+        "quote": "its jurisdiction extends to certain enumerated objects only, and leaves to the several States a residuary and inviolable sovereignty over all other objects"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_040": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "if it be calculated to accomplish the views and happiness of the people of America, this ought nevertheless to be embraced"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "ADEQUATE TO THE EXIGENCIES OF THE UNION; and to report such an act for that purpose, to the United States in Congress assembled...render the federal Constitution ADEQUATE TO THE EXIGENCIES OF GOVERNMENT AND THE PRESERVATION OF THE UNION"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "whether the convention were authorized to frame and propose this mixed Constitution"
+      },
+      "federal_power_scope": {
+        "value": "strictly_limited_enumerated",
+        "quote": "the general powers are limited; and that the States, in all unenumerated cases, are left in the enjoyment of their sovereign and independent jurisdiction"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_041": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "the purest of human blessings must have a portion of alloy in them; that the choice must always be made, if not of the lesser evil, at least of the GREATER, not the PERFECT, good"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "Security against foreign danger is one of the primitive objects of civil society. It is an avowed and essential object of the American Union."
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "With what color of propriety could the force necessary for defense be limited by those who cannot limit the force of offense? If a federal Constitution could chain the ambition or set bounds to the exertions of all other nations, then indeed might it prudently chain the discretion of its own government, and set bounds to the exertions for its own safety."
+      },
+      "standing_army_restriction": {
+        "value": "discretion_sufficient",
+        "quote": "the American ties down the legislature to two years, as the longest admissible term"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "America united, with a handful of troops, or without a single soldier, exhibits a more forbidding posture to foreign ambition than America disunited, with a hundred thousand veterans ready for combat."
+      }
+    },
+    "fed_042": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "would be no inconsiderable argument in favor of the new Constitution, which seems to have provided no less studiously for the lesser, than the more obvious and striking defects of the old"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "If we are to be one nation in any respect, it clearly ought to be in respect to other nations."
+      },
+      "government_character": {
+        "value": "federal_confederacy",
+        "quote": "This class of powers forms an obvious and essential branch of the federal administration."
+      },
+      "federal_power_scope": {
+        "value": "strictly_limited_enumerated",
+        "quote": "The defect of power in the existing Confederacy to regulate the commerce between its several members, is in the number of those which have been clearly pointed out by experience."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_043": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "The utility of this power will scarcely be questioned. The public good fully coincides in both cases with the claims of individuals."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "the great principle of self-preservation; to the transcendent law of nature and of nature's God, which declares that the safety and happiness of society are the objects at which all political institutions aim, and to which all such institutions must be sacrificed"
+      },
+      "government_character": {
+        "value": "federal_confederacy",
+        "quote": "In a confederacy founded on republican principles, and composed of republican members, the superintending government ought clearly to possess authority to defend the system against aristocratic or monarchial innovations."
+      },
+      "federal_power_scope": {
+        "value": "strictly_limited_enumerated",
+        "quote": "The States cannot separately make effectual provisions for either of the cases, and most of them have anticipated the decision of this point, by laws passed at the instance of Congress."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "justified_compromise",
+        "quote": "The exception in favor of the equality of suffrage in the Senate, was probably meant as a palladium to the residuary sovereignty of the States, implied and secured by that principle of representation in one branch of the legislature"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_044": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "we are brought to this undeniable conclusion, that no part of the power is unnecessary or improper for accomplishing the necessary objects of the Union"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "whether the Union itself shall be preserved"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "The members and officers of the State governments, on the contrary, will have an essential agency in giving effect to the federal Constitution"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "Without the SUBSTANCE of this power, the whole Constitution would be a dead letter"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "safe_essential_check",
+        "quote": "the success of the usurpation will depend on the executive and judiciary departments, which are to expound and give effect to the legislative acts"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_045": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "if the Union, as has been shown, be essential to the security of the people of America against foreign danger; if it be essential to their security against contentions and wars among the different States...is it not preposterous, to urge as an objection to a government, without which the objects of the Union cannot be attained, that such a government may derogate from the importance of the governments of the individual States?"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "if the Union...be essential to the security of the people of America against foreign danger; if it be essential to their security against contentions and wars among the different States; if it be essential to guard them against those violent and oppressive factions which embitter the blessings of liberty"
+      },
+      "government_character": {
+        "value": "federal_confederacy",
+        "quote": "The powers delegated by the proposed Constitution to the federal government are few and defined. Those which are to remain in the State governments are numerous and indefinite."
+      },
+      "federal_power_scope": {
+        "value": "strictly_limited_enumerated",
+        "quote": "The powers delegated by the proposed Constitution to the federal government are few and defined. Those which are to remain in the State governments are numerous and indefinite."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_046": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "all those alarms which have been sounded, of a meditated and consequential annihilation of the State governments, must, on the most favorable interpretation, be ascribed to the chimerical fears of the authors of them"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "ambitious encroachments of the federal government, on the authority of the State governments, would not excite the opposition of a single State, or of a few States only. They would be signals of general alarm. Every government would espouse the common cause."
+      },
+      "government_character": {
+        "value": "federal_confederacy",
+        "quote": "The federal and State governments are in fact but different agents and trustees of the people, constituted with different powers, and designed for different purposes"
+      },
+      "federal_power_scope": {
+        "value": "strictly_limited_enumerated",
+        "quote": "the powers proposed to be lodged in the federal government are as little formidable to those reserved to the individual States, as they are indispensably necessary to accomplish the purposes of the Union; and that all those alarms which have been sounded, of a meditated and consequential annihilation of the State governments"
+      },
+      "standing_army_restriction": {
+        "value": "discretion_sufficient",
+        "quote": "the State governments, with the people on their side, would be able to repel the danger... a militia amounting to near half a million of citizens with arms in their hands, officered by men chosen from among themselves, fighting for their common liberties, and united and conducted by governments possessing their affections and confidence"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_047": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "I persuade myself, however, that it will be made apparent to every one, that the charge cannot be supported, and that the maxim on which it relies has been totally misconceived and misapplied."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "a partial mixture of powers has been admitted"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "safe_essential_check",
+        "quote": "The judges, again, are so far connected with the legislative department as often to attend and participate in its deliberations, though not admitted to a legislative vote."
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_048": {
+      "ratification_stance": {
+        "value": "silent"
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "the executive department of Pennsylvania is distinguished from that of the other States by the number of members composing it. In this respect, it has as much affinity to a legislative assembly as to an executive council. And being at once exempt from the restraint of an individual responsibility for the acts of the body, and deriving confidence from mutual example and joint influence, unauthorized measures would, of course, be more freely hazarded, than where the executive department is administered by a single hand, or by a few hands."
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_049": {
+      "ratification_stance": {
+        "value": "silent"
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_050": {
+      "ratification_stance": {
+        "value": "silent"
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_051": {
+      "ratification_stance": {
+        "value": "silent"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "in exact proportion as the territory of the Union may be formed into more circumscribed Confederacies, or States oppressive combinations of a majority will be facilitated: the best security, under the republican forms, for the rights of every class of citizens, will be diminished"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "In the compound republic of America, the power surrendered by the people is first divided between two distinct governments, and then the portion allotted to each subdivided among distinct and separate departments."
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "the larger the society, provided it lie within a practical sphere, the more duly capable it will be of self-government. And happily for the REPUBLICAN CAUSE, the practicable sphere may be carried to a very great extent, by a judicious modification and mixture of the FEDERAL PRINCIPLE."
+      }
+    },
+    "fed_052": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "The provision made by the convention appears, therefore, to be the best that lay within their option."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "the federal legislature will possess a part only of that supreme legislative authority which is vested completely in the British Parliament; and which, with a few exceptions, was exercised by the colonial assemblies and the Irish legislature."
+      },
+      "federal_power_scope": {
+        "value": "strictly_limited_enumerated",
+        "quote": "the federal legislature will possess a part only of that supreme legislative authority which is vested completely in the British Parliament"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_053": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "Or who will pretend that the liberties of the people of America will not be more secure under biennial elections, unalterably fixed by such a Constitution, than those of any other nation would be, where elections were annual, or even more frequent, but subject to alterations by the ordinary power of the government?"
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_054": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "on the whole, I must confess that it fully reconciles me to the scale of representation which the convention have established."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "federal_confederacy",
+        "quote": "The new Constitution is, in this respect, materially different from the existing Confederation, as well as from that of the United Netherlands, and other similar confederacies."
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_055": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "the liberties of America cannot be unsafe in the number of hands proposed by the federal Constitution"
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "strictly_limited_enumerated",
+        "quote": "Whether sixty-five members for a few years, and a hundred or two hundred for a few more, be a safe depositary for a limited and well-guarded power of legislating for the United States?"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_056": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "it seems to give the fullest assurance, that a representative for every THIRTY THOUSAND INHABITANTS will render the latter both a safe and competent guardian of the interests which will be confided to it."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "federal_confederacy",
+        "quote": "The representatives of each State will not only bring with them a considerable knowledge of its laws, and a local knowledge of their respective districts, but will probably in all cases have been members, and may even at the very time be members, of the State legislature, where all the local information and interests of the State are assembled, and from whence they may easily be conveyed by a very few hands into the legislature of the United States."
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_057": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "Let me now ask what circumstance there is in the constitution of the House of Representatives that violates the principles of republican government, or favors the elevation of the few on the ruins of the many? Let me ask whether every circumstance is not, on the contrary, strictly conformable to these principles, and scrupulously impartial to the rights and pretensions of every class and description of citizens?"
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "Reason, on the contrary, assures us, that as in so great a number a fit representative would be most likely to be found, so the choice would be less likely to be diverted from him by the intrigues of the ambitious or the bribes of the rich."
+      }
+    },
+    "fed_058": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "like most other objections against the Constitution, it can only proceed from a partial view of the subject, or from a jealousy which discolors and disfigures every object which is beheld"
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "one branch of the legislature is a representation of citizens, the other of the States: in the former, consequently, the larger States will have most weight; in the latter, the advantage will be in favor of the smaller States"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "justified_compromise",
+        "quote": "There is a peculiarity in the federal Constitution which insures a watchful attention in a majority both of the people and of their representatives to a constitutional augmentation of the latter. The peculiarity lies in this, that one branch of the legislature is a representation of citizens, the other of the States"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_059": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "I am greatly mistaken, notwithstanding, if there be any article in the whole plan more completely defensible than this."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "Nothing can be more evident, than that an exclusive power of regulating elections for the national government, in the hands of the State legislatures, would leave the existence of the Union entirely at their mercy."
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "it would doubtless have been interpreted into an entire dereliction of the federal principle; and would certainly have deprived the State governments of that absolute safeguard which they will enjoy under this provision."
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "EVERY GOVERNMENT OUGHT TO CONTAIN IN ITSELF THE MEANS OF ITS OWN PRESERVATION."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_060": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "It is not pretended, that this right would ever be used for the exclusion of any State from its share in the representation. The interest of all would, in this respect at least, be the security of all."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "The dissimilarity in the ingredients which will compose the national government, and still more in the manner in which they will be brought into action in its various branches, must form a powerful obstacle to a concert of views in any partial scheme of elections. The House of Representatives being to be elected immediately by the people, the Senate by the State legislatures, the President by electors chosen for that purpose by the people, there would be little probability of a common interest to cement these different branches in a predilection for any particular class of electors."
+      },
+      "federal_power_scope": {
+        "value": "strictly_limited_enumerated",
+        "quote": "Its authority would be expressly restricted to the regulation of the TIMES, the PLACES, the MANNER of elections. The qualifications of the persons who may choose or be chosen, as has been remarked upon other occasions, are defined and fixed in the Constitution, and are unalterable by the legislature."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "for the very reason, that this will be an emanation from a greater variety of interests, and in much more various proportions, than are to be found in any single State, it will be much less apt to espouse either of them with a decided partiality, than the representation of any single State."
+      }
+    },
+    "fed_061": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "The different views taken of the subject in the two preceding papers must be sufficient to satisfy all dispassionate and discerning men, that if the public liberty should ever be the victim of the ambition of the national rulers, the power under examination, at least, will be guiltless of the sacrifice."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "it is less probable that a predominant faction in a single State should, in order to maintain its superiority, incline to a preference of a particular class of electors, than that a similar spirit should take possession of the representatives of thirteen States, spread over a vast region, and in several respects distinguishable from each other by a diversity of local circumstances, prejudices, and interests."
+      }
+    },
+    "fed_062": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "A common government, with powers equal to its objects, is called for by the voice, and still more loudly by the political situation, of America."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "A common government, with powers equal to its objects, is called for by the voice, and still more loudly by the political situation, of America."
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "in a compound republic, partaking both of the national and federal character, the government ought to be founded on a mixture of the principles of proportional and equal representation."
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "A common government, with powers equal to its objects, is called for by the voice, and still more loudly by the political situation, of America."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "justified_compromise",
+        "quote": "the equal vote allowed to each State is at once a constitutional recognition of the portion of sovereignty remaining in the individual States, and an instrument for preserving that residuary sovereignty."
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_063": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "A fifth desideratum, illustrating the utility of a senate, is the want of a due sense of national character."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "The true distinction between these and the American governments, lies IN THE TOTAL EXCLUSION OF THE PEOPLE, IN THEIR COLLECTIVE CAPACITY, from any share in the LATTER, and not in the TOTAL EXCLUSION OF THE REPRESENTATIVES OF THE PEOPLE from the administration of the FORMER."
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "extended_republic_superior",
+        "quote": "For it cannot be believed, that any form of representative government could have succeeded within the narrow limits occupied by the democracies of Greece."
+      }
+    },
+    "fed_064": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "In short, as the Constitution has taken the utmost care that they shall be men of talents and integrity, we have reason to be persuaded that the treaties they make will be as advantageous as, all circumstances considered, could be made."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "justified_compromise",
+        "quote": "As all the States are equally represented in the Senate, and by men the most able and the most willing to promote the interests of their constituents, they will all have an equal degree of influence in that body, especially while they continue to be careful in appointing proper persons, and to insist on their punctual attendance."
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_065": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "To answer the purpose of the adversaries of the Constitution, they ought to prove, not merely that particular provisions in it are not the best which might have been imagined, but that the plan upon the whole is bad and pernicious."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_066": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "A review of the principal objections that have appeared against the proposed court for the trial of impeachments, will not improbably eradicate the remains of any unfavorable impressions which may still exist in regard to this matter."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_067": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "It is impossible not to bestow the imputation of deliberate imposture and deception upon the gross pretense of a similitude between a king of Great Britain and a magistrate of the character marked out for that of the President of the United States."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "The authorities of a magistrate, in few instances greater, in some instances less, than those of a governor of New York, have been magnified into more than royal prerogatives."
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_068": {
+      "ratification_stance": {
+        "value": "silent"
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_069": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "This will serve to place in a strong light the unfairness of the representations which have been made in regard to it."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "The first thing which strikes our attention is, that the executive authority, with few exceptions, is to be vested in a single magistrate."
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_070": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "Those politicians and statesmen who have been the most celebrated for the soundness of their principles and for the justice of their views, have declared in favor of a single Executive and a numerous legislature."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "That unity is conducive to energy will not be disputed. Decision, activity, secrecy, and despatch will generally characterize the proceedings of one man in a much more eminent degree than the proceedings of any greater number; and in proportion as the number is increased, these qualities will be diminished."
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_070b": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "Those politicians and statesmen who have been the most celebrated for the soundness of their principles and for the justice of their views, have declared in favor of a single Executive and a numerous legislature."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "That unity is conducive to energy will not be disputed. Decision, activity, secrecy, and despatch will generally characterize the proceedings of one man in a much more eminent degree than the proceedings of any greater number; and in proportion as the number is increased, these qualities will be diminished."
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_071": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "As, on the one hand, a duration of four years will contribute to the firmness of the Executive in a sufficient degree to render it a very valuable ingredient in the composition; so, on the other, it is not enough to justify any alarm for the public liberty."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "Between the commencement and termination of such a period, there would always be a considerable interval, in which the prospect of annihilation would be sufficiently remote, not to have an improper effect upon the conduct of a man indued with a tolerable portion of fortitude; and in which he might reasonably promise himself, that there would be time enough before it arrived, to make the community sensible of the propriety of the measures he might incline to pursue."
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_072": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "There is an excess of refinement in the idea of disabling the people to continue in office men who had entitled themselves, in their opinion, to approbation and confidence; the advantages of which are at best speculative and equivocal, and are overbalanced by disadvantages far more certain and decisive."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_073": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "It is not easy, therefore, to commend too highly the judicious attention which has been paid to this subject in the proposed Constitution."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "I have in another place remarked, that the convention, in the formation of this part of their plan, had departed from the model of the constitution of this State, in favor of that of Massachusetts. Two strong reasons may be imagined for this preference."
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "safe_essential_check",
+        "quote": "It is impossible to keep the judges too distinct from every other avocation than that of expounding the laws. It is peculiarly dangerous to place them in a situation to be either corrupted or influenced by the Executive."
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_074": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "The propriety of this provision is so evident in itself, and it is, at the same time, so consonant to the precedents of the State constitutions in general, that little need be said to explain or enforce it."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "Of all the cares or concerns of government, the direction of war most peculiarly demands those qualities which distinguish the exercise of power by a single hand."
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_075": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "I scruple not to declare my firm persuasion, that it is one of the best digested and most unexceptionable parts of the plan."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "The power of making treaties is, plainly, neither the one nor the other. It relates neither to the execution of the subsisting laws, nor to the enaction of new ones; and still less to an exertion of the common strength... The power in question seems therefore to form a distinct department, and to belong, properly, neither to the legislative nor to the executive. The qualities elsewhere detailed as indispensable in the management of foreign negotiations, point out the Executive as the most fit agent in those transactions; while the vast importance of the trust, and the operation of treaties as laws, plead strongly for the participation of the whole or a portion of the legislative body in the office of making them."
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "It must indeed be clear to a demonstration that the joint possession of the power in question, by the President and Senate, would afford a greater prospect of security, than the separate possession of it by either of them."
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_076": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "the mode of appointing the officers of the United States contained in the foregoing clauses, must, when examined, be allowed to be entitled to particular commendation."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "one man of discernment is better fitted to analyze and estimate the peculiar qualities adapted to particular offices, than a body of men of equal or perhaps even of superior discernment."
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_077": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "Upon a comparison of the plan for the appointment of the officers of the proposed government with that which is established by the constitution of this State, a decided preference must be given to the former."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "single_executive_beneficial",
+        "quote": "Every mere council of appointment, however constituted, will be a conclave, in which cabal and intrigue will have their full scope. Their number, without an unwarrantable increase of expense, cannot be large enough to preclude a facility of combination."
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_078": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "Upon the whole, there can be no room to doubt that the convention acted wisely in copying from the models of those constitutions which have established GOOD BEHAVIOR as the tenure of their judicial offices, in point of duration; and that so far from being blamable on this account, their plan would have been inexcusably defective, if it had wanted this important feature of good government."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "safe_essential_check",
+        "quote": "The complete independence of the courts of justice is peculiarly essential in a limited Constitution. By a limited Constitution, I understand one which contains certain specified exceptions to the legislative authority... Limitations of this kind can be preserved in practice no other way than through the medium of courts of justice, whose duty it must be to declare all acts contrary to the manifest tenor of the Constitution void."
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_079": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "This provision for the support of the judges bears every mark of prudence and efficacy; and it may be safely affirmed that, together with the permanent tenure of their offices, it affords a better prospect of their independence than is discoverable in the constitutions of any of the States in regard to their own judges."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "safe_essential_check",
+        "quote": "The precautions for their responsibility are comprised in the article respecting impeachments. They are liable to be impeached for malconduct by the House of Representatives, and tried by the Senate; and, if convicted, may be dismissed from office, and disqualified for holding any other. This is the only provision on the point which is consistent with the necessary independence of the judicial character, and is the only one which we find in our own Constitution in respect to our own judges."
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_080": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "From this review of the particular powers of the federal judiciary, as marked out in the Constitution, it appears that they are all conformable to the principles which ought to have governed the structure of that department, and which were necessary to the perfection of the system."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "The power of determining causes between two States, between one State and the citizens of another, and between the citizens of different States, is perhaps not less essential to the peace of the Union than that which has been just examined."
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "It may be esteemed the basis of the Union, that 'the citizens of each State shall be entitled to all the privileges and immunities of citizens of the several States'"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "every government OUGHT TO POSSESS THE MEANS OF EXECUTING ITS OWN PROVISIONS BY ITS OWN AUTHORITY"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "safe_essential_check",
+        "quote": "If there are such things as political axioms, the propriety of the judicial power of a government being coextensive with its legislative, may be ranked among the number."
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_081": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "The amount of the observations hitherto made on the authority of the judicial department is this: that it has been carefully restricted to those causes which are manifestly proper for the cognizance of the national judicature... and that an ordinary degree of prudence and integrity in the national councils will insure us solid advantages from the establishment of the proposed judiciary, without exposing us to any of the inconveniences which have been predicted from that source."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "safe_essential_check",
+        "quote": "It may in the last place be observed that the supposed danger of judiciary encroachments on the legislative authority, which has been upon many occasions reiterated, is in reality a phantom. Particular misconstructions and contraventions of the will of the legislature may now and then happen; but they can never be so extensive as to amount to an inconvenience, or in any sensible degree to affect the order of the political system."
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_082": {
+      "ratification_stance": {
+        "value": "silent"
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "the national and State systems are to be regarded as ONE WHOLE"
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "strictly_limited_enumerated",
+        "quote": "The States will retain all PRE-EXISTING authorities which may not be exclusively delegated to the federal head; and that this exclusive delegation can only exist in one of three cases"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "safe_essential_check",
+        "quote": "The courts of the latter will of course be natural auxiliaries to the execution of the laws of the Union, and an appeal from them will as naturally lie to that tribunal which is destined to unite and assimilate the principles of national justice and the rules of national decisions"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_083": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "I cannot but persuade myself, on the other hand, that the different lights in which the subject has been placed in the course of these observations, will go far towards removing in candid minds the apprehensions they may have entertained on the point."
+      },
+      "union_vs_disunion": {
+        "value": "silent"
+      },
+      "government_character": {
+        "value": "mixed_composite",
+        "quote": "in a federal government, which is a composition of societies whose ideas and institutions in relation to the matter materially vary from each other, that difficulty must be not a little augmented"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "safe_essential_check",
+        "quote": "Both of these are provided for, in the most ample manner, in the plan of the convention... the national judiciary will have no cognizance of them, and of course they will remain determinable as heretofore by the State courts only"
+      },
+      "bill_of_rights_necessity": {
+        "value": "unnecessary_or_dangerous",
+        "quote": "the establishment of the trial by jury in ALL cases would have been an unpardonable error in the plan"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_084": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "The great bulk of the citizens of America are with reason convinced, that Union is the basis of their political happiness. Men of sense of all parties now, with few exceptions, agree that it cannot be preserved under the present system, nor without radical alterations; that new and extensive powers ought to be granted to the national head, and that these require a different organization of the federal government a single body being an unsafe depositary of such ample authorities."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "The great bulk of the citizens of America are with reason convinced, that Union is the basis of their political happiness."
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "extensive_indefinite_necessary",
+        "quote": "Men of sense of all parties now, with few exceptions, agree that it cannot be preserved under the present system, nor without radical alterations; that new and extensive powers ought to be granted to the national head, and that these require a different organization of the federal government a single body being an unsafe depositary of such ample authorities."
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "unnecessary_or_dangerous",
+        "quote": "I go further, and affirm that bills of rights, in the sense and to the extent in which they are contended for, are not only unnecessary in the proposed Constitution, but would even be dangerous. They would contain various exceptions to powers not granted; and, on this very account, would afford a colorable pretext to claim more than were granted."
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    },
+    "fed_085": {
+      "ratification_stance": {
+        "value": "supports_ratification",
+        "quote": "I am persuaded that it is the best which our political situation, habits, and opinions will admit, and superior to any the revolution has produced."
+      },
+      "union_vs_disunion": {
+        "value": "single_union_essential",
+        "quote": "A nation, without a national government, is, in my view, an awful spectacle."
+      },
+      "government_character": {
+        "value": "silent"
+      },
+      "federal_power_scope": {
+        "value": "silent"
+      },
+      "standing_army_restriction": {
+        "value": "silent"
+      },
+      "executive_structure": {
+        "value": "silent"
+      },
+      "senate_equal_suffrage": {
+        "value": "silent"
+      },
+      "judicial_power": {
+        "value": "silent"
+      },
+      "bill_of_rights_necessity": {
+        "value": "silent"
+      },
+      "extended_republic_theory": {
+        "value": "silent"
+      }
+    }
+  }
+}
