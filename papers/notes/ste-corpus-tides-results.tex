@@ -1,0 +1,170 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{natbib}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+
+\newcommand{\lean}[1]{\texttt{#1}}
+\newcommand{\vv}[1]{\textsf{\small #1}}
+
+\title{Reconciling a multi-voice corpus by set-theoretic estimation:\\
+the ``cause of the tides'' run\\
+\large Haiku extracted the frames; Lean machine-checked the verdict}
+\author{thejeb project note}
+\date{2026-07-24}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We ran the empirical pipeline of the companion plan end to end. Seven
+public-domain natural philosophers discussing one topic --- the cause of
+the ocean tides --- were extracted into a structured frame per author by
+\textbf{Claude Haiku 4.5} (open pass), unified into a canonical schema by
+\textbf{Claude Sonnet}, and re-extracted against that schema by Haiku; the
+resulting frames were encoded as STE property sets and the invariants of
+the disagreement were \textbf{machine-checked in Lean} against
+\lean{Ste.Basic} (Combettes 1993). The verdict: the corpus is globally
+\emph{inconsistent}; the obstruction is carried by the moon's role, which
+splits three ways (attraction / pressure / rejected); and the
+disagreement is \emph{pervasive} rather than localized to one outlier ---
+even the five-author attraction camp is internally inconsistent on the
+mechanism. This corrected the plan's armchair prediction of a single
+outlier (Galileo): the machine found \emph{two} dissenters and a deeper
+coupling, which is the point of running it.
+\end{abstract}
+
+\section{The run}
+
+The pipeline did not fix the schema up front. Three passes (prompts
+committed in \lean{scripts/tides/}, outputs in
+\lean{sources/tides/extraction/}):
+
+\begin{enumerate}
+\item \textbf{Haiku, open extraction.} Haiku read the seven passages and
+  proposed its own $(\text{variable},\text{value},\text{quote})$ claims,
+  over-splitting into $\approx 25$ fine-grained variables
+  (\lean{pass1.json}).
+\item \textbf{Sonnet, schema unification.} Sonnet merged the synonymous
+  variables into a canonical \textbf{7-variable} schema with closed
+  domains and a synonym map (\lean{schema.json}): \vv{primary\_cause},
+  \vv{moon\_role} $\in\{$attraction, pressure, rejected$\}$,
+  \vv{mechanism} (5 values), \vv{sun\_role}, \vv{spring\_neap},
+  \vv{earth\_motion\_required}, \vv{quantitative}.
+\item \textbf{Haiku, schema-constrained re-extraction.} Haiku re-extracted
+  every author against the canonical schema, emitting one assignment per
+  author (value or \vv{silent}) with a licensing quote
+  (\lean{frames.json}).
+\end{enumerate}
+
+The extraction ran on Haiku 4.5 / Sonnet through the agent harness; the
+prompts are reusable and reproduce the frames.
+
+\section{The extracted frames}
+
+The canonical frames (\vv{$\cdot$} $=$ silent):
+
+\begin{center}\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}l l l l l l@{}}
+\toprule
+Author & primary\_cause & moon\_role & mechanism & sun\_role & quant. \\
+\midrule
+Pliny     & sun+moon    & \textbf{attraction} & direct\_corr.   & reinforces & $\cdot$ \\
+Bede      & moon        & \textbf{attraction} & direct\_corr.   & $\cdot$    & $\cdot$ \\
+Kepler    & moon        & \textbf{attraction} & gravitational   & $\cdot$    & $\cdot$ \\
+Galileo   & earth\_motion & \textbf{rejected} & basin\_motion   & $\cdot$    & $\cdot$ \\
+Descartes & sun+moon    & \textbf{pressure}   & vortex\_pressure& reinforces & $\cdot$ \\
+Newton    & sun+moon    & \textbf{attraction} & gravitational   & weaker     & math. \\
+Laplace   & sun+moon    & \textbf{attraction} & dyn.\ oscill.   & $\cdot$    & math. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{The machine-checked invariants}
+
+Encoded in \lean{Ste.TidesCorpus}: each author $a$ is a property set
+$\lean{constraint}\,a = \{f \mid f \text{ agrees with } a\text{'s frame
+where } a \text{ speaks}\}$, and the STE feasibility set is
+$\lean{feasibilitySet constraint} = \bigcap_a \lean{constraint}\,a$. All
+of the following are proved (sorry-free):
+
+\begin{itemize}
+\item \textbf{Global inconsistency} (\lean{feasible\_eq\_empty}):
+  $\lean{feasibilitySet constraint} = \varnothing$. No single reading of
+  the tides satisfies all seven voices.
+\item \textbf{The three-way \vv{moon\_role} split gives three minimal
+  cores}: any two authors in different camps already have disjoint
+  property sets ---
+  \lean{kepler\_galileo\_core} (attraction vs.\ rejected),
+  \lean{kepler\_descartes\_core} (attraction vs.\ pressure),
+  \lean{galileo\_descartes\_core} (rejected vs.\ pressure).
+\item \textbf{The disagreement is pervasive}
+  (\lean{pliny\_kepler\_mechanism\_core}): even inside the five-author
+  attraction camp, Pliny (direct correspondence) and Kepler
+  (gravitational) are a minimal conflicting core on \vv{mechanism}. So
+  dropping the two \vv{moon\_role} dissenters does \emph{not} restore
+  consistency.
+\item \textbf{Positive structure on the most-contested variable}
+  (\lean{attraction\_camp\_moon\_consistent},
+  \lean{descartes\_dissents}, \lean{galileo\_dissents}): on
+  \vv{moon\_role} alone, the five attraction authors share a common
+  reading, and exactly two voices dissent --- Descartes (pressure) and
+  Galileo (rejected).
+\item \textbf{The Combettes corollary} (\lean{no\_fair\_reading}): because
+  the formulation is inconsistent, every candidate estimand is unfair to
+  some voice --- the set-theoretic detection-of-invalid-information
+  principle, instantiated on the corpus.
+\end{itemize}
+
+\section{What the machine corrected}
+
+The companion plan predicted, from historical intuition, a \emph{single}
+famous outlier (Galileo) and a nonempty consensus once he is dropped. The
+run refuted both halves:
+
+\begin{enumerate}
+\item There are \textbf{two} dissenters on the moon's role, not one:
+  Galileo (rejected) \emph{and} Descartes (pressure). The
+  \vv{moon\_role} variable is a genuine three-way split.
+\item Dropping the dissenters does \textbf{not} yield a consensus: the
+  attraction camp is itself split on \vv{mechanism} (direct
+  correspondence vs.\ gravitational attraction vs.\ dynamical
+  oscillation). The coupling is layered and pervasive.
+\end{enumerate}
+
+This is exactly the value of a machine-checked empirical instance: the
+verdict is derived from the extracted frames, not from a plausible story,
+and it overturned the plausible story.
+
+\section{The boundary of trust}
+
+The Lean layer certifies the aggregation logic, not the reading of the
+text. Every asserted value in \lean{frames.json} carries the source
+sentence that licenses it, so each frame is auditable against the
+passage; but a mis-extraction would yield a wrong-but-machine-checked
+verdict. The invariants above are conditional on the frames. The corpus
+passages are curated public-domain representative statements (provenance
+in \lean{refs.bib}); pinning exact critical editions and expanding beyond
+seven voices is future corpus work.
+
+\section{Verified now vs.\ next}
+
+Mechanized: the feasibility verdict (empty), the minimal conflicting
+cores, the three-way split, the pervasive-coupling core, and the
+single-variable consensus/dissent structure, all tied to the verified
+\lean{feasibilitySet}. Not yet mechanized for this instance: the
+\emph{quantitative} invariants of the companion representation theory ---
+the concept lattice of coherent voice-clusters (\lean{Ste.HyperFrame}),
+the rectangle-cover complexity $\rho$ and \v{C}ech obstruction magnitude
+(\lean{Ste.RepresentationBounds}, \lean{Ste.CechObstruction}), and the
+treewidth of the relation graph (\lean{Ste.Treedecomp}). Those need the
+computable \lean{Finset} refinement of the spec (plan phase P2) run on
+this instance; the qualitative verdict is complete.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
