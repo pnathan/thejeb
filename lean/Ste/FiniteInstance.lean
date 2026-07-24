@@ -29,6 +29,7 @@ Estimation," Proc. IEEE 81(2), 1993.
 import Ste.Basic
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Finset.Card
+import Mathlib.Data.Finset.Option
 
 namespace STE
 
@@ -100,6 +101,7 @@ theorem consistent_of_nonempty {frame : A → V → Option W}
 variable take some author's asserted value (any will do, by consistency);
 fall back to `default` where every author is silent. Noncomputable (it
 chooses a witness), used only to prove the converse. -/
+open Classical in
 noncomputable def frameWitness [Inhabited W] (frame : A → V → Option W) :
     V → W :=
   fun v => if h : ∃ p : A × W, frame p.1 v = some p.2 then h.choose.2 else default
@@ -143,13 +145,13 @@ theorem feasibilitySet_eq_empty_iff [Inhabited W] {frame : A → V → Option W}
 authors (silence contributes nothing). -/
 def assertedValues [Fintype A] [DecidableEq W] (frame : A → V → Option W)
     (v : V) : Finset W :=
-  Finset.univ.biUnion (fun a => (frame a v).toFinset)
+  (Finset.univ.image (fun a => frame a v)).eraseNone
 
 @[simp] theorem mem_assertedValues [Fintype A] [DecidableEq W]
     {frame : A → V → Option W} {v : V} {x : W} :
     x ∈ assertedValues frame v ↔ ∃ a, frame a v = some x := by
-  simp only [assertedValues, Finset.mem_biUnion, Finset.mem_univ, true_and,
-    Option.mem_toFinset, Option.mem_def]
+  simp only [assertedValues, Finset.mem_eraseNone, Finset.mem_image,
+    Finset.mem_univ, true_and]
 
 /-- **Disagreement degree** of a variable: how many distinct values it is
 assigned across the corpus. Degree `0` = nobody speaks, `1` = unanimous
