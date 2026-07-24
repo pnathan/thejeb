@@ -125,7 +125,7 @@ def constraint (a : Author) : Set Assign :=
 can make `moonRole` both `attraction` and `rejected`. -/
 theorem kepler_galileo_core :
     constraint .kepler ∩ constraint .galileo = ∅ := by
-  rw [Set.eq_empty_iff_forall_not_mem]
+  rw [Set.eq_empty_iff_forall_notMem]
   rintro f ⟨hk, hg⟩
   have h1 := (mem_constraint.mp hk) .moonRole .attraction rfl
   have h2 := (mem_constraint.mp hg) .moonRole .rejected rfl
@@ -136,7 +136,7 @@ theorem kepler_galileo_core :
 `moonRole`. -/
 theorem kepler_descartes_core :
     constraint .kepler ∩ constraint .descartes = ∅ := by
-  rw [Set.eq_empty_iff_forall_not_mem]
+  rw [Set.eq_empty_iff_forall_notMem]
   rintro f ⟨hk, hd⟩
   have h1 := (mem_constraint.mp hk) .moonRole .attraction rfl
   have h2 := (mem_constraint.mp hd) .moonRole .pressure rfl
@@ -147,7 +147,7 @@ theorem kepler_descartes_core :
 three-way `moonRole` split is also a minimal core. -/
 theorem galileo_descartes_core :
     constraint .galileo ∩ constraint .descartes = ∅ := by
-  rw [Set.eq_empty_iff_forall_not_mem]
+  rw [Set.eq_empty_iff_forall_notMem]
   rintro f ⟨hg, hd⟩
   have h1 := (mem_constraint.mp hg) .moonRole .rejected rfl
   have h2 := (mem_constraint.mp hd) .moonRole .pressure rfl
@@ -158,7 +158,7 @@ theorem galileo_descartes_core :
 is empty -- no single reading of the tides satisfies all seven voices.
 It follows from any one minimal core. -/
 theorem feasible_eq_empty : feasibilitySet constraint = ∅ := by
-  rw [Set.eq_empty_iff_forall_not_mem]
+  rw [Set.eq_empty_iff_forall_notMem]
   intro f hf
   have hk : f ∈ constraint .kepler := mem_feasibilitySet.mp hf .kepler
   have hg : f ∈ constraint .galileo := mem_feasibilitySet.mp hf .galileo
@@ -173,7 +173,7 @@ minimal conflicting core -- so removing Galileo and Descartes does not
 restore consistency. -/
 theorem pliny_kepler_mechanism_core :
     constraint .pliny ∩ constraint .kepler = ∅ := by
-  rw [Set.eq_empty_iff_forall_not_mem]
+  rw [Set.eq_empty_iff_forall_notMem]
   rintro f ⟨hp, hk⟩
   have h1 := (mem_constraint.mp hp) .mechanism .directCorrespondence rfl
   have h2 := (mem_constraint.mp hk) .mechanism .gravitationalAttraction rfl
@@ -203,8 +203,7 @@ theorem attractionReading_mem {a : Author}
   refine mem_moonConstraint.mpr ?_
   intro x hx
   rw [ha] at hx
-  injection hx with e
-  exact e
+  exact Option.some.inj hx
 
 /-- **The attraction camp shares a `moonRole` reading.** On the single
 most-contested variable, the five attraction authors (Pliny, Bede,
