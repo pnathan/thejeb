@@ -150,19 +150,75 @@ passages are curated public-domain representative statements (provenance
 in \lean{refs.bib}); pinning exact critical editions and expanding beyond
 seven voices is future corpus work.
 
+\section{The computable layer: invariants the kernel computes}
+
+The qualitative module above proves its verdict with hand-written
+\lean{Set} arguments. Plan phase P2 asked for the \emph{computable}
+refinement: make the aggregation executable and prove the computable layer
+agrees with the verified \lean{Set}-based spec. This is now done, in two
+modules.
+
+\lean{Ste.FiniteInstance} proves the general structural collapse. For a
+finite frame corpus --- each author fixing a partial assignment
+$\lean{frame}\,a : V \to \mathtt{Option}\,W$ (silence $=$ \lean{none}) ---
+joint satisfiability is \emph{not} a genuinely set-level question. It is
+equivalent to a \textbf{decidable, pairwise} one: the corpus is satisfiable
+iff no two authors ever assign the same variable two different values. The
+key theorem
+\[
+  \lean{feasibilitySet}\,(\lean{frameConstraint}\;\lean{frame}) = \varnothing
+  \;\Longleftrightarrow\; \neg\,\lean{Consistent}\;\lean{frame}
+\]
+(\lean{feasibilitySet\_eq\_empty\_iff}) ties the verified \lean{Ste.Basic}
+feasibility set (left) to a \lean{Decidable} predicate (right), via a
+canonical witness \lean{frameWitness}. It also defines the quantitative
+\lean{disagreementDegree}\,$v$ (the number of distinct values variable $v$
+receives) with the characterization that a variable is unanimous-where-
+spoken iff its degree is $\le 1$ (\lean{agree\_iff\_degree\_le\_one}).
+
+\lean{Ste.TidesComputable} instantiates this on the actual frames ---
+$\lean{constraint} = \lean{frameConstraint}\;\lean{frame}$ holds by
+\lean{rfl}, so every general theorem specializes with no glue --- and lets
+the \textbf{Lean kernel compute} the invariants by \lean{decide}:
+
+\begin{itemize}
+\item \lean{tides\_inconsistent}: $\neg\,\lean{Consistent}\;\lean{frame}$,
+  decided by the kernel; and \lean{feasible\_eq\_empty\_computed} feeds it
+  through the bridge to re-derive $\lean{feasibilitySet constraint} =
+  \varnothing$ --- the \emph{same} proposition as the hand-proved
+  \lean{feasible\_eq\_empty}, now obtained by computation. The computable
+  layer is checked to agree with the verified spec.
+\item The \textbf{disagreement degrees}, each by \lean{decide}:
+  \vv{primary\_cause}$=3$, \vv{moon\_role}$=3$, \vv{mechanism}$=5$,
+  \vv{sun\_role}$=2$, and \vv{spring\_neap} $=$ \vv{earth\_motion} $=$
+  \vv{quantitative}$=1$. The two headline conflict sites are exactly the
+  three-way \vv{moon\_role} split and the five-way \vv{mechanism} split.
+\item \lean{conflictVars\_card}$=4$ and \lean{conflictVars\_eq}: precisely
+  four variables (\vv{primary\_cause}, \vv{moon\_role}, \vv{mechanism},
+  \vv{sun\_role}) carry the disagreement --- computed, not asserted.
+\item \lean{springNeap\_unanimous}: obtained \emph{through} the degree
+  characterization, a positive fact --- every author who mentions
+  spring/neap dependence agrees.
+\end{itemize}
+
+The computation uses the Lean \textbf{kernel} (\lean{decide}), not
+\lean{native\_decide}, so the compiler stays out of the trusted base.
+
 \section{Verified now vs.\ next}
 
 Mechanized: the feasibility verdict (empty), the minimal conflicting
-cores, the three-way split, the pervasive-coupling core, and the
-single-variable consensus/dissent structure, all tied to the verified
-\lean{feasibilitySet}. Not yet mechanized for this instance: the
-\emph{quantitative} invariants of the companion representation theory ---
-the concept lattice of coherent voice-clusters (\lean{Ste.HyperFrame}),
-the rectangle-cover complexity $\rho$ and \v{C}ech obstruction magnitude
+cores, the three-way split, the pervasive-coupling core, the
+single-variable consensus/dissent structure, \emph{and} --- now computably
+--- the decidable feasibility bridge, the per-variable disagreement
+degrees, and the four conflict sites, all tied to the verified
+\lean{feasibilitySet}. Not yet mechanized for this instance: the remaining
+\emph{representation-theoretic} invariants --- the concept lattice of
+coherent voice-clusters (\lean{Ste.HyperFrame}), the rectangle-cover
+complexity $\rho$ and \v{C}ech obstruction magnitude
 (\lean{Ste.RepresentationBounds}, \lean{Ste.CechObstruction}), and the
-treewidth of the relation graph (\lean{Ste.Treedecomp}). Those need the
-computable \lean{Finset} refinement of the spec (plan phase P2) run on
-this instance; the qualitative verdict is complete.
+treewidth of the relation graph (\lean{Ste.Treedecomp}) run on this
+instance. The feasibility verdict and its quantitative disagreement
+profile are complete and kernel-checked.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs}
