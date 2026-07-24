@@ -115,8 +115,8 @@ variables along it; that permutation argument is not mechanized.
 in `Ste.Treewidth` / `Ste.Elimination`).
 
 References: R. Dechter and J. Pearl, *Network-based heuristics for
-constraint-satisfaction problems*, Artificial Intelligence 34 (1988)
-(`dechterpearl1988network` — adaptive consistency); R. Dechter, *Bucket
+constraint-satisfaction problems*, Artificial Intelligence 34 (1987)
+(`dechterpearl1987network` — adaptive consistency); R. Dechter, *Bucket
 elimination: a unifying framework for reasoning*, Artificial
 Intelligence 113 (1999) (`dechter1999bucket`); R. Dechter, *Constraint
 Processing*, Morgan Kaufmann, 2003, ch. 4 (`dechter2003constraint`);
