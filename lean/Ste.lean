@@ -38,6 +38,7 @@ import Ste.JunctionTree
 import Ste.CechObstruction
 import Ste.Consistency
 import Ste.CouplingLowerBound
+import Ste.RepresentationBounds
 import Ste.CechCover
 import Ste.CechComplex
 import Ste.TwistedCech
