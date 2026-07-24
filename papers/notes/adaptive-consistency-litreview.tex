@@ -1,0 +1,503 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\newcommand{\ste}[1]{\texttt{#1}}
+
+\title{Adaptive Consistency: Enforcement, Completeness, and the Width
+Formalisms\\
+\large A literature review and annotated bibliography, oriented toward
+the Lean mechanization in \ste{Ste.BucketConsistency}}
+\author{Project \texttt{thejeb}}
+\date{July 24, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The repository's \ste{Ste.AdaptiveConsistency} module mechanized the
+\emph{sufficiency} half of the adaptive-consistency theorem: a bucket
+network that is directionally consistent along an elimination order
+admits a backtrack-free solution. This review surveys the literature
+behind the \emph{other} half --- that adaptive consistency (bucket
+elimination with existential projection) \emph{establishes} directional
+consistency while \emph{preserving} the solution set, at cost
+exponential only in the induced width --- and behind the identification
+of induced width with graph treewidth. It then maps the surveyed
+results onto the repository's existing Lean modules
+(\ste{Ste.Elimination}, \ste{Ste.Projection}, \ste{Ste.Treedecomp},
+\ste{Ste.GraphTreewidth}, \ste{Ste.AdaptiveConsistency}) and onto the
+new module \ste{Ste.BucketConsistency}, stating precisely which
+fragments are machine-checked and which remain open. Following the
+project rule --- distrust results that are not machine proven --- all
+claims about the mechanization are limited to statements that compile
+in CI; everything else is attributed to the cited literature.
+\end{abstract}
+
+\section{The problem}
+
+A finite constraint network consists of variables $x_0,\dots,x_n$ with
+domains $D_i$ and a set of relations (constraints), each over a subset
+of the variables (its \emph{scope}). Three questions dominate the
+structural theory: (i)~when does \emph{local} consistency imply
+\emph{global} solvability; (ii)~can local consistency of the required
+strength be \emph{enforced} by an algorithm that does not change the
+solution set; and (iii)~what \emph{graph parameter} of the constraint
+network governs the cost of that enforcement. The classical answers ---
+directional $(w{+}1)$-consistency suffices along an order of induced
+width $w$ \citep{freuder1982backtrack, dechterpearl1987network};
+adaptive consistency / bucket elimination enforces it in
+$O(n\,k^{w+1})$ time and space while preserving the solution set
+\citep{dechterpearl1987network, dechter1999bucket,
+dechter2003constraint}; and induced width is graph treewidth
+\citep{arnborg1987complexity, bodlaender1998arboretum} --- together
+constitute the tractability theory of bounded-width constraint solving,
+culminating in Grohe's converse \citep{grohe2007complexity}.
+
+The repository proved (i) in Lean; this review is the survey component
+of the attack on (ii) and (iii). Section~\ref{sec:classical} reviews
+the classical results with an eye to what a mechanization must supply;
+Section~\ref{sec:width} reviews the width formalisms;
+Section~\ref{sec:mech} audits the mechanization, including a gap the
+enforcement analysis surfaced in the repository's own statement of
+directional consistency; Section~\ref{sec:bib} is the annotated
+bibliography.
+
+\section{Local consistency and backtrack-free search}
+\label{sec:classical}
+
+\subsection{From arc consistency to width}
+
+Mackworth systematized the local-consistency propagation algorithms
+(node, arc, and path consistency) as fixed-point computations on a
+network of relations \citep{mackworth1977consistency}. Arc consistency
+alone does not imply solvability; the decisive insight is Freuder's:
+what matters is the \emph{relationship} between the level of local
+consistency and a structural parameter of the constraint graph.
+Freuder defined the \emph{width} of a vertex ordering as the maximal
+number of earlier neighbours of any vertex, and the width of a graph
+as the minimum over orderings, and proved: if a network is strongly
+$(w{+}1)$-consistent and its constraint graph has width $w$, then a
+solution can be assembled greedily along the ordering with no
+backtracking \citep{freuder1982backtrack}. For trees ($w=1$) arc
+consistency suffices --- the case mechanized in
+\ste{Ste.ConsistencyTree}. Freuder later generalized the statement to
+\emph{backtrack-bounded} search: $b$-level consistency relative to
+orderings with bounded ``width at level $b$'' bounds the depth of
+backtracking rather than eliminating it
+\citep{freuder1985backtrackBounded}; the $k$-tree connection implicit
+there --- graphs of width $w$ in Freuder's sense are exactly partial
+$w$-trees --- is the bridge to the treewidth literature
+(Section~\ref{sec:width}).
+
+The subtlety that drives everything afterwards: enforcing
+$(w{+}1)$-consistency by the naive closure algorithms \emph{adds
+constraints}, which adds edges to the constraint graph, which can
+\emph{increase its width}. Freuder's theorem therefore does not by
+itself yield an algorithm: the hypothesis (consistency level) and the
+parameter (width) chase each other. Two escapes were found. Seidel's
+``invasion'' procedure processes the variables in one direction and
+records, for each frontier, the set of partial solutions --- solving
+the network in time exponential in the maximal frontier size
+\citep{seidel1981invasion}. Dechter and Pearl's \emph{adaptive
+consistency} is the refined form: rather than enforcing a uniform
+consistency level everywhere, adapt the level per variable, exactly
+matching each variable's set of earlier neighbours \emph{in the graph
+as modified by the algorithm's own recorded constraints}
+\citep{dechterpearl1987network}.
+
+\subsection{Adaptive consistency and bucket elimination}
+
+Fix an ordering $x_0 < x_1 < \dots < x_n$ and process variables from
+last to first. At $x_i$, collect the \emph{bucket}: all constraints
+(original or previously recorded) whose scope contains $x_i$ and no
+later variable. Join them, and \emph{project out} $x_i$
+existentially: the recorded constraint holds of an assignment to the
+remaining scope variables iff \emph{some} value of $x_i$ extends it to
+satisfy the whole bucket. Place the recorded constraint in the bucket
+of its highest remaining variable and continue. This is adaptive
+consistency \citep{dechterpearl1987network}, later renamed and
+generalized as the constraint instance of \emph{bucket elimination},
+Dechter's unifying dynamic-programming scheme that also captures
+directional resolution, Fourier elimination, and the elimination
+algorithms of probabilistic inference \citep{dechter1999bucket}. The
+textbook treatment is \citet[ch.~4]{dechter2003constraint}.
+
+Three claims make adaptive consistency a \emph{complete solver}, and a
+mechanization must separate them cleanly:
+
+\begin{enumerate}
+\item \textbf{Solution-set preservation.} Each recorded constraint is
+  a \emph{projection} of a join of existing constraints, hence implied
+  by them: adding it changes nothing for full assignments, and
+  restricting to the remaining variables loses exactly the eliminated
+  coordinate. Formally, if $S$ is the solution set of the current
+  network over variables $V$ and the step eliminates $v$, the new
+  network's solution set over $V$ is $\exists_v S$ --- the projection.
+  In particular feasibility is preserved \emph{exactly}, with no
+  substituted values; this is where projection differs essentially
+  from the conditioning (value-substitution) step, whose verdict is
+  conditional on the chosen values.
+\item \textbf{Enforcement of directional consistency.} After the run,
+  every assignment to $x_0,\dots,x_{i-1}$ that satisfies all
+  constraints among them --- \emph{including the recorded ones} ---
+  extends to $x_i$: the recorded projection of bucket $i$ is exactly
+  the condition for a witness to exist, and it was placed among the
+  earlier constraints. Note the logical form: the extension property
+  is \emph{relative} to the earlier constraints, not absolute; this
+  distinction matters for the mechanization
+  (Section~\ref{sec:gap}).
+\item \textbf{Cost.} Each bucket's join and projection touch only the
+  variables in that bucket's scopes; if the ordering has induced width
+  $w$ (Section~\ref{sec:width}), every recorded scope has at most $w$
+  variables, so each table has at most $k^{w+1}$ rows over domains of
+  size $k$, and the total work is $O(n\,k^{w+1})$
+  \citep{dechterpearl1987network, dechter2003constraint}.
+\end{enumerate}
+
+Given (1)--(3), the backtrack-free construction of
+\citet{freuder1982backtrack} (in its directional form) extracts a
+solution with no search, and the decision ``is the network
+solvable?''\ is read off the final state. Dechter and Pearl also
+proved the ordering-graph identification that makes (3) sharp, and
+tree clustering --- the join-tree compilation whose cluster sizes are
+governed by the same parameter --- as the dual, query-oriented
+formulation \citep{dechterpearl1989tree}.
+
+\section{The width formalisms}
+\label{sec:width}
+
+Three formalisms measure the same quantity.
+
+\emph{Induced width (elimination width).} For an ordering $\sigma$ of
+the vertices of a graph $G$, process vertices from last to first,
+connecting the earlier neighbours of each processed vertex (the
+\emph{fill-in}); the induced width $w^*(\sigma)$ is the maximal number
+of earlier neighbours in the filled graph, and the induced width of
+$G$ is the minimum over orderings. This is precisely the maximal
+recorded-scope size of adaptive consistency along $\sigma$
+\citep{dechterpearl1987network, dechter2003constraint}, and it is the
+``dimension'' of Bertel\`e and Brioschi's nonserial dynamic
+programming, where the notion (under the name of that book) predates
+the constraint literature by fifteen years \citep{bertele1972nonserial}.
+
+\emph{Partial $k$-trees.} A $k$-tree is built from a $(k{+}1)$-clique
+by repeatedly attaching a new vertex adjacent to a $k$-clique; partial
+$k$-trees are their subgraphs. Arnborg, Corneil and Proskurowski
+proved that recognizing partial $k$-trees --- equivalently, deciding
+treewidth --- is NP-hard when $k$ is part of the input, and gave an
+$O(n^{k+2})$ algorithm for fixed $k$ \citep{arnborg1987complexity}.
+This is why every completeness theorem quantifies over a \emph{given}
+ordering: finding the optimal one is itself intractable.
+
+\emph{Tree decompositions.} Robertson and Seymour introduced
+tree decompositions and treewidth in the Graph Minors series and
+showed the parameter's algorithmic significance
+\citep{robertson1986graphminorsII}. Bodlaender's survey
+\citep{bodlaender1998arboretum} assembles the equivalences: a graph
+has treewidth $\le w$ iff it is a partial $w$-tree iff it has an
+elimination ordering of induced width $\le w$ --- the elimination
+ordering being read off a tree decomposition by eliminating leaves of
+bags, and conversely the fill-in cliques of an ordering forming the
+bags of a decomposition. It is exactly this last construction that
+\ste{Ste.GraphTreewidth} mechanizes from the bucket-elimination side.
+
+The circle closes with the converse direction: Grohe proved (for
+bounded arity, under a standard parameterized-complexity assumption)
+that bounded treewidth of the core is the \emph{only} structural reason
+constraint classes are tractable \citep{grohe2007complexity} ---
+adaptive consistency at bounded width is not just \emph{a} tractable
+algorithm but essentially \emph{the} tractable frontier.
+
+\section{The mechanization: what is proved, and where}
+\label{sec:mech}
+
+\subsection{Prior state of the repository}
+
+\begin{itemize}
+\item \ste{Ste.Elimination}: bucket elimination with a
+  \emph{substitutive} step (\ste{bucketHead} joins the bucket of $v$
+  and conditions on a chosen value $v \mapsto a$).
+  Machine-proved: the fold faithfully computes the elimination of the
+  joint constraint (\ste{joinConstraint\_bucketEliminate}), a complete
+  order decides the \emph{substituted} instance
+  (\ste{bucketEliminate\_decides}), and the total table space is
+  $n\,k^{w+1}$ given bags of size $\le w{+}1$
+  (\ste{bucketEliminate\_total\_space}). The verdict is conditional on
+  the substituted values --- claim (1) of
+  Section~\ref{sec:classical} fails for this step.
+\item \ste{Ste.Projection}: the existential step \ste{project} on
+  monolithic constraints. Machine-proved: projection preserves
+  nonemptiness exactly (\ste{project\_nonempty\_iff}) and a complete
+  projective run decides feasibility unconditionally
+  (\ste{projectEliminate\_decides\_feasibility}) --- but with no bucket
+  data structure, hence no width accounting.
+\item \ste{Ste.Treedecomp}: \ste{AchievesWidth} and the attained
+  minimum \ste{inducedTreewidth}, discharging the free width
+  hypothesis of the space bound.
+\item \ste{Ste.GraphTreewidth}: tree decompositions from scratch, the
+  elimination decomposition, and the headline
+  \ste{treewidth\_primalGraph\_le}:
+  $\mathrm{tw}(\text{primal}) \le \ste{inducedTreewidth} + 1$.
+\item \ste{Ste.AdaptiveConsistency}: the bucket-network formalism
+  ($\ste{sep}\ i$, $\ste{R}\ i$, \ste{SepSupported},
+  \ste{SepWidthLE}) and the sufficiency theorem
+  \ste{directionalConsistent\_solvable}: nonempty domains +
+  directional consistency $\Rightarrow$ a global solution, greedily.
+\end{itemize}
+
+\subsection{A gap surfaced by the enforcement analysis}
+\label{sec:gap}
+
+\ste{Ste.AdaptiveConsistency}'s \ste{DirectionalConsistent} demands,
+for \emph{every} domain-respecting assignment $g$, a witness $c \in
+D_{i+1}$ with $R_i(g[x_{i+1} \mapsto c])$. But what bucket elimination
+establishes at bucket $i$ is weaker: a witness exists for assignments
+that satisfy the \emph{earlier buckets} --- because the recorded
+projection of bucket $i$ is itself one of those earlier constraints.
+Dechter's directional consistency is the relative notion
+\citep[ch.~4]{dechter2003constraint}. Thus the repository's
+sufficiency theorem, as previously stated, consumed a hypothesis
+strictly stronger than what the enforcement algorithm can supply: the
+two halves did not compose. This observation --- easy to miss on paper,
+where ``consistent partial assignment'' silently carries the recorded
+constraints --- is, we believe, the kind of precision dividend one
+mechanizes for.
+
+\subsection{The new module \ste{Ste.BucketConsistency}}
+
+All statements below compile in CI with no \ste{sorry}, \ste{admit},
+or added axioms; the run number is recorded in the accompanying log
+entry.
+
+\textbf{Part 1 (enforcement at the joint-constraint level).} The
+projective bucket step \ste{projectBucketStep} replaces the bucket of
+$v$ by its joined \emph{projection} (the recorded message is
+definitionally \ste{project} of the joined bucket,
+\ste{projectBucketHead\_snd}). Machine-proved:
+\begin{itemize}
+\item \ste{joinConstraint\_projectBucketStep}: the residual state's
+  joint constraint \emph{equals} $\exists_v(\text{previous joint
+  constraint})$ --- claim (1), solution-set preservation, exactly;
+\item \ste{exists\_update\_mem\_of\_mem\_projectBucketStep}: every
+  joint solution of the residual state extends at $v$ alone to a joint
+  solution of the previous state --- claim (2) in instance form, the
+  extension property the recorded projection buys;
+\item \ste{joinConstraint\_projectBucketEliminate},
+  \ste{projectBucketEliminate\_nonempty\_iff},
+  \ste{projectBucketEliminate\_decides}: the fold computes
+  \ste{projectEliminate}, preserves feasibility exactly, and a
+  complete order yields the \emph{unconditional} feasibility verdict
+  --- projective bucket elimination is a complete solver;
+\item \ste{exists\_extension\_of\_mem\_projectBucketEliminate}:
+  backtrack-free extraction --- any survivor of the full run extends
+  to a solution of the original instance changing only eliminated
+  variables.
+\end{itemize}
+
+\textbf{Part 2 (the relative sufficiency theorem).} The gap of
+Section~\ref{sec:gap} is closed from the sufficiency side:
+\ste{BucketRelativeConsistent} formalizes Dechter's relative
+directional consistency, and
+\ste{bucketRelativeConsistent\_solvable(\_from)} proves it implies
+global solvability. The proof is a \emph{reduction}, not a new greedy
+induction: gate each bucket by its predecessors (\ste{guardedR}),
+observe that the gated network has the same solution set
+(\ste{adaptiveSolution\_guardedR\_iff}, by strong induction on the
+node index), is \ste{SepSupported} for the fat prefix separators, and
+is \emph{unconditionally} directionally consistent (an update at
+$x_{i+1}$ is invisible to earlier buckets, so an unsatisfied guard
+stays unsatisfied), then invoke the existing engine. Solvability needs
+no width bound, so the fat separators are harmless.
+
+\textbf{Part 3 (the width link).} Machine-proved: the projective and
+substitutive folds materialize identical scope traces
+(\ste{projectBucketBags\_map\_fst} --- scopes evolve by scope-only
+rules), so \ste{Ste.Treedecomp}'s width accounting transfers verbatim
+(\ste{projectBucketBags\_card\_le}). Along the decreasing order on
+$\mathrm{Fin}(n{+}1)$ --- the order implicit in
+\ste{Ste.AdaptiveConsistency}'s numbering --- the recorded message
+scope at the step eliminating $x_{i+1}$ defines \ste{runSep}, with:
+\ste{runSep\_eq\_messageScope} (it is literally the
+\ste{bucketHead}-style scope of the reached state),
+\ste{runSep\_precedes} (topological order: the \ste{hsep} hypothesis
+of the solvability theorems, now \emph{established} by the run), and
+\ste{runSep\_widthLE} / \ste{runSep\_link}: if the decreasing order
+witnesses $\ste{AchievesWidth}\ B\ w$ then
+$\ste{SepWidthLE}\ (\ste{runSep}\ B)\ (w{+}1)$ and
+$\ste{inducedTreewidth}\ B \le w$. Via
+\ste{treewidth\_primalGraph\_le}, the separator bound of the
+bucket-network formalism, the elimination width, and (up to the fixed
+offset) primal-graph treewidth are controlled by the same run.
+
+\subsection{Honest accounting of what remains open}
+\label{sec:open}
+
+\begin{enumerate}
+\item \textbf{The per-node reassembly.} Part 1 preserves solutions and
+  extracts them at the \emph{joint-constraint} level; Part 2 proves
+  the \emph{per-node} relative condition sufficient. The missing link
+  is the reassembly: packaging the final state of a run over
+  $\mathrm{Fin}(n{+}1)$ as a literal bucket network $(D, \ste{runSep},
+  R)$ with $\ste{adaptiveSet}\ D\ R = \ste{joinConstraint}\ B$ and
+  \ste{BucketRelativeConsistent} $D$ $R$ --- requiring
+  constraint-to-bucket provenance (each constraint joins the bucket of
+  its maximal variable) and root-domain extraction (surviving
+  scope-$\{x_0\}$ constraints become $D_0$). On paper this is
+  bookkeeping; in Lean it is a substantial indexing argument, and it
+  is \emph{not} mechanized. The completeness claim is therefore
+  machine-proved in its joint form and paper-joined in its per-node
+  form.
+\item \textbf{General orders.} The width link is proved for the
+  decreasing order; an arbitrary order is handled classically by
+  renumbering the variables along it. The permutation transport is not
+  mechanized.
+\item \textbf{Time complexity.} Only table-\emph{space} bounds exist
+  in the repository (\ste{Ste.Treewidth}, \ste{Ste.Elimination});
+  running time is not modelled. The claim ``cost exponential only in
+  $w$'' is machine-proved for space, cited for time
+  \citep{dechterpearl1987network, dechter2003constraint}.
+\end{enumerate}
+
+\section{Annotated bibliography}
+\label{sec:bib}
+
+Each annotation is our own summary, written against the source's role
+in this project.
+
+\begin{description}
+
+\item[\citet{freuder1982backtrack}] Defines the width of an ordered
+constraint graph as the maximal number of earlier neighbours and
+proves that strong $(w{+}1)$-consistency plus width $w$ yields
+backtrack-free search; trees with arc consistency are the $w{=}1$
+case. For this project it is the ancestral form of the sufficiency
+half: \ste{Ste.ConsistencyTree} mechanizes its tree case and
+\ste{Ste.AdaptiveConsistency} its order-directional generalization.
+The paper's own limitation --- enforcing the required consistency can
+raise the width --- is precisely what adaptive consistency later
+repairs, and why enforcement is the harder half to state correctly.
+
+\item[\citet{freuder1985backtrackBounded}] Extends the 1982 theorem
+from backtrack-\emph{free} to backtrack-\emph{bounded}: $b$-level
+relative consistency along orderings whose width is controlled at
+level $b$ bounds the backtrack depth. The analysis runs through
+$k$-trees, making explicit that Freuder's width-$w$ graphs are partial
+$w$-trees --- the earliest bridge between the CSP width and the
+graph-minors treewidth formalisms, and the reason
+\ste{Ste.GraphTreewidth}'s bridge theorem has classical warrant.
+
+\item[\citet{dechterpearl1987network}] Introduces adaptive consistency
+--- per-variable directional consistency enforced by recording the
+projected bucket constraint --- together with the induced-width
+parameter $w^*$ and the $O(n\,k^{w^*+1})$ bound, and proves the
+solution set is preserved because every recorded constraint is implied
+by the ones it is derived from. This is the primary source for the
+enforcement half attacked here: our
+\ste{joinConstraint\_projectBucketStep} is its preservation lemma made
+exact (equality with the projection, not merely implication), and our
+\ste{BucketRelativeConsistent} is its output condition stated with the
+relativization made explicit.
+
+\item[\citet{dechterpearl1989tree}] Recasts the same machinery in
+compiled form: build a join tree whose clusters are the maximal
+cliques of a triangulation of the constraint graph, solve each
+cluster, and propagate. Cluster size is induced width plus one, so
+tree clustering and adaptive consistency have the same exponent; the
+join-tree view is the one \ste{Ste.JunctionTree} and
+\ste{Ste.Treedecomp} echo. Included because the equivalence of the
+per-order (elimination) and per-decomposition (cluster) presentations
+is exactly the width link mechanized in Part 3.
+
+\item[\citet{dechter1999bucket}] Presents bucket elimination as a
+single elimination scheme instantiated by a ``combine'' and a
+``project'' operator, with adaptive consistency the
+$\{\text{join},\exists\}$ instance and directional resolution,
+Gaussian/Fourier elimination and probabilistic elimination as
+siblings. Its clean separation of the data structure (buckets, one
+pass) from the algebra (the two operators) is the design our
+\ste{projectBucketHead}/\ste{projectBucketStep} follows: the module
+swaps \ste{Ste.Elimination}'s substitutive operator for the
+existential one and re-proves the fold correctness at that generality.
+
+\item[\citet{dechter2003constraint}] The textbook consolidation
+(ch.~4 for adaptive consistency and induced width). Valuable here for
+its careful statement of \emph{directional} consistency as extension
+of consistent partial assignments --- consistent \emph{with respect to
+all constraints among the earlier variables, recorded ones included}
+--- which is the reading our \ste{BucketRelativeConsistent} formalizes
+and which the repository's earlier \ste{DirectionalConsistent}
+unintentionally strengthened (Section~\ref{sec:gap}).
+
+\item[\citet{mackworth1977consistency}] The systematization of node,
+arc and path consistency and their propagation algorithms as
+constraint-network fixed points. Included as the baseline the width
+theory refines: uniform local consistency neither implies solvability
+nor respects structure, and the entire adaptive line can be read as
+replacing Mackworth's uniform closure with an order-adapted one.
+
+\item[\citet{bertele1972nonserial}] The nonserial dynamic programming
+monograph: eliminating variables from an objective decomposed over a
+hypergraph, with cost governed by what is now called induced width
+(their ``dimension''), including the NP-hardness flavour of choosing
+the elimination order. Adaptive consistency is its Boolean
+(feasibility) specialization; we cite it as the origin of the
+elimination-width parameter that \ste{Ste.Treedecomp}'s
+\ste{inducedTreewidth} mechanizes.
+
+\item[\citet{seidel1981invasion}] The invasion procedure: sweep the
+variables once, maintaining the set of partial solutions restricted to
+the current frontier; time exponential in the maximal frontier.
+Historically the first CSP decision procedure exponential only in a
+separator-like parameter, and conceptually the ancestor of our
+Part~1: the joint-constraint-level fold with exact feasibility
+preservation is an invasion-style argument, with projections replacing
+frontier tables.
+
+\item[\citet{arnborg1987complexity}] Proves NP-completeness of
+deciding treewidth (partial $k$-tree recognition) for variable $k$ and
+gives the $O(n^{k+2})$ algorithm for fixed $k$. For this project it
+justifies the shape of every mechanized statement: all width bounds
+are stated for a \emph{given} order or decomposition, and
+\ste{inducedTreewidth} is defined as an attained infimum rather than
+computed.
+
+\item[\citet{robertson1986graphminorsII}] Introduces tree
+decompositions and treewidth and initiates their algorithmic use in
+the Graph Minors project. The three axioms of
+\ste{Ste.GraphTreewidth}'s \ste{TreeDecomposition} (vertex cover, edge
+cover, running intersection in rooted form) are this paper's
+definition, specialized to a list-of-bags presentation suitable for
+Lean induction.
+
+\item[\citet{bodlaender1998arboretum}] The survey establishing the
+equivalence web around treewidth: partial $k$-trees, elimination
+orderings, cops-and-robber games, brambles. The
+elimination-order-to-decomposition direction surveyed there is the one
+\ste{Ste.GraphTreewidth} mechanizes
+(\ste{treewidth\_primalGraph\_le}); the converse direction
+(decomposition to ordering, needed to replace ``the decreasing
+order'' by ``some optimal order'' in Part 3 without renumbering) is
+surveyed there too and remains unmechanized.
+
+\item[\citet{grohe2007complexity}] The converse: for bounded-arity
+classes, tractability of the homomorphism/CSP problem forces bounded
+treewidth of the cores (assuming $\mathrm{FPT}\ne\mathrm{W[1]}$).
+Cited to position the mechanized material: the enforcement theorems
+formalize the \emph{algorithmic} side of a boundary that is, by this
+result, information-theoretically tight.
+
+\end{description}
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
