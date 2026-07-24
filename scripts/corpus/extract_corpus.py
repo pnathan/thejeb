@@ -103,7 +103,8 @@ def load_prompt(prompts_dir: str, name: str, topic: str) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--corpus", required=True)
+    ap.add_argument("--corpus", required=True, nargs="+",
+                    help="one or more corpus directories (docs are pooled)")
     ap.add_argument("--out", required=True)
     ap.add_argument("--topic", required=True)
     ap.add_argument("--prompts", default=os.path.join(HERE, "prompts"))
@@ -118,13 +119,15 @@ def main() -> int:
     args = ap.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
-    files = sorted(f for f in os.listdir(args.corpus) if f.endswith(".txt"))
+    paths = []
+    for d in args.corpus:
+        paths += [os.path.join(d, f) for f in sorted(os.listdir(d))
+                  if f.endswith(".txt")]
     if args.limit:
-        files = files[:args.limit]
-    docs = {os.path.splitext(f)[0]: strip_header(
-        open(os.path.join(args.corpus, f), encoding="utf-8",
-             errors="replace").read()) for f in files}
-    print(f"corpus: {len(docs)} documents from {args.corpus}", flush=True)
+        paths = paths[:args.limit]
+    docs = {os.path.splitext(os.path.basename(p))[0]: strip_header(
+        open(p, encoding="utf-8", errors="replace").read()) for p in paths}
+    print(f"corpus: {len(docs)} documents from {', '.join(args.corpus)}", flush=True)
 
     p1_prompt = load_prompt(args.prompts, "pass1_open.md", args.topic)
     p2_prompt = load_prompt(args.prompts, "pass2_unify.md", args.topic)
