@@ -1,0 +1,244 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{natbib}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\newcommand{\lean}[1]{\texttt{#1}}
+\newcommand{\feas}{\ensuremath{\mathrm{feas}}}
+
+\title{An empirical instance of set-theoretic estimation:\\
+mechanized reconciliation of a multi-voice corpus\\
+\large A plan --- Haiku extracts the frames, Lean verifies the inference}
+\author{thejeb project note}
+\date{2026-07-24}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note fixes a concrete empirical target for the STE/frames machinery
+and lays out the pipeline. The task: acquire a corpus of several authors
+discussing one topic and its internal relations, extract each author's
+claims into a structured \emph{frame} using a Claude Haiku model, hand the
+frames to the verified Lean core, and read off the machine-checked
+invariants (feasible set, concept lattice, obstruction, rectangle-cover
+complexity, treewidth). The topic chosen is \textbf{the cause of the ocean
+tides}, with a diachronic corpus of seven public-domain natural
+philosophers spanning antiquity to the early nineteenth century. The
+architecture keeps the fuzzy natural-language front-end (Haiku) strictly
+separate from the machine-checked inference core (Lean), with an explicit
+extraction contract marking the boundary of trust.
+\end{abstract}
+
+\section{Why this topic}
+
+The demonstration is only compelling if the disagreement in the corpus is
+\emph{structured}: partly reconcilable, partly irreducibly coupled, with a
+famous outlier. The cause of the tides is the ideal first instance.
+
+\begin{itemize}
+\item \textbf{Genuine, structured disagreement.} From antiquity the tides
+  were tied to the moon (\citealp{pliny77naturalis}; Seleucus of
+  Seleucia; \citealp{bede725temporum}). Kepler made lunar
+  \emph{attraction} the cause (\citealp{kepler1609astronomia}); Descartes
+  replaced attraction with the \emph{pressure} of a celestial vortex
+  (\citealp{descartes1644principia}); Newton unified sun and moon under
+  \emph{universal gravitation} (\citealp{newton1687principia}); Laplace
+  gave the dynamical theory (\citealp{laplace1799mecanique}). And the
+  famous outlier: Galileo rejected the moon as an ``occult'' cause and
+  derived the tides from the Earth's combined rotation and revolution
+  (\citealp{galileo1632dialogue}, Fourth Day).
+\item \textbf{The coupling is real.} Galileo's frame \emph{requires} the
+  Earth to move and \emph{denies} the moon a role, which contradicts every
+  other voice's affirmation of the lunar correlation. This is exactly a
+  locally-coherent-but-globally-impossible configuration --- a nonzero
+  Čech obstruction is expected, with Galileo an isolated concept in the
+  lattice.
+\item \textbf{Public-domain, bounded, legible.} Every source text is out
+  of copyright and obtainable; the topic decomposes into a handful of
+  discrete sub-claims with small domains; and the meaning of each invariant
+  is transparent to a reader.
+\end{itemize}
+
+\section{The corpus}
+
+Seven voices, assembled into \lean{sources/tides/} with per-item
+provenance (author, work, date, edition/translation, URL, license).
+Exact editions and excerpt ranges are pinned in Stage~0.
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Voice & Source & Position on the cause \\
+\midrule
+Pliny the Elder & \emph{Naturalis Historia} II (c.~77) & moon+sun correlation \\
+Bede & \emph{De temporum ratione} (725) & lunar timing \\
+Kepler & \emph{Astronomia Nova} (1609) & lunar attraction \\
+Galileo & \emph{Dialogue}, Fourth Day (1632) & Earth's motion; \emph{not} the moon \\
+Descartes & \emph{Principia Philosophiae} (1644) & vortex pressure \\
+Newton & \emph{Principia} III (1687) & universal gravitation (sun+moon) \\
+Laplace & \emph{M\'ecanique c\'eleste} (1799) & dynamical (gravitational) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{The topic's relations: the variable schema}
+
+The ``topic and its relations'' becomes a fixed set of variables $V$ with
+small per-variable domains $A_v$. Each author's frame is a partial
+assignment (silence $=$ no constraint on that variable). A candidate
+schema:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Variable & Domain \\
+\midrule
+\lean{primary\_cause} & \{moon, sun, moon+sun, earth\_motion, vortex, other\} \\
+\lean{moon\_role} & \{attraction, pressure, none\} \\
+\lean{sun\_role} & \{contributes, none\} \\
+\lean{mechanism} & \{gravitation, aetherial\_pressure, kinematic, occult/unspecified\} \\
+\lean{requires\_earth\_motion} & \{yes, no\} \\
+\lean{spring\_neap\_phase\_link} & \{affirmed, denied, silent\} \\
+\lean{two\_tides\_per\_day} & \{explained, unaddressed\} \\
+\lean{quantitative} & \{yes, no\} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The variables are \emph{coupled} --- e.g.\ \lean{mechanism}$=$gravitation
+entails \lean{moon\_role}$=$attraction and \lean{sun\_role}$=$contributes;
+Galileo's \lean{requires\_earth\_motion}$=$yes with \lean{moon\_role}$=$none
+conflicts with \lean{spring\_neap\_phase\_link}$=$affirmed. These edges give
+the relation graph a genuine, nontrivial treewidth --- the quantity the
+tractability theory is about.
+
+\section{Architecture: Haiku to the frames, Lean from the frames on}
+
+\begin{verbatim}
+  [Claude Haiku]  corpus text --> per-author structured frame (strict JSON)
+        |         claude-haiku-4-5, output_config.format = json_schema
+        |         (fuzzy, unverified: all real-world risk lives here)
+        v
+  [handoff]       V, per-variable domains A_v, per-author constraint S_i
+        v
+  [Lean core]     computable STE instance + adaptive-consistency solver,
+        |         proven to refine the verified Set-based spec
+        v         outputs, each with a theorem behind it:
+   * feasibilitySet = globally consistent readings (or empty)
+   * concept lattice = coherent voice-clusters (Ste.HyperFrame)
+   * cechObstruction / rho = irreducibility of the disagreement
+   * inducedTreewidth = was reconciliation tractable
+   * feasible  -> extracted consensus reading (backtrack-free)
+   * infeasible-> minimal conflicting cores
+\end{verbatim}
+
+\subsection*{Stage 0 --- corpus assembly}
+Collect the seven excerpts on the tides into \lean{sources/tides/} with a
+provenance manifest; cite every source in \lean{refs.bib} (done: entries
+\lean{galileo1632dialogue}, \lean{kepler1609astronomia},
+\lean{descartes1644principia}, \lean{newton1687principia},
+\lean{laplace1799mecanique}, \lean{pliny77naturalis},
+\lean{bede725temporum}).
+
+\subsection*{Stage 1 --- frame extraction (Claude Haiku)}
+For each author-excerpt, one Haiku call with a \emph{strict output schema}
+returns the frame. Concretely: \lean{claude-haiku-4-5} via the Messages
+API with \lean{output\_config.format} a \lean{json\_schema} whose
+properties are exactly the variables of \S4, each an \lean{enum} over its
+domain plus a \lean{"silent"} option; a \lean{quote} field per assigned
+variable carrying the sentence that licenses it (auditability). Extraction
+is cheap ($\$1/\$5$ per Mtok; a seven-voice corpus is a handful of calls),
+and corpus-scale runs use the Batches API at half price. A second
+normalization pass maps free-text values onto the fixed domain vocabulary.
+The model does constrained \emph{extraction}, never inference --- that is
+the core's job.
+
+\subsection*{Stage 2 --- handoff}
+The JSON frames become the STE instance: the variable set $V$, the
+per-variable domains $A_v$ (the union of asserted values), and one
+constraint $S_i$ per author (the partial assignment it asserts). This is
+the exact input shape of the bucket network of \lean{Ste.AdaptiveSolver}
+(\lean{bucketNetworkList}), whose joint constraint is literally
+\lean{adaptiveSet}.
+
+\subsection*{Stage 3 --- Lean inference (verified core)}
+A \emph{computable refinement}: a \lean{Finset}/decidable mirror of the
+$\mathrm{Set}$-based constraint model plus the adaptive-consistency solver,
+proven to agree with the verified spec, so the aggregation
+\emph{executes} (\lean{\#eval}/compiled) rather than being re-implemented
+on faith. It reports: the feasible set (globally consistent readings); the
+concept lattice of coherent voice-clusters
+(\lean{partialFeasibilitySet\_eq\_lowerPolar}, \lean{Ste.HyperFrame}); the
+Čech obstruction and rectangle-cover complexity $\rho$ measuring how
+irreducibly the authors disagree (\lean{Ste.CechObstruction},
+\lean{Ste.RepresentationBounds}); the induced treewidth of the relation
+graph (\lean{Ste.Treedecomp}); and, when feasible, an extracted consensus
+reading via backtrack-free extraction
+(\lean{adaptiveNetwork\_solved\_by\_elimination}) --- when infeasible, the
+minimal conflicting cores.
+
+\subsection*{Stage 4 --- writeup}
+Report the invariants and interpret them, with the honest limits below in
+plain view.
+
+\section{The extraction contract and its limits}
+
+The Lean core certifies the \emph{aggregation logic}, not the
+\emph{reading of the text}. The soundness of the whole is bounded by the
+natural-language$\to$constraint map of Stage~1: garbage in, \emph{verified}
+garbage out. Two honest boundaries, to be stated in any writeup:
+
+\begin{enumerate}
+\item \textbf{Extraction fidelity.} Haiku's frame for each author is an
+  interpretation; the \lean{quote} field makes every assigned value
+  auditable against the source sentence, but a wrong reading produces a
+  wrong-but-machine-checked conclusion. The invariants are conditional on
+  the frames.
+\item \textbf{The computable mirror is real work.} The current modules are
+  specifications ($\mathrm{Set}$-valued, partly \lean{noncomputable}); the
+  decidable refinement and its agreement proof are a bounded but genuine
+  sub-project (Stage~3).
+\end{enumerate}
+
+\section{The demonstration payoff (predicted)}
+
+If the frames come out as the history suggests, the machine-checked
+invariants should show:
+\begin{itemize}
+\item a \textbf{nonzero Čech obstruction} --- no single global reading
+  satisfies all seven voices, because Galileo's Earth-motion frame denies
+  the lunar cause the other six require;
+\item Galileo as an \textbf{isolated concept} in the lattice, with the
+  ancient/lunar voices, the attraction voices (Kepler, Newton, Laplace),
+  and the vortex voice (Descartes) forming the coherent clusters;
+\item a \textbf{small $\rho$} --- the disagreement is covered by a few
+  coherent camps, not $2^{|V|}$ arbitrary readings;
+\item a \textbf{low treewidth} on the relation graph --- the topic is
+  cheap to reconcile once the outlier is removed, and dropping Galileo's
+  constraint yields a nonempty feasible set (the modern synthesis).
+\end{itemize}
+That quantitative verdict --- \emph{this corpus's disagreement is coupled
+through exactly one variable, with obstruction localized to one voice} ---
+machine-certified, is precisely what a pure-embedding or summarization
+pipeline cannot deliver.
+
+\section{Phasing}
+
+\begin{enumerate}
+\item[P0.] Stage~0 corpus + provenance manifest; bib done.
+\item[P1.] Fix the variable schema; write and validate the Haiku
+  extraction prompt + JSON schema on the seven excerpts.
+\item[P2.] Build the computable Lean core (\lean{Finset} refinement +
+  agreement proof); CI-green.
+\item[P3.] Wire Stage~2 handoff; run Stage~3; produce the invariant table.
+\item[P4.] Writeup with the honest-limits section; build the PDF.
+\end{enumerate}
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
