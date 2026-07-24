@@ -1,0 +1,346 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\newcommand{\ste}[1]{\texttt{#1}}
+\newcommand{\cech}{\v{C}ech}
+
+\title{Obstruction Size versus Representation Blow-Up:\\
+Rectangle Covers, Fooling Sets, and the Refutation of an Equality\\
+\large A literature review and annotated bibliography, oriented toward
+the Lean mechanization in \ste{Ste.RepresentationBounds}}
+\author{Project \texttt{thejeb}}
+\date{July 24, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The project's open-question queue carried the item ``obstruction size
+$=$ representation blow-up'': the conjecture that the concrete \cech{}
+obstruction number of \ste{Ste.CechObstruction} --- the count of
+compatible-but-stuck families of local sections for the singleton cover
+--- \emph{equals} the representational cost that a coupled constraint
+forces on any variable-separable (rectangular) encoding. This note
+settles the item as a \emph{negative} result with a precise positive
+replacement. There are two readings of ``blow-up''. Under the
+\emph{box-gap} reading the equality is true but tautological: the
+obstruction is by definition $|\mathrm{box}(T)|-|T|$, the overshoot of
+the smallest single rectangle containing $T$. Under the
+\emph{complexity} reading --- the minimum number $\rho(T)$ of
+rectangles whose union is exactly $T$, the direct analogue of the
+nondeterministic cover number of communication complexity --- the
+equality is \emph{false in both directions}, and what is true is a
+sandwich of bounds: $\mathrm{fool}(T)\le\rho(T)\le|T|$, with
+$\rho(T)=1$ exactly when the \cech{} obstruction vanishes, and
+$\rho(\mathrm{allEqual}_{n,k})=k$ exactly while the obstruction is
+$k^n-k$. All of these statements, including both strict-separation
+witnesses refuting the equality, are machine-checked in Lean~4 in
+\ste{Ste.RepresentationBounds}. This review surveys the communication
+complexity and extension-complexity literature that the definitions are
+drawn from, and states precisely which fragments are mechanized.
+Following the project rule --- distrust results that are not machine
+proven --- all claims about the mechanization are limited to statements
+that compile in CI; everything else is attributed to the cited
+literature.
+\end{abstract}
+
+\section{The question, and why it is two questions}
+
+Let $V$ be a set of variables with value types $(A_v)_{v\in V}$ and let
+$T\subseteq\prod_{v}A_v$ be a constraint (a hypothesis set in the
+set-theoretic-estimation reading). \ste{Ste.CechObstruction} computes,
+for the singleton cover of $V$, the set of \emph{compatible families}
+of local sections --- which, because singleton contexts have empty
+overlaps, is exactly the box
+\[
+\mathrm{box}(T)\;=\;\prod_{v\in V}\pi_v(T),
+\]
+the product of the per-variable projections --- and defines the
+obstruction number
+\[
+\mathrm{obs}(T)\;=\;\bigl|\mathrm{box}(T)\bigr|-\bigl|T\bigr|
+\quad\in\;\mathbb{N}\cup\{\infty\},
+\]
+the count of phantom assignments that margin-based reasoning must
+entertain and the coupling then kills. The open item asked whether
+$\mathrm{obs}(T)$ \emph{equals} the ``forced representation blow-up''
+of $T$. The answer depends entirely on what a representation is.
+
+\paragraph{Reading 1: blow-up of the single-rectangle representation.}
+If a ``representation'' is one rectangle (one product set) and
+``blow-up'' is how many spurious points the best such representation
+adds, then the best rectangle containing $T$ is $\mathrm{box}(T)$
+itself, and the blow-up is $|\mathrm{box}(T)|-|T| = \mathrm{obs}(T)$
+\emph{by definition}. The Lean statement
+(\ste{cechObstruction\_eq\_box\_sub\_encard}, with
+\ste{compatibleFamilies\_eq\_boxProduct} exhibiting the box) is proved
+by unfolding two definitions. The equality holds, but it is
+bookkeeping, not a representation theorem; nothing in it deserves the
+name ``blow-up equality''.
+
+\paragraph{Reading 2: blow-up as the size of the smallest exact
+rectangular representation.}
+The substantive reading, standard since \citet{aho1983notions} and
+systematized by \citet{kushilevitz1997communication}, measures a
+constraint by its \emph{rectangle-cover complexity}
+\[
+\rho(T)\;=\;\min\Bigl\{m \;:\; T=R_1\cup\dots\cup R_m,\ \ R_i
+\text{ rectangles}\Bigr\},
+\]
+the minimum number of product sets whose union is exactly $T$ (each
+$R_i\subseteq T$ automatically). In two-party communication complexity
+$\log_2\rho$ is the nondeterministic complexity of the predicate $T$ up
+to one bit; in the extension-complexity literature
+\citep{yannakakis1991expressing,fiorini2015exponential} $\rho$ is the
+combinatorial lower bound (the rectangle covering bound) on
+nonnegative rank and hence on the size of linear-programming
+reformulations. Under this reading the conjectured equality
+$\mathrm{obs}(T)=\rho(T)$ (or any uniform inequality between the two)
+is \emph{false}, and the correct picture is the sandwich of
+Section~\ref{sec:sandwich}.
+
+\section{The sandwich, as mechanized}\label{sec:sandwich}
+
+All results in this section are machine-checked, \ste{sorry}-free, in
+\ste{lean/Ste/RepresentationBounds.lean}; names in typewriter font are
+the Lean identifiers. $\rho$ is \ste{rectCoverNumber}, valued in
+$\mathbb{N}\cup\{\infty\}$ ($\infty$ if no finite cover exists);
+$\mathrm{fool}$ is \ste{foolingNumber}, the supremum of cardinalities
+of fooling sets.
+
+\begin{definition}[fooling set; \ste{IsFoolingSet}]
+$F\subseteq T$ is a \emph{fooling set} for $T$ if no rectangle
+$R\subseteq T$ contains two distinct points of $F$.
+\end{definition}
+
+This is the abstract form of the classical definition: the usual
+condition --- for $f\ne g$ in $F$ some coordinate mixture of $f$ and
+$g$ leaves $T$ --- implies it, because rectangles are closed under
+coordinatewise mixing (\ste{IsRectangle.mix\_mem}), which is the
+mechanized engine of the argument.
+
+\begin{theorem}[lower bound;
+\ste{IsFoolingSet.encard\_le\_of\_hasRectCover},
+\ste{foolingNumber\_le\_rectCoverNumber}]
+If $F$ is a fooling set for $T$, then $|F|\le\rho(T)$; hence
+$\mathrm{fool}(T)\le\rho(T)$. Each rectangle of an exact cover is a
+sub-rectangle of $T$ and therefore contains at most one fooling point;
+the mechanized proof builds the induced injection $F\to\{1,\dots,m\}$.
+\end{theorem}
+
+\begin{theorem}[upper bound; \ste{rectCoverNumber\_le\_encard}]
+$\rho(T)\le|T|$: singletons are rectangles
+(\ste{isRectangle\_singleton}), so $T$ covers itself pointwise. (For
+infinite $T$ the right side is $\infty$ and the bound is vacuous.)
+\end{theorem}
+
+\begin{theorem}[bottom of the scale;
+\ste{rectCoverNumber\_eq\_one\_iff},
+\ste{rectCoverNumber\_eq\_one\_iff\_cechVanishes},
+\ste{one\_lt\_rectCoverNumber\_iff}]
+$\rho(T)=1$ iff $T$ is a nonempty rectangle; for nonempty $T$,
+$\rho(T)=1$ iff the \cech{} obstruction vanishes, and $\rho(T)\ge 2$
+iff it does not. (Via \ste{cechVanishes\_iff\_rectangular} of
+\ste{Ste.CouplingLowerBound}.) At the bottom of the scale, obstruction
+and cover complexity carry the same information --- this, and only
+this, survives of the conjectured equality.
+\end{theorem}
+
+\begin{theorem}[the coupling, exactly;
+\ste{isFoolingSet\_allEqual}, \ste{rectCoverNumber\_allEqual},
+\ste{foolingNumber\_allEqual}]
+For the $n$-fold coupling $\mathrm{allEqual}_{n,\alpha}$ (all
+coordinates equal over an alphabet of size $k$) with $n\ge 2$: the $k$
+constant vectors form a fooling set, and the sandwich pinches:
+$\mathrm{fool}=\rho=k$. Meanwhile
+$\mathrm{obs}(\mathrm{allEqual}_{n,\alpha})=k^n-k$
+(\ste{cechObstruction\_allEqual}, proved previously).
+\end{theorem}
+
+\begin{theorem}[refutation of the equality, both directions;
+\ste{rectCoverNumber\_lt\_cechObstruction\_allEqual},
+\ste{exists\_rectCoverNumber\_lt\_cechObstruction},
+\ste{exists\_cechObstruction\_lt\_rectCoverNumber},
+\ste{not\_forall\_cechObstruction\_le\_rectCoverNumber},
+\ste{not\_forall\_rectCoverNumber\_le\_cechObstruction}]
+No uniform inequality holds between $\mathrm{obs}$ and $\rho$:
+\begin{itemize}
+\item every nonempty rectangle has $\mathrm{obs}=0<1=\rho$ (witness:
+the full square on one Boolean variable), so
+$\rho\le\mathrm{obs}$ fails;
+\item for $n\ge3$, $k\ge2$,
+$\rho(\mathrm{allEqual}_{n,\alpha})=k<k^n-k=\mathrm{obs}$ (witness:
+$\mathrm{allEqual}_{3,\mathrm{Bool}}$ with $2<6$), so
+$\mathrm{obs}\le\rho$ fails.
+\end{itemize}
+\end{theorem}
+
+\begin{remark}[the origin of the conjecture;
+\ste{diagonal\_eq\_allEqual}, \ste{rectCoverNumber\_diagonal},
+\ste{diagonal\_cechObstruction\_eq\_rectCoverNumber}]
+At the minimal nonvanishing instance --- the two-variable Boolean
+diagonal, which is $\mathrm{allEqual}_{2,\mathrm{Bool}}$ --- the two
+invariants \emph{coincide}: $\mathrm{obs}=2^2-2=2=\rho$. The equality
+conjecture is the smallest example mistaken for a law: it fails at
+$n=3$ ($6$ vs.\ $2$) and in the opposite direction for every nonempty
+rectangle ($0$ vs.\ $1$).
+\end{remark}
+
+The conceptual moral matches the communication-complexity literature:
+$\mathrm{obs}$ is a \emph{volume} invariant (how much the box
+overshoots), $\rho$ is a \emph{covering} invariant (how many boxes are
+needed); volume bounds covering only through logarithms, never linearly.
+The classical relation --- $\log_2\rho$ equals nondeterministic
+communication complexity up to an additive bit, and
+$\mathrm{fool}(T)$ can be exponentially smaller than $\rho(T)$
+\citep{dietzfelbinger1996comparison} --- lives one abstraction level
+above what is mechanized here and remains outlook.
+
+\section{Annotated bibliography}
+
+\begin{description}
+
+\item[\citet{kushilevitz1997communication}]
+The standard monograph on two-party communication complexity; Chapters
+1--2 define combinatorial rectangles, monochromatic covers, the cover
+numbers $C^0,C^1$, and the fooling-set and rank lower-bound methods.
+Our $\rho(T)$ is precisely their $C^1$ read on the constraint $T$ as a
+$|V|$-dimensional 0/1 tensor (the book treats $|V|=2$; the rectangle
+and fooling formalism, and our Lean proofs, are arity-uniform). The
+book's Proposition~2.2 --- every cover rectangle contains at most one
+fooling point --- is exactly the statement mechanized as
+\ste{IsFoolingSet.encard\_le\_of\_hasRectCover}; the book's
+$\log$-scale accounting ($N^1(f)=\log_2 C^1(f)$) is the part we
+deliberately do not mechanize, since the STE obstruction is counted on
+the linear scale.
+
+\item[\citet{aho1983notions}]
+The paper that introduced rectangle covers and the fooling-set bound in
+the VLSI/communication setting, and posed the question (later resolved
+negatively) of whether cover number and deterministic complexity are
+polynomially related. Historically this is where ``representation size
+of a relation $=$ number of monochromatic rectangles'' enters the
+literature, which is why we take it as the anchor for the complexity
+reading of ``blow-up''. The fooling-set method appears here in the
+concrete mixture form whose abstract closure property is our
+\ste{IsRectangle.mix\_mem}.
+
+\item[\citet{yannakakis1991expressing}]
+Connects rectangle covers to representation size in the strongest
+classical sense: the size of the smallest linear program expressing a
+combinatorial polytope (its extension complexity) is governed by the
+nonnegative rank of a slack matrix, of which the rectangle covering
+number is the support lower bound; symmetric LPs for matching and TSP
+are shown exponential. For the STE reading, this is the license to call
+$\rho$ a ``representation blow-up'': a constraint with $\rho(T)=m$ is
+exactly a constraint expressible as a disjunction of $m$
+variable-separable pieces and no fewer. Our
+$\rho(\mathrm{allEqual})=k$ theorem is a (very small) instance of the
+slack-support paradigm: the fooling set plays the role of a
+combinatorially independent family in the slack matrix.
+
+\item[\citet{dietzfelbinger1996comparison}]
+Quantifies the looseness of the fooling-set method against the rank
+method: fooling sets can be quadratically smaller than deterministic
+complexity bounds, and (via a counting argument) almost all functions
+have maximal complexity but only polynomial-size fooling sets. Relevant
+here as a caution: our sandwich
+$\mathrm{fool}(T)\le\rho(T)\le|T|$ pinches to equality on
+$\mathrm{allEqual}$, but the left inequality is in general far from
+tight, so \ste{foolingNumber} should not be mistaken for a
+characterization of $\rho$. Any future STE conjecture of the form
+``fooling number $=$ cover number for coupling-like constraints'' must
+be tested against the separations in this paper.
+
+\item[\citet{fiorini2015exponential}]
+The modern culmination of Yannakakis's program: unconditional
+exponential lower bounds on the extension complexity of the cut, stable
+set, and TSP polytopes, obtained by lower-bounding the rectangle
+covering/nonnegative-rank of explicit slack matrices (building on the
+correlation polytope and quantum communication arguments). For the STE
+project this fixes the right asymptotic vocabulary --- obstructions to
+small rectangular representations are proved by exhibiting structured
+sub-matrices, not by counting phantom assignments --- reinforcing the
+present verdict that $\mathrm{obs}$, a phantom count, cannot equal a
+covering complexity in general.
+
+\item[\citet{abramsky2011sheaf}]
+The sheaf-theoretic frame the STE \cech{} obstruction is modeled on:
+empirical models over a cover of contexts, with non-contextuality
+exactly the existence of a global section gluing the local ones. Our
+$\mathrm{obs}(T)$ is the crudest numerical shadow of their obstruction
+--- the count of compatible-but-stuck families for the singleton cover
+--- and the mechanized equivalence ``$\mathrm{obs}$ vanishes iff $T$ is
+a rectangle iff $\rho(T)=1$'' is the STE analogue of their
+``non-contextual iff product structure'' at the coarsest cover. The
+paper's cohomological refinements (with \ste{Ste.CechCover},
+\ste{Ste.CechComplex}, \ste{Ste.TwistedCech}) are where a
+\emph{graded} obstruction-vs-cover-number comparison would have to
+live; nothing at that level is claimed here.
+
+\item[\citet{dechter2003constraint}]
+The constraint-processing side of the same divide: bounded induced
+width buys a linear-size faithful junction-tree representation
+(mechanized earlier in \ste{Ste.JunctionTree}), while
+$\mathrm{allEqual}$, of maximal width, is exactly the constraint whose
+margins carry no information. The present note sharpens the hard side
+of that dichotomy: the coupling's true rectangular representation cost
+is $k$ (small!), and what explodes is not $\rho$ but the box gap
+$k^n-k$ --- the price of \emph{margin-only} reasoning, not of
+\emph{rectangular} reasoning. This distinction was invisible while the
+open item conflated the two.
+
+\end{description}
+
+\section{Verdict and open questions}
+
+\textbf{Verdict.} The open item ``obstruction size $=$ representation
+blow-up'' is \emph{closed, negatively}, with the following
+machine-checked replacement. (i)~As a box-gap statement the equality is
+a definition, not a theorem
+(\ste{cechObstruction\_eq\_box\_sub\_encard}). (ii)~As a statement
+about rectangle-cover complexity it is false in both directions:
+$\mathrm{obs}=0<\rho=1$ on nonempty rectangles, and
+$\rho=k<k^n-k=\mathrm{obs}$ on $\mathrm{allEqual}_{n,k}$ for $n\ge3$,
+$k\ge2$
+(\ste{not\_forall\_*}). (iii)~What is true and now mechanized is the
+sandwich $\mathrm{fool}(T)\le\rho(T)\le|T|$, the boundary agreement
+$\rho(T)=1\Leftrightarrow\mathrm{obs}(T)$ vanishes, and the exact value
+$\rho(\mathrm{allEqual}_{n,\alpha})=|\alpha|$ via the constant-vector
+fooling set. The equality holds at exactly one place we know of ---
+the $2\times2$ diagonal, $\mathrm{obs}=\rho=2$ --- and that coincidence
+is the likely origin of the conjecture.
+
+\textbf{Open questions for the queue.}
+(1)~\emph{Logarithmic reconciliation:} is there a uniform bound
+$\rho(T)\le f(\mathrm{obs}(T),|T|)$, e.g.\ polynomial in
+$\log(\mathrm{obs}+2)$ and $\log(|T|+2)$, for finite constraints? The
+$\mathrm{allEqual}$ family is consistent with
+$\rho\le\mathrm{obs}+1$ for \emph{nonempty non-rectangular} $T$
+--- is $\rho(T)\le\mathrm{obs}(T)+1$ always true there? (The fooling
+bound gives no obstruction to it; a proof or counterexample is a
+concrete next target.)
+(2)~\emph{Partition versus cover:} the disjoint-cover (partition)
+number $\rho^{\sqcup}$ satisfies
+$\rho\le\rho^{\sqcup}$; does $\mathrm{allEqual}$ also have
+$\rho^{\sqcup}=k$ (the singleton-of-constants partition gives
+$\le k$, and the fooling bound gives $\ge k$ --- this should mechanize
+with the same machinery).
+(3)~\emph{Graded comparison:} for covers with nonempty overlaps
+(\ste{Ste.CechCover}) is there a cover-relative $\rho$ for which the
+vanishing boundary ($\rho=1$) again matches the cover-level sheaf
+condition?
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
