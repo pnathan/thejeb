@@ -42,6 +42,7 @@ galileo1632dialogue, descartes1644principia, newton1687principia,
 laplace1799mecanique).
 -/
 import Ste.Basic
+import Mathlib.Tactic.DeriveFintype
 
 namespace STE.Tides
 
@@ -51,7 +52,7 @@ open STE
 inductive Var
   | primaryCause | moonRole | mechanism | sunRole | springNeap
   | earthMotion | quantitative
-  deriving DecidableEq
+  deriving DecidableEq, Fintype, Repr
 
 /-- The union of all domain values across the seven variables. -/
 inductive Val
@@ -63,12 +64,12 @@ inductive Val
   | springsAtSyzygy | neapsAtQuadrature                     -- spring_neap
   | required                                                -- earth_motion_required
   | mathematized                                            -- quantitative
-  deriving DecidableEq
+  deriving DecidableEq, Inhabited
 
 /-- The seven authors (the index set of pieces of information). -/
 inductive Author
   | pliny | bede | kepler | galileo | descartes | newton | laplace
-  deriving DecidableEq
+  deriving DecidableEq, Fintype
 
 /-- A total assignment of a value to every variable. -/
 abbrev Assign := Var → Val

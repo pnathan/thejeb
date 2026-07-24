@@ -47,3 +47,5 @@ import Ste.AdaptiveConsistency
 import Ste.BucketConsistency
 import Ste.AdaptiveSolver
 import Ste.TidesCorpus
+import Ste.FiniteInstance
+import Ste.TidesComputable
