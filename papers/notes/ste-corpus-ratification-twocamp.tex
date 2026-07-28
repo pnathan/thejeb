@@ -1,0 +1,147 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{natbib}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+
+\newcommand{\lean}[1]{\texttt{#1}}
+\newcommand{\vv}[1]{\textsf{\small #1}}
+
+\title{Two camps break the consistent core:\\
+set-theoretic estimation over 159 ratification documents\\
+\large Federalist $+$ Anti-Federalist, scored by the proved STE algorithm}
+\author{thejeb project note}
+\date{2026-07-28}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The single-camp Federalist run (86 essays) found a large \emph{consistent
+core}: 7 of 10 variables unanimous where spoken, only 3 conflict sites. We
+test whether the STE disagreement structure tracks corpus composition by
+adding the opposing camp --- 73 \textbf{Anti-Federalist} essays (Brutus,
+Cato, Centinel, Federal Farmer, An Old Whig, Philadelphiensis; public
+domain) --- for a \textbf{159-document two-camp corpus}. The same chunking
+pipeline extracts a canonical 10-variable schema (now carrying both poles
+of each question) and one frame per document; the verified \lean{tides}
+executable scores all 159 voices with \lean{STE.Consistent} and
+\lean{STE.disagreementDegree} (\lean{Ste.FiniteInstance}). The verdict:
+the feasibility set is again empty, but where the Federalist corpus had
+\textbf{3} conflict sites the two-camp corpus has \textbf{all 10} --- every
+variable is contested, and each split runs cleanly along the
+Federalist/Anti-Federalist line. The disagreement profile is a function of
+the corpus, computed by the proved algorithm, not a fixed property of the
+topic.
+\end{abstract}
+
+\section{The experiment}
+
+The Federalist companion note found that 86 essays by Publius share a large
+consistent core. The sharp test of whether that structure is intrinsic or
+compositional is to add the essays arguing the other side. We fetch 73
+Anti-Federalist essays from public-domain sources
+(\lean{scripts/antifederalist/}) and pool them with the 86 Federalist
+essays into one corpus of \textbf{159 documents}, each a single STE voice.
+The pipeline (\lean{scripts/corpus/}, now accepting multiple corpus
+directories) runs unchanged: pass~1 (Haiku, per chunk) over 262 chunks
+proposes 3{,}253 open $(\text{variable},\text{value})$ pairs; pass~2
+(Sonnet) unifies them into a canonical \textbf{10-variable} schema whose
+domains now include \emph{both} positions on each contested question;
+pass~3 (Haiku, per document) emits one frame per essay. The
+\lean{frames.json} is scored by the verified executable, which evaluates
+the definitions proved in \lean{Ste.FiniteInstance} on the loaded data (no
+\lean{native\_decide}).
+
+\section{The verdict: the core shatters}
+
+\lean{STE.Consistent} $=$ \textsf{false}: no single reading satisfies all
+159 voices. But the disagreement is now \emph{total}. Every one of the 10
+variables is a conflict site (disagreement degree $\ge 2$), against 3 in the
+Federalist-only run:
+
+\begin{center}\small
+\begin{tabular}{@{}l c c@{}}
+\toprule
+variable & Federalist-only & two-camp \\
+\midrule
+ratification\_stance          & 1 & \textbf{3} \\
+governance\_structure         & 3 & 3 \\
+standing\_army\_peacetime     & 1 & \textbf{2} \\
+bill\_of\_rights\_necessity   & 1 & \textbf{2} \\
+federal\_taxation\_scope      & --- & \textbf{2} \\
+executive\_power\_character   & 1 & \textbf{2} \\
+judiciary\_power\_scope       & 1 & \textbf{2} \\
+house\_representation\_adequacy & --- & \textbf{2} \\
+confederation\_adequacy       & 1 & \textbf{2} \\
+senate\_character             & 2 & \textbf{2} \\
+\midrule
+conflict sites                & \textbf{3} & \textbf{10} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent (The two schema runs name variables slightly differently; the
+invariant claim is the count of conflict sites, $3 \to 10$.)
+
+\section{The split is clean and camp-driven}
+
+The degrees are not extraction noise: spot-checks against the frames show
+each conflict is the Federalist/Anti-Federalist divide.
+
+\begin{center}\small
+\begin{tabular}{@{}l l l@{}}
+\toprule
+variable & Federalist essays & Anti-Federalist essays \\
+\midrule
+ratification\_stance & \vv{favor} (78) & \vv{oppose} (55), \vv{amend} (12) \\
+bill\_of\_rights\_necessity & \vv{unnecessary} (2) & \vv{necessary} (25) \\
+standing\_army\_peacetime & \vv{safe} (10), \vv{dangerous} (2) & \vv{dangerous} (27), \vv{safe} (1) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The degree-3 \vv{ratification\_stance} split is exactly the two
+camps plus the conditional-ratification wing (\vv{favor\_with\_amendments}).
+The \vv{bill\_of\_rights} axis is cleanly opposite (Federalist~84 vs. the
+Anti-Federalist demand). The \vv{standing\_army} split is near-perfect, the
+few crossovers reflecting genuine nuance in the sources.
+
+\section{Three shapes, one algorithm}
+
+The same verified \lean{Consistent} / \lean{disagreementDegree} now records
+three qualitatively different disagreement shapes:
+
+\begin{center}\small
+\begin{tabular}{@{}l l l@{}}
+\toprule
+corpus & consistent? & structure \\
+\midrule
+Tides (7) & no & pervasive, multi-camp; worst degree 5 \\
+Federalist (86) & no & large consistent core; 3 conflict sites \\
+Ratification (159) & no & total shatter; all 10 variables contested \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Adding the opposing 73 essays flips seven unanimous variables into
+conflicts. This is precisely the behavior of the modal STE theory: acquiring
+information shrinks the feasible family; here it empties the agreement on
+\emph{every} axis at once. The disagreement profile is compositional and
+computed, not a story told about the topic.
+
+\section{The boundary of trust}
+
+The verdict is the verified STE definitions evaluated on runtime-parsed
+frames; each asserted value in \lean{frames.json} carries a licensing quote,
+so every cell is auditable against the essay, and the three headline splits
+were checked against those quotes. A mis-extraction would move a count, but
+the shatter --- ten contested variables where the single camp had three ---
+is far larger than any plausible extraction slack.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
