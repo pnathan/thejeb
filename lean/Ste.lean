@@ -39,6 +39,7 @@ import Ste.CechObstruction
 import Ste.Consistency
 import Ste.CouplingLowerBound
 import Ste.RepresentationBounds
+import Ste.ChainFooling
 import Ste.CechCover
 import Ste.SupportCover
 import Ste.GluingWidth
