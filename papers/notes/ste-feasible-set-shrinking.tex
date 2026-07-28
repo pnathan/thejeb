@@ -454,17 +454,23 @@ The rectangle-cover machinery of \path{Ste.RepresentationBounds}
 quantifies compressibility in the communication-complexity sense
 \citep{kushilevitz1997communication}.  The cover number
 \path{rectCoverNumber} --- the least number of variable-separable
-product sets whose union is the family --- is sandwiched by machine
-checked bounds: it is at most the family's cardinality
-(\path{rectCoverNumber_le_encard}), at least every fooling set
-(\path{foolingNumber_le_rectCoverNumber}), and equals $1$ exactly when
-the \v{C}ech obstruction of the singleton cover vanishes
+product sets (\emph{rectangles}) whose union is the family --- is
+sandwiched by machine checked bounds.  It is at most the family's
+cardinality (\path{rectCoverNumber_le_encard}).  For the lower bound,
+call a subset $F$ of the family a \emph{fooling set}
+(\path{IsFoolingSet}) when no single rectangle contained in the family
+holds two distinct points of $F$; an exact cover must then spend a
+separate rectangle on each point of $F$
+(\path{IsFoolingSet.encard_le_of_hasRectCover}), so the cover number is
+at least the size of any fooling set
+(\path{foolingNumber_le_rectCoverNumber}).  Finally it equals $1$
+exactly when the \v{C}ech obstruction of the singleton cover vanishes
 (\path{rectCoverNumber_eq_one_iff_cechVanishes}).  On the maximally
 coupled family the cover number is computed exactly
 (\path{rectCoverNumber_allEqual}).  These give the practitioner a
-diagnostic: a small fooling set in the shrunken family is a certificate
-that no small rectangular (per-variable factored) representation
-exists.
+diagnostic: a fooling set of size $k$ exhibited in the shrunken family
+certifies that no rectangular (per-variable factored) representation
+with fewer than $k$ pieces exists.
 
 \subsection{The Carlson bridge: reducing the problem class itself}
 
