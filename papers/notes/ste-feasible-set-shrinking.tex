@@ -1,0 +1,634 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{hidelinks}
+\emergencystretch=3em
+
+\newtheorem{remark}{Remark}
+
+\newcommand{\Hyp}{\Omega}
+\newcommand{\Feas}{\mathcal N}
+\newcommand{\Must}{\mathsf{Must}}
+\newcommand{\May}{\mathsf{May}}
+\newcommand{\Cannot}{\mathsf{Cannot}}
+\newcommand{\Uncertain}{\mathsf{U}}
+
+\title{Shrinking the Feasible Family:\\
+Answer-Preserving Reduction Techniques for Set-Theoretic Estimation\\
+\large A methods note, grounded in the Lean~4 mechanization of project
+\texttt{thejeb}}
+\author{Project \texttt{thejeb}}
+\date{July 28, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+In set-theoretic estimation (STE) a problem is a family of property sets
+$S_i$ over a solution space, and its answer object is the feasibility set
+$\Feas=\bigcap_i S_i$ --- the family of hypotheses consistent with every
+piece of information \citep{combettes1993}.  Generating that family is
+step one of an STE attack.  This note addresses the step that follows:
+once the (possibly enormous) feasible family exists, how does one
+shrink, restrict, collapse, certify, and structurally compress it while
+provably preserving the STE answers --- feasibility, and the must / may
+/ cannot queries quantified over feasible hypotheses?  We synthesize the
+project's machine-checked toolkit into a reusable technique: exact
+property-set application (the STE meet), contravariant restriction
+across corpus states, garbage collection of the variable universe, the
+must-quotient as the only generally safe deterministic collapse, minimal
+supports as shrunken certificates, gluing of local families with an
+exact cross-constraint obstruction, and --- past the proven $2^N$
+extensional-state wall, where generic reduction provably stops ---
+width-bounded structural compression by variable elimination, junction
+trees, and factorization, down to Carlson's substitution reduction of
+cipher classes \citep{carlson2012}.  Every guarantee is cited to a named
+Lean~4 theorem in the project source; qualifications (consistency
+premises, the compatibility notion for gluing, the exact scope of the
+lower bounds) are stated where the mechanization states them.
+\end{abstract}
+
+\section{Setup: the feasible family and the queries to preserve}
+\label{sec:setup}
+
+An STE problem over a solution space $\Hyp$ is an indexed family of
+property sets $S:I\to\mathcal P(\Hyp)$, one per piece of information;
+the feasibility set is
+\[
+\Feas \;=\; \bigcap_{i\in I} S_i,
+\]
+and a set-theoretic estimate is any point of $\Feas$
+\citep[\S II-C]{combettes1993}.  In the mechanization this is
+\path{feasibilitySet} with the membership law
+\path{mem_feasibilitySet}: a hypothesis is feasible iff it lies in every
+property set.  Enforcing only a subfamily $J\subseteq I$ yields the
+partial feasibility set \path{partialFeasibilitySet}, and information
+monotonicity --- more information never enlarges the feasible family ---
+is the antitonicity theorem \path{partialFeasibilitySet_antitone}.  If
+the full intersection is empty, at least one piece of information is
+unfair for every candidate truth
+(\path{exists_unfair_of_feasibilitySet_eq_empty}): inconsistency is not
+a failure mode but a detection principle.
+
+The feasible family is rarely wanted for its own sake.  What an STE
+consumer asks of it are \emph{queries}:
+
+\begin{itemize}
+\item \textbf{Feasibility}: is $\Feas\neq\emptyset$ (the formulation is
+  consistent)?
+\item \textbf{Must}: does a relation hold in \emph{every} feasible
+  hypothesis?
+\item \textbf{May}: does it hold in \emph{some} feasible hypothesis?
+\item \textbf{Cannot}: does it fail in every feasible hypothesis?
+\end{itemize}
+
+The project's working instantiation is the dynamic-frame model
+\path{STE.DynamicFrame.Model}: documents carry claims, constraints carry
+provenance supports, a corpus $D$ activates exactly the constraints
+whose support lies in $D$, and the feasible family
+\path{Model.feasible} is the partial feasibility set of the active
+property sets.  Each feasible hypothesis carries an equivalence relation
+on claims, and the queries become \path{MustSame}, \path{MaySame},
+\path{CannotSame}, and the explicit two-sided marker \path{Uncertain}
+(both merge and split remain feasible).  Everything below is stated for
+this model but the technique is generic: any STE problem whose
+hypotheses support a relational query has the same shape.
+
+The goal of this note is \emph{answer-preserving reduction}: replace the
+feasible family, or its representation, by something smaller, while
+provably returning the same answers to the queries above.  Reductions
+come in three kinds --- reductions that shrink the family itself
+(Sections~\ref{sec:meet}--\ref{sec:restriction}), reductions that
+compress a query-equivalent summary of it
+(Sections~\ref{sec:quotient}--\ref{sec:gluing}), and reductions that
+compress its representation
+(Sections~\ref{sec:wall}--\ref{sec:structure}).
+
+\section{Base reduction: the exact meet}
+\label{sec:meet}
+
+The primitive shrinking step is property-set application: intersect the
+current family $X$ with the property set of one constraint $k$,
+\[
+X \mapsto X \cap S_k .
+\]
+This is \path{applyConstraint} in \path{Ste.DynamicFrame.Solver}, and
+the mechanization proves that this single operation already has every
+algebraic property a practitioner needs to schedule it freely:
+
+\begin{itemize}
+\item \textbf{Monotone shrinking.}  Application only removes hypotheses
+  (\path{applyConstraint_subset}); at the corpus level, activating more
+  documents only shrinks the feasible family
+  (\path{feasible_antitone}).
+\item \textbf{Idempotence.}  Applying the same property set twice equals
+  applying it once (\path{applyConstraint_idempotent}): re-running an
+  audited constraint is free.
+\item \textbf{Order-independence.}  Applications commute
+  (\path{applyConstraint_comm}); a finite run depends only on the
+  \emph{set} of constraints applied, not their order or multiplicity
+  (\path{solve_congr}, \path{solve_perm}).
+\item \textbf{Exactness.}  A finite run is extensionally the partial
+  feasibility set of the applied constraints
+  (\path{solve_eq_partialFeasibilitySet}), and if the schedule
+  enumerates exactly the active constraints of corpus $D$, the solver
+  output \emph{is} the model's feasible family
+  (\path{solve_eq_feasible}).  There is no approximation layer between
+  ``run the solver'' and ``the STE answer''.
+\item \textbf{Delta decomposition.}  Each application splits the state
+  exactly into survivors and casualties: \path{apply_union_reduction}
+  proves $X = (X\cap S_k)\;\cup\;(X\setminus(X\cap S_k))$, and
+  \path{mem_solverReduction} identifies the discarded set as precisely
+  the current candidates violating the new constraint.  A constraint
+  causes no reduction iff the current family already refines it
+  (\path{solverReduction_eq_empty_iff}) --- the operational test for a
+  redundant constraint.
+\end{itemize}
+
+\emph{When to reach for it.}  Always.  This is the sound kernel of every
+other technique: any pipeline stage that cannot be expressed as (or
+proven equal to) a meet with an audited property set is where soundness
+must be argued separately.  The delta decomposition additionally gives
+exact incremental accounting --- what each constraint killed --- for
+free.
+
+\section{Restriction across instances: garbage-collecting the universe}
+\label{sec:restriction}
+
+An STE attack rarely runs on one fixed instance.  Corpora grow and
+shrink; the practitioner wants to reuse a computed feasible family
+rather than regenerate it.  The mechanization gives this a precise
+shape: for corpora $D\subseteq E$, the map that views an $E$-feasible
+hypothesis as a $D$-feasible one (\path{restrictFeasible}) satisfies the
+identity and composition laws \path{restrictFeasible_id} and
+\path{restrictFeasible_comp} --- so the assignment
+$D\mapsto\mathrm{feasible}(D)$ is a contravariant, presheaf-shaped
+construction on the poset of corpora, with the same laws holding for the
+packaged world views (\path{restrictWorld_id},
+\path{restrictWorld_comp}).  The image of restriction is characterized
+exactly: a small-corpus hypothesis is in the image iff the same ambient
+hypothesis is feasible on the larger corpus
+(\path{mem_range_restrictFeasible_iff}).
+
+Two consequences matter for shrinking:
+
+\textbf{Incremental deltas instead of regeneration.}  Growing the corpus
+decomposes exactly: a hypothesis is feasible on $E\supseteq D$ iff it is
+feasible on $D$ and satisfies each \emph{newly activated} constraint
+(\path{mem_feasible_extension}, with the new constraints isolated as
+\path{newConstraints}).  If an insertion activates nothing new, the
+family is unchanged (\path{feasible_eq_of_no_new_constraints}).  So the
+already-shrunk family is the correct starting point for the meet of
+Section~\ref{sec:meet}, never a lossy cache.
+
+\textbf{Partial restriction of the variable universe.}  The claim
+universe itself can be garbage-collected.  Restricting active claims
+under corpus deletion is deliberately \emph{partial}: a claim restricts
+iff its source document remains active, and when the restriction exists
+it is unique (\path{claimRestriction_exists_iff},
+\path{claimRestriction_unique} --- restriction fibers have size $0$ or
+$1$).  Dropping the claims of deleted documents loses no explanatory
+power over the surviving universe, because local coreference is
+preserved definitionally under world restriction and claim inclusion
+(\path{localSame_restrict}).
+
+\begin{remark}[Retraction asymmetry]
+Restriction runs against a one-way door.  Adding documents induces a
+covariant map on the safe quotients (\path{canonicalMap}, built from
+\path{includeActiveClaim} and the monotonicity \path{mustSame_mono});
+that map may identify old classes and is not generally injective.  In
+the deletion direction there is in general \emph{no} quotient map at
+all: a pair forced together on $E$ can become uncertain on
+$D\subset E$, and mapping an $E$-class backward would require splitting
+it, which is not a function on classes.  Deletion therefore cannot be
+implemented as the inverse of a merge history; it must be implemented
+semantically, by re-restricting the feasible family --- which the laws
+above make exact.
+\end{remark}
+
+\emph{When to reach for it.}  Whenever instances are related by
+inclusion: streaming corpora, leave-one-out audits, provenance
+ablations.  Restrict, do not recompute; garbage-collect claims of
+retired documents; and never try to undo a merge by bookkeeping.
+
+\section{Safe collapse: the must-quotient}
+\label{sec:quotient}
+
+The feasible family is a set of equivalence relations, and the
+practitioner wants \emph{one} deterministic output.  The only generally
+safe deterministic collapse is the intersection of the feasible
+relations: define $\Must_D(c,d)$ to hold when every feasible hypothesis
+merges $c$ and $d$.  The mechanization proves this intersection is
+itself an equivalence relation (\path{mustSame_equivalence}), packaged
+as the setoid \path{mustSetoid}, restricted to active claims as
+\path{activeMustSetoid}, with quotient type \path{CanonicalFrame}.
+Collapsing by $\Must$ therefore never invents an identification: it
+reports exactly the merges that survive in \emph{all} feasible worlds.
+
+The remaining pairs are not noise; they are classified.  For a
+\emph{consistent} corpus every pair is must-merged, cannot-merged, or
+explicitly uncertain (\path{coreference_exhaustive}); the deterministic
+classifier \path{corefStatus} returns
+$\{\mathrm{must},\mathrm{cannot},\mathrm{uncertain},
+\mathrm{inconsistent}\}$, with the inconsistent case kept separate
+precisely because universal quantification over an empty feasible family
+is vacuous (\path{must_and_cannot_implies_inconsistent}).  The statuses
+are stable in the useful direction: settled statuses persist under
+corpus growth (\path{mustSame_mono}, \path{cannotSame_mono}), while
+uncertainty can only be resolved, never created, by adding evidence
+(\path{uncertain_antitone}).
+
+Why not collapse more aggressively --- say, quotient by ``some feasible
+world merges them''?  Because the union of equivalence relations across
+feasible worlds is \emph{not} an equivalence relation.  The finite
+countermodel \path{Ste.DynamicFrame.Counterexample} exhibits three
+claims $a,b,c$ and two feasible worlds (one merging $\{a,b\}$, one
+merging $\{b,c\}$) such that $\May(a,b)$ and $\May(b,c)$ hold while
+$\Cannot(a,c)$ holds: \path{maySame_not_transitive}.  The uncertainty
+overlay fails transitivity the same way
+(\path{uncertain_not_transitive}).  Any pipeline that
+transitively closes may-links or uncertain-links manufactures a merge
+($a\sim c$) that every feasible hypothesis refutes.
+
+\begin{remark}[Qualification]
+The must-quotient is safe \emph{on a consistent corpus}.  If the
+feasible family is empty, $\Must$ holds vacuously for every pair and the
+quotient degenerates; the mechanization guards this by carrying the
+consistency premise in \path{coreference_exhaustive} and by routing
+empty families to the separate \path{corefStatus} value
+\texttt{inconsistent}.  Check feasibility before collapsing.
+\end{remark}
+
+\emph{When to reach for it.}  Whenever a downstream consumer demands a
+single partition.  Emit the must-quotient plus the uncertain-pair list;
+never a transitive closure of possibilities.
+
+\section{Certification: minimal supports}
+\label{sec:support}
+
+A settled conclusion ($\Must$ or $\Cannot$ on some finite corpus) drags
+the whole corpus behind it as justification.  That justification can be
+shrunk.  Define \path{SupportsMust}~$(D,c,d)$: the finite corpus $D$ is
+consistent and forces $c,d$ together (analogously
+\path{SupportsCannot}).  The mechanization proves that every finitely
+supported conclusion has an \emph{inclusion-minimal} finite subcorpus
+that still supports it: \path{exists_minimal_mustSupport} and
+\path{exists_minimal_cannotSupport}, instances of the general
+finite-minimization principle \path{exists_minimal_subfinset}.  The
+minimal support is a certificate: a smallest-by-inclusion set of
+documents such that removing any one breaks the conclusion.
+
+The mechanization is deliberately semantic here: the theorems assert
+existence of minimal supports, not that finding one is cheap.  Note also
+that consistency is part of the support predicate --- a subcorpus that
+forces the pair only vacuously (by being inconsistent) does not count as
+support.
+
+\emph{When to reach for it.}  Explanation, audit, and caching.  A
+minimal support is simultaneously the provenance answer (``why are these
+merged?''), the invalidation key for dynamic updates (the conclusion
+survives any deletion disjoint from its support), and a compressed proof
+obligation for human review.
+
+\section{Composition: gluing local families with an exact obstruction}
+\label{sec:gluing}
+
+Large problems are attacked in pieces: compute feasible families on
+subcorpora $D$ and $E$, then combine.  The obstruction to combining is
+exactly the genuinely cross-piece constraints.  For an ambient
+hypothesis $h$, \path{crossObstruction} collects the constraints whose
+support lies in $D\cup E$ but in neither piece alone and which $h$
+violates; the classification theorem \path{mem_feasible_union_iff}
+proves
+\[
+h \in \mathrm{feasible}(D\cup E)
+\iff
+h \in \mathrm{feasible}(D)\ \wedge\ h \in \mathrm{feasible}(E)\ \wedge\
+\mathcal O_{D,E}(h)=\emptyset .
+\]
+Two local world views are \path{Compatible} when they expose the same
+ambient hypothesis; a \path{GlobalExtension} is a world on $D\cup E$
+restricting to both.  Existence is settled exactly:
+\path{globalExtension_nonempty_iff} proves a global extension exists iff
+the views are compatible and the cross obstruction vanishes, with the
+witness constructed by \path{glue}.  Uniqueness is a theorem, not a
+hope: the extension type is a subsingleton
+(\path{globalExtension_subsingleton}) --- at most one global world
+extends a fixed pair of local worlds.
+
+\begin{remark}[Qualification]
+Uniqueness is relative to the compatibility notion mechanized here:
+all views live in one ambient hypothesis type, and compatibility means
+literal equality of the underlying hypothesis.  In a setting where local
+views are related by a looser correspondence, uniqueness would have to
+be re-proven for that correspondence.  The obstruction set is
+computable in the finite case, but it is an obstruction \emph{per
+ambient hypothesis}: gluing whole families means discharging it per
+surviving candidate.
+\end{remark}
+
+\emph{When to reach for it.}  Divide-and-conquer over provenance:
+shard the corpus, shrink each shard's family locally (cheap), and pay
+the cross-constraint check only at the join.  The theorem tells you
+exactly which constraints can obstruct --- the straddlers --- so the
+join cost is proportional to genuine coupling, not to corpus size.
+
+\section{The wall: \texorpdfstring{$2^N$}{2\^{}N} extensional states, and why it is tight}
+\label{sec:wall}
+
+How far can generic shrinking go?  The finite mechanization
+\path{Ste.DynamicFrame.FiniteSolver} makes the ceiling exact.  When the
+hypothesis universe is finite with $N=$ \path{maxWorlds} ambient worlds
+and satisfaction is decidable, the solver state is represented exactly
+by a finite set: filtering implements the meet
+(\path{coe_applyFinite}), and the executable run denotes precisely the
+abstract STE run (\path{coe_runFinite}, \path{coe_solveFinite}) ---
+partial feasibility on the nose.  Total reduction is bounded: a schedule
+can contain at most $N$ properly shrinking steps
+(\path{reductionCost_le_maxWorlds}).  The state space is
+$2^N$ exactly (\path{card_allExactStates}).
+
+The bound is tight, and this is the pivot of the whole note: a single
+crisp property set can select \emph{any} chosen subset of the universe
+(\path{arbitrary_subset_as_single_property}).  Unrestricted crisp STE
+therefore realizes all $2^N$ extensional states, and no uniform
+sub-exponential family of states can be complete for it.  No amount of
+clever generic machinery --- meets, restriction, quotients, supports,
+gluing --- improves the worst case, because the worst case is
+realizable by the inputs themselves.  Generic reduction stops here.
+Everything further must buy its compression with \emph{structure}: an
+assumption on the shape of the generated property sets.
+
+\section{Structural reduction: width-bounded compression}
+\label{sec:structure}
+
+Structure enters through \emph{scopes}: a property set over a product
+space $\prod_v A_v$ has support $\sigma$ when it depends only on the
+variables in $\sigma$ (\path{HasSupport}).  Scoped constraints induce a
+constraint (hyper)graph, and when that graph is tree-like the feasible
+family compresses.  The mechanization builds the full chain from scope
+accounting to a polynomial-size faithful representation.
+
+\subsection{Scope accounting and cut elimination}
+
+Joining constraints unions their scopes (\path{HasSupport.inter_union},
+family form \path{HasSupport.iInter}); conditioning (fixing a variable)
+removes it from the scope and commutes with joins
+(\path{condition_inter}).  The pivotal dissolution step is
+\path{cut_elimination}: if two constraints share only a cut variable
+$v$, conditioning on $v$ leaves constraints with \emph{disjoint} scopes
+--- the problem falls apart into independent blocks, and joint
+feasibility becomes independent per-block feasibility
+(\path{condition_inter_nonempty_iff}).
+
+The space currency is the \path{table}: the projection of a constraint
+to its scope.  A supported constraint is faithfully recovered from its
+table (\path{HasSupport.eq_preimage_table}), and the table of a bag of
+at most $w+1$ variables over alphabets of size at most $k$ has at most
+$k^{w+1}$ rows (\path{table_encard_le}, \path{table_encard_le_pow}).
+
+\subsection{Elimination and adaptive consistency}
+
+Bucket elimination \citep{dechter1999bucket,dechter2003constraint} is
+mechanized as a fold of conditioning steps.  One step joins a bucket and
+eliminates its variable, staying within the bag bound
+(\path{elimination_step}); a whole order of width $w$ with $n$ steps
+materializes at most $n\cdot k^{w+1}$ total table rows
+(\path{elimination_order_total_bound},
+\path{elimination_order_table_total_bound},
+\path{bucketEliminate_total_space}).  A \emph{complete} order --- one
+covering every scope --- decides the instance: the residue is
+\path{Set.univ} or $\emptyset$ (\path{eliminate_eq_univ_or_empty},
+bucket form \path{bucketEliminate_decides}), i.e.\ the feasibility query
+is answered without ever materializing the feasible family.
+
+The fused solver statement is
+\path{projectBucketEliminate_complete_solver}: for any complete order of
+width $w$, one theorem simultaneously decides feasibility and
+infeasibility, extracts a concrete global solution backtrack-free when
+feasible, and certifies the width bound
+\path{inducedTreewidth} $\le w$.  Adaptive consistency proper --- the
+decreasing-order run whose separators are the algorithm's own recorded
+message scopes --- is \path{decreasingRun_adaptiveSolver}.
+
+\subsection{Junction trees: a faithful polynomial representation}
+
+Elimination's trace can be kept as a data structure: the
+\path{junctionTables} (one bag table per materialized bucket) with total
+size \path{junctionSize}.  This representation is \emph{faithful}: a
+scoped constraint is exactly the preimage of its bag table, and a global
+assignment is feasible for the whole instance iff it restricts into
+every bag table (\path{mem_joinConstraint_iff_restrict},
+\path{junctionTables_faithful}).  The size theorem
+\path{junctionTree_size_le} bounds the representation by
+$n\cdot k^{\,\mathrm{tw}+1}$ over the induced treewidth; at fixed width
+the bound is linear in the number of variables
+(\path{junctionTree_size_linear}, existence form
+\path{junctionTree_size_le_card} at the minimal duplicate-free width
+\path{junctionWidth}, which dominates the induced treewidth by
+\path{inducedTreewidth_le_junctionWidth} --- that the two coincide is
+not mechanized and remains outlook).  The upshot: a feasible family of
+size exponential in $n$ is represented, queried for feasibility, and
+sampled from, in $O(n)$ space at bounded width.
+
+\subsection{Factorization over partitions}
+
+When the constraint graph is disconnected the compression is exact and
+multiplicative.  For blocks pulled back along coordinate projections
+(\path{pullbackFamily}), the feasible family is exactly the product of
+per-block families (\path{feasibilitySet_pullbackFamily}) and its
+cardinality is the product of per-block cardinalities
+(\path{encard_feasibilitySet_blocks}; two-level version
+\path{encard_feasibilitySet_blockFamilies}; domination bound
+\path{encard_feasibilitySet_blocks_le}).  An estimator pays
+$\sum_i \mathrm{cost}(C_i)$ across blocks instead of
+$\prod_i \mathrm{cost}(C_i)$ for the joint family: the exponential is
+confined inside each block.
+
+\subsection{Representation bounds: how compressible is a family?}
+
+The rectangle-cover machinery of \path{Ste.RepresentationBounds}
+quantifies compressibility in the communication-complexity sense
+\citep{kushilevitz1997communication}.  The cover number
+\path{rectCoverNumber} --- the least number of variable-separable
+product sets whose union is the family --- is sandwiched by machine
+checked bounds: it is at most the family's cardinality
+(\path{rectCoverNumber_le_encard}), at least every fooling set
+(\path{foolingNumber_le_rectCoverNumber}), and equals $1$ exactly when
+the \v{C}ech obstruction of the singleton cover vanishes
+(\path{rectCoverNumber_eq_one_iff_cechVanishes}).  On the maximally
+coupled family the cover number is computed exactly
+(\path{rectCoverNumber_allEqual}).  These give the practitioner a
+diagnostic: a small fooling set in the shrunken family is a certificate
+that no small rectangular (per-variable factored) representation
+exists.
+
+\subsection{The Carlson bridge: reducing the problem class itself}
+
+Structural reduction can act one level up, on the hypothesis universe
+before any property set is applied.  Carlson's dissertation recasts
+decryption as STE \citep{carlson2012}: keys are hypotheses, each
+intercepted ciphertext induces a property set
+(\path{keyPropertySet}), and the feasible key set is literally an STE
+feasibility set (\path{feasibleKeys}, \path{mem_feasibleKeys}), with
+more traffic only narrowing it (\path{feasibleKeys_antitone}).  The
+residual family size after one observation is counted exactly:
+$(|A|-|T|)!$ keys remain consistent, where $T$ is the observed symbol
+set (\path{card_consistent_keys}, Carlson's Lemma~4.1), out of $|A|!$
+substitution keys (\path{card_substitution_keys}); identification is
+the ideal case \path{Unicity}.
+
+The reduction results then collapse cipher \emph{classes}: every
+permutation-cipher key is a substitution key via the injective
+realization \path{coperm}
+(\path{permutation_reduces_to_substitution}, sharpened by
+\path{coperm_injective}), the reverse reduction is impossible for
+$n\ge 2$ --- there are strictly more substitution keys than
+permutation keys, so no faithful embedding is onto
+(\path{card_permutation_lt_card_substitution},
+\path{substitution_not_reducible_to_permutation}) --- and any
+permutation--substitution--permutation composite is again a single
+substitution key (\path{psp_reduces_to_substitution}); cf.\ the same
+reduction in the applied literature
+\citep{ghosh2021isomorphic,carlson2022equivalence}.  For the STE
+practitioner this is the template for \emph{class-level} shrinking:
+prove one hypothesis class embeds in another, attack the larger class
+once, and inherit the feasible-family analysis for every problem in the
+smaller class --- while the counting inequality warns which direction
+the reduction cannot go.
+
+\section{The lower-bound wall for structure}
+\label{sec:lowerbound}
+
+Structure is not optional decoration; when it is absent, blow-up is
+forced.  The singleton-cover gluing characterization
+\path{cechVanishes_iff_rectangular} proves that margin-based local
+reasoning is exact --- every compatible family of per-variable local
+sections glues --- \emph{iff} the family is a rectangle: no coupling, no
+obstruction.  The $n$-fold coupling \path{allEqual} (all coordinates
+equal over an alphabet $\alpha$) sits at the opposite extreme: every
+per-variable margin is full, so all $|\alpha|^n$ local-section families
+are compatible (\path{compatibleFamilies_allEqual_encard}), yet only the
+$|\alpha|$ constant vectors are actually feasible
+(\path{allEqual_encard}).  The compatible-but-infeasible gap --- the
+phantom assignments any per-variable procedure must entertain and the
+coupling then kills --- is exactly $|\alpha|^n-|\alpha|$
+(\path{cechObstruction_allEqual}), hence at least $2^n-2$ once
+$|\alpha|\ge 2$ (\path{cechObstruction_allEqual_ge}): exponential in the
+number of variables while the feasible family itself has constant size.
+For $n\ge 2$ the constraint is genuinely non-rectangular and the
+obstruction genuinely nonvanishing (\path{allEqual_not_rectangular},
+\path{allEqual_not_cechVanishes}).
+
+\begin{remark}[Honest boundary]
+What is mechanized is exactly: the iff for the singleton cover, and the
+exact and asymptotic obstruction counts for \path{allEqual}.  Not
+mechanized (and not claimed): that \path{allEqual}'s induced width is
+minimal in the formal \path{Ste.Treewidth} sense, and the fully general
+statement that \emph{every} width-$w$ representation scheme for
+\path{allEqual} needs size $2^{\Omega(n)}$; the cohomological picture
+for covers with overlaps \citep{abramsky2011sheaf} remains outlook.
+The practical reading is nevertheless sharp: before investing in
+elimination orders and junction trees, measure the coupling; a
+complete-graph-like instance pays the exponential somewhere no matter
+how the pipeline is arranged.
+\end{remark}
+
+\section{Practitioner contract}
+\label{sec:contract}
+
+The techniques compose into a fixed order of operations for an STE
+attack.
+
+\begin{enumerate}
+\item \textbf{Generate} the property-set family from the information
+  sources; record provenance supports.
+\item \textbf{Apply} audited property sets with the exact meet
+  (\path{applyConstraint}, \path{solve_eq_feasible}); schedule freely
+  (idempotent, commutative); log the exact deltas
+  (\path{apply_union_reduction}).
+\item \textbf{Restrict / garbage-collect} across instance changes:
+  reuse the family under corpus growth via the delta law
+  (\path{mem_feasible_extension}); drop retired claims by partial
+  restriction (\path{claimRestriction_exists_iff}); never invert a
+  merge by bookkeeping (retraction asymmetry).
+\item \textbf{Check feasibility}, and treat emptiness as detection of
+  invalid information
+  (\path{exists_unfair_of_feasibilitySet_eq_empty}).
+\item \textbf{Collapse safely} by the must-quotient only
+  (\path{mustSame_equivalence}, \path{CanonicalFrame}); publish
+  must/cannot/uncertain statuses (\path{corefStatus}); never
+  transitively close may-links (\path{maySame_not_transitive}).
+\item \textbf{Certify} settled conclusions by inclusion-minimal
+  supports (\path{exists_minimal_mustSupport}).
+\item \textbf{Compose} shard-wise with the exact gluing obstruction
+  (\path{globalExtension_nonempty_iff}); uniqueness of extension is
+  guaranteed under compatibility
+  (\path{globalExtension_subsingleton}).
+\item \textbf{Compress structurally} when scopes permit: bucket
+  elimination and adaptive consistency decide and solve within induced
+  width (\path{projectBucketEliminate_complete_solver}); keep the
+  junction-tree tables as the $O(n)$ faithful representation at fixed
+  width (\path{junctionTree_size_le}); factor across disconnected
+  blocks (\path{encard_feasibilitySet_blocks}); reduce hypothesis
+  classes when an embedding is proven
+  (\path{permutation_reduces_to_substitution}).
+\item \textbf{Know the walls}: generically, $2^N$ extensional states
+  are realizable and tight
+  (\path{card_allExactStates},
+  \path{arbitrary_subset_as_single_property}); structurally, maximal
+  coupling forces an obstruction of at least $2^n-2$
+  (\path{cechObstruction_allEqual_ge}).
+\end{enumerate}
+
+\medskip
+\noindent
+Finally, the preservation ledger --- which queries each step provably
+preserves:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Step & Preserves & Authority \\
+\midrule
+Exact meet & all queries (it \emph{defines} them) &
+  \path{solve_eq_feasible} \\
+Restriction ($D\subseteq E$) & must/cannot upward; may/uncertain
+  downward &
+  \path{mustSame_mono}, \path{maySame_antitone} \\
+Must-quotient & must; statuses of remaining pairs &
+  \path{coreference_exhaustive} \\
+Minimal support & the certified must/cannot fact &
+  \path{exists_minimal_mustSupport} \\
+Gluing & feasibility on the union, exactly &
+  \path{mem_feasible_union_iff} \\
+Elimination (complete order) & feasibility + one witness &
+  \path{projectBucketEliminate_complete_solver} \\
+Junction tables & full membership (hence all queries) &
+  \path{mem_joinConstraint_iff_restrict} \\
+Factorization & full family, as a product &
+  \path{feasibilitySet_pullbackFamily} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\noindent
+Restriction deserves the final caution, because its ledger row is
+asymmetric by theorem, not by implementation: settled must/cannot facts
+persist as the corpus grows (\path{mustSame_mono},
+\path{cannotSame_mono}) but may be lost under deletion, while may/
+uncertain facts transfer in the opposite direction only
+(\path{maySame_antitone}, \path{maySeparate_antitone},
+\path{uncertain_antitone}).  A pipeline that caches query answers across
+corpus edits must cache them with the direction of the edit --- which
+is, in the end, the whole discipline this note proposes: shrink as hard
+as the theorems allow, and no harder.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
