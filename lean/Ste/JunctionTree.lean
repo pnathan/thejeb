@@ -50,10 +50,11 @@ The witness shape is already in the library: the fully coupled
 `Ste.Sheaf`) and needs its full scope (`diagonal_support_full`, in
 `Ste.Support`), so no per-variable (width-0) table family represents
 it; scaling this to a quantitative `2^n` lower bound against width-`w`
-representations is future work.  Also outlook: that the minimal
-duplicate-free width `junctionWidth` coincides with `inducedTreewidth`
-(repeated eliminations only ever add empty bags, but the simulation
-argument is not mechanized).
+representations is future work.  The minimal duplicate-free width
+`junctionWidth` coincides with `inducedTreewidth`
+(`junctionWidth_eq_inducedTreewidth`): repeated eliminations only ever
+add empty bags, so deduping an optimal order (`exists_nodup_order`,
+`Ste.GraphTreewidth`) never widens it.
 
 Reference: R. Dechter, *Constraint Processing*, 2003 (bucket
 elimination, induced width, junction / join trees);
@@ -61,6 +62,8 @@ N. Robertson, P. D. Seymour, *Graph minors II: algorithmic aspects of
 tree-width*, 1986.
 -/
 import Ste.Treedecomp
+import Ste.VariablePresheaf
+import Ste.GraphTreewidth
 import Mathlib.Data.Fintype.Card
 
 namespace STE
@@ -68,6 +71,23 @@ namespace STE
 open Set
 
 variable {V : Type*} {A : V → Type*} [DecidableEq V]
+
+/-! ### The bag table is the local-section presheaf, on the nose -/
+
+/-- **`table` = `localSections` on the bag** (mechanizes §5.1 "Bag tables
+are local sections" of the cohomology exploration memo,
+`papers/notes/ste-cohomology-exploration.tex`).  `table σ T`
+(`Ste.Treewidth`) and `localSections T σ` (`Ste.VariablePresheaf`) are
+*the same construction* — both are the image of `T` under
+`f ↦ (v : σ) ↦ f v` — so the identification is exactly the `rfl` the memo
+flags as "has not been written down".  Consequence: every
+junction-tree/bucket-elimination theorem in this file (faithfulness,
+size bounds) is already, unchanged, a theorem about the variable-side
+section presheaf of `Ste.VariablePresheaf` on the bag cover — e.g.
+`HasSupport.mem_iff_restrict` below is `restrict_mem_localSections_iff`
+in table clothing. -/
+theorem table_eq_localSections (σ : Set V) (T : Set (∀ v, A v)) :
+    table σ T = localSections T σ := rfl
 
 /-! ### Faithfulness of a single bag table -/
 
@@ -314,6 +334,38 @@ theorem inducedTreewidth_le_junctionWidth [Fintype V]
     inducedTreewidth B ≤ junctionWidth B := by
   obtain ⟨order, _, hcover, hwidth⟩ := achievesWidthNodup_junctionWidth B
   exact inducedTreewidth_le ⟨order, hcover, hwidth⟩
+
+/-- **F — repeated eliminations only add empty bags, the reverse
+inequality.**  Any order witnessing `AchievesWidth B w` dedupes
+(`exists_nodup_order`, `Ste.GraphTreewidth`) to a duplicate-free order:
+completeness is preserved (`eliminated` is unchanged by deduping) and the
+width bound is preserved because every bag the dedup materializes lies in
+a sublist of the original run's bags (`List.Sublist.subset`), so it
+already satisfied the original bound. -/
+theorem achievesWidthNodup_of_achievesWidth
+    {B : List (Finset V × Set (∀ v, A v))} {w : ℕ} (h : AchievesWidth B w) :
+    AchievesWidthNodup B w := by
+  obtain ⟨order, hcover, hwidth⟩ := h
+  obtain ⟨order', hnodup, helim, hsub⟩ := exists_nodup_order order
+  refine ⟨order', hnodup, fun q hq => ?_, fun q hq => ?_⟩
+  · rw [helim]; exact hcover q hq
+  · exact hwidth q ((hsub B).subset hq)
+
+/-- **F — `junctionWidth` coincides with `inducedTreewidth`.**  The
+optimal order attaining `inducedTreewidth B` dedupes, by
+`achievesWidthNodup_of_achievesWidth`, to a duplicate-free order of the
+same width, so `junctionWidth B ≤ inducedTreewidth B`; the reverse
+inequality is `inducedTreewidth_le_junctionWidth`.  This closes the
+coincidence the module docstring and `Ste.JunctionTree`'s original
+outlook comment on `inducedTreewidth_le_junctionWidth` both left open:
+repeated eliminations never force a strictly wider representation. -/
+theorem junctionWidth_eq_inducedTreewidth [Fintype V] [∀ v, Nonempty (A v)]
+    (B : List (Finset V × Set (∀ v, A v))) :
+    junctionWidth B = inducedTreewidth B :=
+  le_antisymm
+    (Nat.sInf_le
+      (achievesWidthNodup_of_achievesWidth (achievesWidth_inducedTreewidth B)))
+    (inducedTreewidth_le_junctionWidth B)
 
 /-- **The `O(n)` junction-tree theorem, existence form.**  For any
 instance `B` of scoped constraints over a finite variable set with
