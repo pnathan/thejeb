@@ -141,4 +141,18 @@ theorem cechVanishesCover_iff_exists_scopedGeneration
     exact cechVanishesCover_of_refiningGenerators S U hsupp hgen hcover
       (fun j => ⟨j, subset_rfl⟩)
 
+/-- **Scope lower bound (contrapositive).** If the Čech obstruction of the
+cover `U` does not vanish, then *every* generating family of `T` contains a
+constraint whose scope fits inside no context of `U` — a stuck compatible
+family certifies that `T` cannot be cut out by pieces local to the cover. -/
+theorem exists_scope_refiningNone_of_not_cechVanishesCover
+    {I : Type*} {T : Set (∀ v, A v)} (S : I → Set (∀ v, A v)) (σ : I → Set V)
+    (hsupp : ∀ i, HasSupport (S i) (σ i)) (hgen : T = ⋂ i, S i)
+    {U : J → Set V} (hcover : ∀ v, ∃ j, v ∈ U j)
+    (hstuck : ¬ CechVanishesCover T U) :
+    ∃ i, ∀ j, ¬ σ i ⊆ U j := by
+  by_contra h
+  push_neg at h
+  exact hstuck (cechVanishesCover_of_refiningGenerators S σ hsupp hgen hcover h)
+
 end STE
