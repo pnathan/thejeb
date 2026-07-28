@@ -35,6 +35,7 @@ import Ste.Treedecomp
 import Ste.GraphTreewidth
 import Ste.TreewidthConverse
 import Ste.CliqueTreewidth
+import Ste.ChainFooling
 import Ste.JunctionTree
 import Ste.CechObstruction
 import Ste.Consistency
