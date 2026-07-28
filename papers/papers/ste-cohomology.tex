@@ -86,6 +86,14 @@ theorem: frame-structured corpora are \emph{rectangular}, with zero
 gluing obstruction over every cover (\path{Ste.FrameRectangular}),
 so the linear-time local check is the complete gluing test for this
 class, and the same theory says exactly where it would stop working.
+Two further mechanized structures answer, metric-freely, what a
+feasible family of subsets has that an infeasible one lacks: frame
+corpora have Helly number~$2$ --- pairwise consistency already
+certifies global consistency, provably false for general subset
+families (\path{Ste.HellyConsistency}) --- and the forced-coreference
+reading of a corpus carries a submodular partition-lattice rank ---
+Shannon's lattice of information with counting rank in place of
+entropy (\path{Ste.PartitionRank}).
 Throughout, a strict bright line separates machine-checked results
 (each cites its Lean identifier) from conjecture, and every heavy
 cochain construction is quarantined in a clearly marked appendix.
@@ -147,6 +155,18 @@ distances.
   the mechanized cohomological reason it is complete: frame corpora
   are rectangular, with zero gluing obstruction over every cover
   (\path{frame_cechVanishesCover}, in \path{Ste.FrameRectangular}).
+\item Two \emph{metric-free discriminators of feasibility}
+  (Section~\ref{sec:discriminators}), answering what a feasible
+  structure of subsets has that an infeasible one lacks without any
+  metric: frame corpora have Helly number~$2$ --- pairwise
+  consistency certifies global consistency
+  (\path{frame_hasHelly_two}), provably false for general subset
+  families (\path{exists_not_hasHelly_two}), with the property sets
+  generating a mechanized closure system (\path{cl},
+  \path{isClClosed_iInter}) --- and the forced-coreference reading
+  of a corpus is a lattice meet (\path{mustSetoid_eq_sInf}) carrying
+  a submodular partition-lattice rank (\path{rank_submodular}), the
+  counting shadow of Shannon's information lattice.
 \end{enumerate}
 
 \paragraph{The bright line.}  One convention is enforced throughout
@@ -1355,7 +1375,12 @@ theory says exactly where this solver would stop being complete: the
 moment a constraint couples variables (a non-rectangular
 \path{frameConstraint} cannot exist, but relational claims would
 leave the class), the diagonal of Section~\ref{sec:example} is the
-smallest counterexample.
+smallest counterexample.  Section~\ref{sec:discriminators} restates
+the same rectangularity fact in a third, cover-free language ---
+frame corpora have Helly number~$2$ (\path{frame_hasHelly_two}) ---
+and the co-citation with \path{frame_cechVanishesCover} is itself a
+single mechanized statement
+(\path{frame_hasHelly_two_and_cechVanishesCover}).
 
 Two consequences worth stating plainly.  First, the empirical runs
 are a genuine, if structurally easy, instance of the paper's subject:
@@ -1371,6 +1396,204 @@ compatibility, invoke Theorem~\ref{thm:supportcover} for
 soundness), is the natural constructive next step; \textbf{no such
 cohomology-labelled solver exists yet}, and we flag it as future
 work rather than claim it.
+
+\section{Metric-free discriminators: what feasible families have
+that infeasible ones lack}
+\label{sec:discriminators}
+
+Behind the whole development sits a blunt question: \emph{what does
+a structure of subsets that is feasible have that a non-feasible one
+does not?}  Combettes' analytic toolkit answers with metric
+structure --- distances, projections, convexity in Hilbert space
+\citep{combettes1993} --- but nothing in
+Sections~\ref{sec:ste}--\ref{sec:empirical} carries a useful metric,
+and the covers and obstructions of this paper were built
+deliberately without one.  This section records two further answers,
+both newly mechanized sorry-free in the main library, and both
+strictly lighter-weight than a metric space: a \emph{combinatorial}
+discriminator --- a Helly number, with its closure system (module
+\path{Ste.HellyConsistency}) --- and an \emph{order-theoretic} one
+--- a submodular rank on the partition lattice (module
+\path{Ste.PartitionRank}).  The first needs only intersections of
+property sets; the second only counts blocks of partitions.  Both
+detect exactly the rectangularity phenomenon that
+Sections~\ref{sec:example} and~\ref{sec:whycomplete} located
+cohomologically, and the coincidence is itself a theorem
+(\path{frame_hasHelly_two_and_cechVanishesCover}, below).
+
+\subsection{Discriminator 1: the Helly number --- when is
+feasibility a $2$-local property?}
+\label{sec:helly}
+
+Say a family $(S_i)_{i \in I}$ of property sets is \emph{$k$-wise
+consistent} (\path{KWiseConsistent}) if every subfamily of at most
+$k$ of them has nonempty intersection, and that it \emph{has the
+Helly property at level $k$} (\path{HasHelly}) if $k$-wise
+consistency already forces the full feasibility set $T = \bigcap_i
+S_i$ to be nonempty.  (The names honor Helly's classical theorem for
+convex sets in $\mathbb{R}^d$ --- every $(d{+}1)$-wise intersecting
+finite family of convex sets is globally intersecting --- which is
+the metric-laden ancestor of the property; here no convexity, norm,
+or dimension appears.)  One direction is free and holds for every
+family: a nonempty feasibility set witnesses every finite
+subfamily's nonemptiness
+(\path{kWiseConsistent_of_feasibilitySet_nonempty},
+\path{hasHelly_of_feasibilitySet_nonempty}; the bridge between
+Finset-indexed intersections and \path{partialFeasibilitySet} is
+\path{partialFeasibilitySet_coe_finset}, and $k$-wise consistency is
+antitone in $k$, \path{KWiseConsistent.mono}).  The discriminating
+content is the converse, and it splits the world exactly along the
+rectangularity line.
+
+\begin{theorem}[Frame corpora have Helly number $2$;
+\textbf{mechanized}, \path{frame_hasHelly_two} in
+\path{Ste.HellyConsistency}]
+\label{thm:helly2}
+For every frame corpus (property sets \path{frameConstraint},
+Section~\ref{sec:empirical}), pairwise consistency implies global
+consistency: if every pair of authors is jointly satisfiable, the
+whole corpus is.  Feasibility of a frame family is an entirely
+$2$-local property --- the complete feasibility test inspects pairs
+and nothing larger.
+\end{theorem}
+
+\begin{proposition}[The general subset lattice is not Helly-$2$;
+\textbf{mechanized}, \path{exists_not_hasHelly_two}]
+\label{prop:hellyfail}
+There is a family of three subsets of a three-element space ---
+$S_0 = \{0,1\}$, $S_1 = \{1,2\}$, $S_2 = \{0,2\}$ --- that is
+pairwise consistent (every two of the sets meet) yet globally
+infeasible: the triple intersection is empty.
+\end{proposition}
+
+Together, the two results are the discriminator in its sharpest
+form.  An infeasible family can \emph{look} feasible to every
+bounded-size probe: the triangle of
+Proposition~\ref{prop:hellyfail} passes every pairwise test and
+still has no solution --- the consistency-number analogue of the
+phantoms of Section~\ref{sec:example}.  What the frame class has,
+and general families lack, is the theorem that bounded-size probes
+are conclusive.  ``Helly number $2$'' is a property a class of
+subset structures either has or does not have, stated entirely in
+the language of intersections --- and rectangularity is exactly
+what buys it.
+
+\paragraph{The closure system.}  The same module records the
+order-theoretic backbone under the discriminator: the operator
+$\mathrm{cl}(X) = \bigcap\,\{S_i \mid X \subseteq S_i\}$
+(\path{cl}) --- the smallest constraint-expressible set containing
+$X$ --- is a genuine closure operator, machine-checked as extensive
+(\path{cl_extensive}), monotone (\path{cl_monotone}), and
+idempotent (\path{cl_idempotent}); its closed sets
+(\path{IsClClosed}) are stable under arbitrary intersection
+(\path{isClClosed_iInter}), so they form a Moore family.  Every
+property-set family thus carries a canonical lattice of
+\emph{expressible} sets, with feasibility a question about the
+bottom of that lattice --- structure that exists with no metric in
+sight.
+
+\paragraph{Same phenomenon, two languages.}  The Helly bound and
+the vanishing \v{C}ech obstruction of
+Section~\ref{sec:whycomplete} are not merely analogous: both are
+downstream of the single structural fact that the frame feasible
+set is a rectangle (\path{isRectangle_feasibilitySet_frame}), and
+their conjunction is one mechanized statement,
+\path{frame_hasHelly_two_and_cechVanishesCover}: every frame corpus
+simultaneously has Helly number $2$ and zero gluing obstruction
+over every cover of the variables
+(\path{frame_cechVanishesCover}).  The combinatorial probe
+(intersect small subfamilies) and the topological probe (try to
+glue local sections) are two instruments pointed at the same
+absence of coupling.
+
+\subsection{Discriminator 2: Shannon's information lattice --- the
+submodular partition rank}
+\label{sec:partitionrank}
+
+The second discriminator lives on the corpus axis of
+Section~\ref{sec:why} (item 3) and makes precise the sense in which
+a feasible corpus \emph{carries information} with no metric,
+probability, or entropy in the formalism.  The reading is
+Shannon's: his 1953 ``lattice theory of information'' models an
+information source as a partition of a fixed space, orders sources
+by refinement, and reads entropy as a rank function on the
+resulting lattice, submodular in the shape $H(A \vee B) + H(A
+\wedge B) \le H(A) + H(B)$.  The mechanization keeps the lattice
+and replaces entropy by counting.
+
+In the dynamic-frame model (\path{Ste.DynamicFrame}), a
+\emph{reading} of the corpus is an equivalence relation on claims
+--- which claims name the same underlying frame --- and each
+feasible normalization hypothesis $h$ induces one, packaged as an
+element \path{frameSetoid}$\,h$ of Mathlib's complete lattice of
+setoids (namespace \path{STE.DynamicFrame.Model}, module
+\path{Ste.PartitionRank}).  Readings are ordered by refinement, and
+the corpus's \emph{forced-identity} (must-coreference) relation
+sits at a distinguished lattice position:
+
+\begin{theorem}[Must-coreference is the lattice meet;
+\textbf{mechanized}, \path{mustSetoid_eq_sInf}]
+\label{thm:mustmeet}
+For any document set $D$, the must-coreference setoid of $D$ equals
+$\mathrm{sInf}$ of the frame setoids of the feasible hypotheses:
+two claims are forced to corefer exactly when \emph{every}
+surviving hypothesis identifies them.  Feasibility, read on the
+partition lattice, is a meet --- the common refinement of the
+surviving readings.  In particular the must-partition refines every
+feasible reading, and grows monotonically with evidence: adding
+documents only adds forced identifications
+(\path{rank_mustSetoid_mono} below is its rank shadow).
+\end{theorem}
+
+The invariant the feasible family carries is the \emph{rank} of
+these partitions (namespace \path{STE.PartitionRank}): for a finite
+carrier, $r(P) = \lvert\text{carrier}\rvert - \#\mathrm{blocks}(P)$
+(\path{blockCount}, \path{rank}) --- the number of merges $P$ has
+committed to.  Block counting behaves as the lattice demands: every
+partition has at least one block (\path{one_le_blockCount}),
+coarsening only lowers the count (\path{blockCount_antitone}), and
+the covering step is exact --- merging one previously-unrelated
+pair (\path{mergePair}) drops the block count by exactly one
+(\path{blockCount_mergePair}), the counting engine that makes the
+partition lattice geometric rather than merely ordered.  On that
+engine the module proves the Shannon-shaped law:
+
+\begin{theorem}[The partition rank is submodular;
+\textbf{mechanized}, \path{rank_submodular} in
+\path{Ste.PartitionRank}]
+\label{thm:ranksubmod}
+For all partitions $A, B$ of a finite carrier,
+\[
+  r(A \sqcup B) + r(A \sqcap B) \;\le\; r(A) + r(B),
+\]
+equivalently the block count is supermodular
+(\path{blockCount_supermodular}).  This is Shannon's
+information-lattice inequality with counting rank in place of
+entropy --- the metric-free shadow of entropy submodularity.
+\end{theorem}
+
+Transferred back to STE (namespace \path{STE.DynamicFrame.Model}),
+the feasible corpus hands us a canonical, machine-checked invariant
+package: the consensus never claims more forced-merge information
+than any single surviving reading
+(\path{rank_mustSetoid_le_frameSetoid}); coreference information is
+monotone in the corpus (\path{rank_mustSetoid_mono}); and the
+must-partitions of two corpora obey the submodular law
+(\path{rank_mustSetoid_submodular}).  This is the promised
+``lighter than a metric space'' structure in full: a refinement
+order, a meet, and a rank obeying the entropy inequality ---
+nothing else.  A feasible corpus \emph{has} a well-behaved
+information content in Shannon's lattice sense; the three
+inequalities are what having it means, and all three are theorems.
+
+\emph{Honest boundary.}  The genuine entropy layer --- $H = \log
+\lvert\text{feasible}\rvert$ on hypothesis space, the map relating
+hypothesis-space and claim-space partitions, and the conjectured
+dichotomy that rank decomposes additively over rectangular families
+while genuine coupling makes joins strictly superadditive --- is
+recorded as an explicit conjecture in the module's source and is
+\emph{not} mechanized; Section~\ref{sec:conclusion} lists it as
+such.
 
 \section{Conclusion and future work}
 \label{sec:conclusion}
@@ -1431,7 +1654,25 @@ mechanized down to the per-variable scan the executable runs
 three corpora, and its completeness is itself a theorem: frame
 corpora are rectangular with zero obstruction over every cover
 (\path{isRectangle_feasibilitySet_frame},
-\path{frame_cechVanishesCover}).
+\path{frame_cechVanishesCover}).  The same rectangularity is
+captured by two further metric-free discriminators
+(Section~\ref{sec:discriminators}): frame corpora have Helly
+number $2$ while a three-set family witnesses general failure
+(\path{frame_hasHelly_two}, \path{exists_not_hasHelly_two}, jointly
+with \v{C}ech vanishing as
+\path{frame_hasHelly_two_and_cechVanishesCover}), the property sets
+generate a mechanized closure system whose closed sets form a Moore
+family (\path{cl_extensive}, \path{cl_monotone},
+\path{cl_idempotent}, \path{isClClosed_iInter}); and on the corpus
+axis the forced-coreference partition is the lattice meet of the
+feasible readings (\path{mustSetoid_eq_sInf}), with a partition
+rank that is exactly computed on covering steps
+(\path{blockCount_mergePair}), submodular
+(\path{blockCount_supermodular}, \path{rank_submodular}), bounded
+by every surviving reading
+(\path{rank_mustSetoid_le_frameSetoid}), monotone in evidence
+(\path{rank_mustSetoid_mono}), and submodular on must-partitions
+(\path{rank_mustSetoid_submodular}).
 
 \subsection{What remains conjectural}
 
@@ -1446,9 +1687,13 @@ junction-tree file's outlook item, for which
 the pseudo/genuine-gap reading of tractability
 (Section~\ref{sec:pseudo}); the bag-local linear relaxation with
 exactness controlled by the twisted invariant
-(Appendix~\ref{app:twisted}); and any connection between obstruction
-counts and unicity distance (Section~\ref{sec:carlsonconn}) ---
-explicitly speculation.
+(Appendix~\ref{app:twisted}); the entropy layer over the partition
+rank --- $H = \log \lvert\text{feasible}\rvert$, the
+hypothesis-to-claim partition map, and the additive-versus-coupled
+rank dichotomy (Section~\ref{sec:partitionrank}) --- stated as a
+conjecture in the source of \path{Ste.PartitionRank}; and any
+connection between obstruction counts and unicity distance
+(Section~\ref{sec:carlsonconn}) --- explicitly speculation.
 
 \subsection{Proof obligations: dispatched and discharged}
 
