@@ -55,3 +55,4 @@ import Ste.AdaptiveSolver
 import Ste.TidesCorpus
 import Ste.FiniteInstance
 import Ste.TidesComputable
+import Ste.PartitionRank
