@@ -1586,14 +1586,55 @@ nothing else.  A feasible corpus \emph{has} a well-behaved
 information content in Shannon's lattice sense; the three
 inequalities are what having it means, and all three are theorems.
 
-\emph{Honest boundary.}  The genuine entropy layer --- $H = \log
-\lvert\text{feasible}\rvert$ on hypothesis space, the map relating
-hypothesis-space and claim-space partitions, and the conjectured
-dichotomy that rank decomposes additively over rectangular families
-while genuine coupling makes joins strictly superadditive --- is
-recorded as an explicit conjecture in the module's source and is
-\emph{not} mechanized; Section~\ref{sec:conclusion} lists it as
-such.
+\emph{The coupling dichotomy, mechanized.}  The conjecture recorded
+in the module's docstring --- that the rank ``decomposes additively
+over rectangular families while genuine coupling makes it strictly
+superadditive'' --- is now a theorem, in a form that also corrects
+its original wording.  Fix a group partition $\Gamma$ of the claim
+carrier and let $P$ be any reading.  Restricting $P$ to the groups
+is exactly the meet $P \sqcap \Gamma$, whose rank is the sum of the
+per-group ranks.  Rank is monotone in refinement, and strictly
+monotone under strict refinement, so:
+\begin{theorem}[Coupling dichotomy for the partition rank;
+\textbf{mechanized}, module \path{Ste.CouplingRank}]
+\label{thm:couplingrank}
+For all partitions $P, \Gamma$ of a finite carrier,
+\[
+  r(P \sqcap \Gamma) \;\le\; r(P)
+\]
+(\path{rank_inf_le_left}), with equality iff $P \le \Gamma$
+(\path{rank_inf_eq_iff}; the \emph{decomposable} case
+$r(P\sqcap\Gamma)=r(P)$ of \path{rank_inf_eq_of_le}), and strict
+inequality $r(P \sqcap \Gamma) < r(P)$ whenever $P$ merges two
+claims from different groups
+(\path{rank_inf_lt_of_not_le}; the \emph{coupled} case).
+Hence the coupling excess $I(P;\Gamma) := r(P) - r(P \sqcap
+\Gamma)$ (\path{couplingExcess}) is non-negative, is $0$ iff the
+reading is decomposable over the groups
+(\path{couplingExcess_eq_zero_iff}), and is strictly positive iff it
+genuinely couples across them (\path{couplingExcess_pos_of_not_le})
+--- the finite, metric-free analogue of multi-group total
+correlation.  Both regimes are exhibited by \path{Fin 4} witnesses:
+a decomposable reading with excess $0$
+(\path{couplingExcess_Pdec_splitΓ_eq_zero}) and a cross-group
+coupled reading with excess $> 0$
+(\path{couplingExcess_Pcpl_splitΓ_pos}).
+\end{theorem}
+The correction is that the excess sits on the \emph{true} coupled
+reading $P$, not on a ``join of per-group must-partitions'': that
+join \emph{is} $P \sqcap \Gamma$, whose rank equals the sum of the
+per-group ranks exactly and never exceeds it.  Additivity for
+rectangular families and strict superadditivity under coupling are
+then the two sides of one monotonicity fact.
+
+\emph{Honest boundary.}  What remains a definitional extension
+rather than a theorem is the literal entropy layer --- $H = \log
+\lvert\text{feasible}\rvert$ on hypothesis space and the map
+relating hypothesis-space to claim-space partitions.
+Theorem~\ref{thm:couplingrank} settles the conjecture's
+combinatorial \emph{shadow} (the rank dichotomy); the numeric
+entropy on hypothesis space is not yet defined in the library, and
+Section~\ref{sec:conclusion} lists that residue as such.
 
 \section{Conclusion and future work}
 \label{sec:conclusion}
@@ -1687,11 +1728,13 @@ junction-tree file's outlook item, for which
 the pseudo/genuine-gap reading of tractability
 (Section~\ref{sec:pseudo}); the bag-local linear relaxation with
 exactness controlled by the twisted invariant
-(Appendix~\ref{app:twisted}); the entropy layer over the partition
-rank --- $H = \log \lvert\text{feasible}\rvert$, the
-hypothesis-to-claim partition map, and the additive-versus-coupled
-rank dichotomy (Section~\ref{sec:partitionrank}) --- stated as a
-conjecture in the source of \path{Ste.PartitionRank}; and any
+(Appendix~\ref{app:twisted}); the residual numeric entropy layer
+over the partition rank --- $H = \log \lvert\text{feasible}\rvert$
+on hypothesis space and the hypothesis-to-claim partition map (its
+combinatorial shadow, the additive-versus-coupled rank dichotomy,
+is now the \emph{theorem} \path{rank_inf_eq_iff} /
+\path{couplingExcess_pos_of_not_le} of Theorem~\ref{thm:couplingrank},
+no longer conjectural); and any
 connection between obstruction counts and unicity distance
 (Section~\ref{sec:carlsonconn}) --- explicitly speculation.
 
