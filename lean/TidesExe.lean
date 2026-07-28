@@ -81,8 +81,16 @@ def degrees (c : Corpus) : Array (String × Nat) :=
   (Array.finRange c.vars.size).map
     (fun v => (c.vars[v.val]!, STE.disagreementDegree (frameOf c) v))
 
+/-- The consistency verdict, derived from the per-variable degrees the report
+already computes: the corpus is consistent iff no variable's disagreement
+degree exceeds one. This is sound by
+`STE.consistent_iff_forall_disagreementDegree_le_one`, which proves
+`STE.Consistent frame ↔ ∀ v, STE.disagreementDegree frame v ≤ 1` -- the
+support-cover / pairwise-gluing reading. So instead of the O(nV·nA²) all-pairs
+`decide (STE.Consistent …)` sweep we do a single O(nV) scan of the degrees
+`degrees c` has already produced. -/
 def isConsistent (c : Corpus) : Bool :=
-  decide (STE.Consistent (frameOf c))
+  (degrees c).all (fun p => decide (p.2 ≤ 1))
 
 end Tides
 

@@ -177,4 +177,34 @@ theorem agree_iff_degree_le_one [Fintype A] [DecidableEq W]
     obtain ⟨b, hb⟩ := mem_assertedValues.mp hy
     exact h a b x y ha hb
 
+/-- **Corpus consistency is a per-variable degree scan.** Because every
+author's frame is *unary* (a conjunction of `variable = value` constraints),
+the all-pairs pairwise-compatibility verdict `Consistent` -- no two authors
+clash on any variable -- is *exactly* the statement that no variable's
+disagreement degree exceeds one. This is the mechanized justification for
+computing corpus consistency as a single per-variable degree scan (O(nV) over
+the already-computed degrees) rather than the O(nV·nA²) all-pairs
+`compatibleOn` sweep: it is the support-cover / pairwise-gluing (cohomology-
+derived) reading, in which joint satisfiability of the whole corpus is the
+gluing of unary supports and so reduces to local, per-variable agreement.
+
+Proof: `forall_congr'` over variables, then `agree_iff_degree_le_one` turns
+each variable's agreement condition into its degree bound; the two directions
+are `eq_of_compatibleOn` and a case split unfolding `compatibleOn`. -/
+theorem consistent_iff_forall_disagreementDegree_le_one
+    [Fintype A] [DecidableEq W] {frame : A → V → Option W} :
+    Consistent frame ↔ ∀ v, disagreementDegree frame v ≤ 1 := by
+  unfold Consistent
+  refine forall_congr' (fun v => ?_)
+  rw [agree_iff_degree_le_one]
+  constructor
+  · intro h a b x y hax hby
+    exact eq_of_compatibleOn (h a b) hax hby
+  · intro h a b
+    rcases hfa : frame a v with _ | x
+    · exact Or.inl hfa
+    · rcases hfb : frame b v with _ | y
+      · exact Or.inr (Or.inl hfb)
+      · exact Or.inr (Or.inr (by rw [hfa, hfb, h a b x y hfa hfb]))
+
 end STE
