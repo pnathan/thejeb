@@ -43,6 +43,7 @@ import Ste.CechCover
 import Ste.SupportCover
 import Ste.GluingWidth
 import Ste.FrameRectangular
+import Ste.Carlson.SheafBridge
 import Ste.CechComplex
 import Ste.TwistedCech
 import Ste.ConsistencyTree
