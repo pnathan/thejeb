@@ -1,0 +1,261 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{booktabs}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title{Set Theoretic Estimation, Recast in Cohomology\\
+\large A standalone, low-jargon note}
+\author{Project \texttt{thejeb}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note explains, in as little jargon as possible, one idea: the
+gap between \emph{local agreement} and a \emph{global solution} in set
+theoretic estimation (STE) is exactly the kind of gap that cohomology
+was invented to measure.  We define every term as it appears, work one
+tiny example by hand, and give a plain dictionary between the STE words
+and the sheaf/cohomology words.  Everything asserted as a theorem here
+is machine-checked in the project's Lean library and cited by name; the
+rest is clearly flagged as intuition.  No prior cohomology is assumed.
+\end{abstract}
+
+\section{STE in one paragraph}
+Set theoretic estimation \citep{combettes1993} models a problem as a
+collection of \emph{property sets}.  Each source of information --- a
+sensor, a document, a voice --- contributes a set $S_i$ of the
+candidate answers consistent with that source.  The \emph{feasible set}
+is the intersection
+\[
+  F \;=\; \bigcap_i S_i,
+\]
+the answers consistent with \emph{everyone at once}.  The corpus is
+\emph{feasible} when $F \neq \varnothing$ and \emph{infeasible} when
+$F = \varnothing$.  That is the whole object of study: does a single
+answer satisfy every source, and if so, which ones?
+
+\section{The one idea}
+Checking $F \neq \varnothing$ directly means reasoning about all
+sources and all variables simultaneously --- expensive.  In practice we
+would rather check things \emph{locally}: does each variable, looked at
+on its own, have a consistent value?  Do each small group of sources
+agree on the piece they share?
+
+The catch is that local agreement need not add up to a global answer.
+It is possible for every small piece to be internally consistent, and
+for every pair of overlapping pieces to agree where they overlap, and
+yet for \emph{no} single global assignment to restrict to all of them
+at once.  The pieces fit pairwise but cannot be assembled.
+
+\begin{quote}
+\textbf{The recast.}  The obstruction to assembling locally-agreeing
+pieces into one global solution is a \emph{cohomology class}.  When it
+vanishes, local agreement guarantees a global answer, and STE becomes a
+local computation.  When it does not vanish, it measures exactly how
+much the problem is genuinely coupled --- how far local reasoning falls
+short.
+\end{quote}
+
+This is the same phenomenon cohomology measures everywhere it appears:
+a consistent choice made on every small patch that provably cannot come
+from one choice made on the whole.  We now make each word precise.
+
+\section{The building blocks, defined plainly}
+Fix a set $V$ of \emph{variables}.  Each variable $v$ ranges over some
+value set $A_v$.
+
+\begin{description}
+\item[Global configuration.] One choice of a value for every variable
+  at once: a function $f$ with $f(v)\in A_v$ for all $v$.  Write the set
+  of all of them as $\prod_v A_v$.
+\item[Constraint.] A set $T$ of allowed global configurations,
+  $T\subseteq\prod_v A_v$.  In STE, $T$ is the feasible set $F$; the
+  recast just insists on viewing $F$ as a subset of the full
+  configuration space, so we can talk about restricting it.
+\item[Context (scope).] A subset $U\subseteq V$ of variables --- a
+  ``window'' we are willing to look at all at once.  A small context is
+  cheap; the full set $V$ is the expensive global view.
+\item[Cover.] A collection of contexts $\{U_j\}$ that together touch
+  every variable (every $v$ lies in some $U_j$).  This is how we chop
+  the global problem into local windows.
+\item[Local section.] A partial assignment on a context $U_j$ --- a
+  choice of value for just the variables in that window --- that
+  \emph{could} be extended to a full allowed configuration in $T$.  ``A
+  local piece that is not obviously doomed.''
+\end{description}
+
+\section{Local agreement versus a global solution}
+Two definitions carry the whole idea.
+
+\paragraph{Compatible family (local agreement).}
+Pick one local section $s_j$ on each context $U_j$, such that any two of
+them \emph{agree on the variables their contexts share}:
+\[
+  \text{for all }j,k \text{ and every } v\in U_j\cap U_k,\qquad
+  s_j(v) = s_k(v).
+\]
+This is ``everything is locally fine and the overlaps match.'' It is the
+cheap, checkable condition.  (In cohomology this overlap-agreement is
+called the \emph{cocycle condition}.)
+
+\paragraph{Gluing (a global solution).}
+The family \emph{glues} if there is a single global configuration
+$f\in T$ whose restriction to each window $U_j$ is exactly $s_j$.  One
+answer that explains all the local pieces simultaneously.  This is the
+expensive thing we actually want.
+
+\paragraph{The obstruction.}
+Every genuine global solution obviously produces a compatible family
+(just restrict it to each window).  The question is the converse:
+
+\begin{quote}
+\emph{Does every compatible family glue?}
+\end{quote}
+
+When the answer is \emph{yes} for a constraint $T$ and a cover, we say
+\textbf{$T$ glues over that cover}, or that its \emph{\v{C}ech
+obstruction vanishes}.  Local agreement then \emph{is} global solvability.
+When the answer is \emph{no}, some compatible family is locally perfect
+but globally impossible; the number of such stuck families is the size
+of the obstruction --- the cohomology.  A vanishing obstruction is the
+statement ``$H^1 = 0$'' in this setting; a nonzero one is a nonzero
+$H^1$ class.
+
+\section{A dictionary}
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{STE / plain word} & \textbf{Sheaf-cohomology word} & \textbf{What it means}\\
+\midrule
+Variable value space $A_v$ & Stalk / local data & values a coordinate can take\\
+Constraint / feasible set $T$ & The (sub)presheaf of sections & the allowed answers\\
+Context $U_j$ & Open set / patch & a window of variables\\
+Partial answer on $U_j$ & Local section & a value on that window\\
+Extendable partial answer & Section of the (sub)sheaf & a locally-valid piece\\
+Overlaps match & Cocycle / compatibility & pieces agree where they share\\
+One answer fits all pieces & Global section / gluing & a genuine global solution\\
+Local agreement $\Rightarrow$ global & Sheaf condition / $H^1=0$ & the obstruction vanishes\\
+Stuck locally-fine families & Nonzero $H^1$ class & the coupling obstruction\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{One example, by hand}
+Take two variables $x,y$, each Boolean ($A_x=A_y=\{0,1\}$), and the
+cover by the two single-variable windows $\{x\}$ and $\{y\}$.  There is
+no overlap, so ``overlaps match'' is automatic --- \emph{every}
+combination of a local value for $x$ and a local value for $y$ is a
+compatible family.  There are $2\times 2 = 4$ of them.
+
+\paragraph{A gluable constraint (uncoupled).}
+Let $T$ be the ``rectangle'' $\{0,1\}\times\{0,1\}$: anything goes.  All
+four compatible families glue --- each is just a global configuration
+read locally.  Obstruction: zero.  More generally any \emph{product}
+constraint $\prod_v P_v$ (each variable independently confined to some
+allowed set $P_v$, no cross-variable link) glues over \emph{every}
+cover.
+
+\paragraph{A non-gluable constraint (coupled).}
+Let $T$ be the ``diagonal'' $\{(0,0),(1,1)\}$: the two variables are
+forced equal (this is the XOR/equality link).  Locally each variable can
+still be $0$ or $1$, so all four compatible families are still there.
+But only \emph{two} of them --- $(0,0)$ and $(1,1)$ --- come from a
+global configuration in $T$.  The mixed family ``$x\mapsto 0,\;
+y\mapsto 1$'' is locally flawless and globally impossible.  Two stuck
+families remain: the obstruction is $2\neq 0$.  The coupling between $x$
+and $y$ is invisible in any single window and shows up \emph{only} as
+this obstruction.
+
+That contrast --- rectangle glues, diagonal does not --- is the entire
+mechanism in miniature.
+
+\section{The dichotomy, and why it is useful}
+The example is not a coincidence.  In the project's Lean library the two
+sides are theorems:
+\begin{itemize}
+\item \textbf{Uncoupled $\Rightarrow$ gluable.}  Every product
+  (``rectangular'') constraint glues over every cover
+  (\code{rectangular\_cechVanishesCover}).
+\item \textbf{Gluable $\Rightarrow$ uncoupled.}  If the obstruction
+  vanishes, the constraint \emph{must} be a rectangle
+  (\code{CechVanishes} forces \code{IsRectangle}, in module
+  \code{Ste.CechObstruction}).
+\item \textbf{The witness.}  The diagonal has obstruction exactly $2$,
+  a genuinely nonzero class (\code{Ste.CechObstruction}).
+\end{itemize}
+So, in this setting, \emph{gluable = rectangular = uncoupled} are one
+and the same, and the obstruction is a sharp detector of coupling.
+
+Why it matters for solving problems:
+\begin{enumerate}
+\item \textbf{Gluable problems are cheap.}  If the obstruction
+  vanishes, you never assemble a global solution by search.  You solve
+  each window --- in the extreme, each single variable --- and local
+  agreement is a \emph{theorem} that the global answer exists.  For the
+  ``frame'' corpora the project studies (each source asserts unary
+  \code{variable = value} facts), feasibility collapses to a
+  one-variable-at-a-time scan: a value is consistent iff no two sources
+  put different values on the same variable.  This is the same fact as
+  ``pairwise agreement forces global agreement'' --- the Helly-number-2
+  property (\code{frame\_hasHelly\_two}, module
+  \code{Ste.HellyConsistency}) --- and it is why the project's solver
+  certifies large corpora by a linear sweep instead of an all-subsets
+  search.
+\item \textbf{The obstruction localizes the hard part.}  When it does
+  \emph{not} vanish, its support tells you \emph{which} variables are
+  genuinely entangled and must be reasoned about jointly.  You pay the
+  global price only there.  Substitution-cipher key spaces (Carlson's
+  setting, \citealp{carlson2012}) are the coupled extreme: they are not
+  rectangular, so the obstruction is essential and local reasoning
+  cannot finish the job.
+\end{enumerate}
+
+In one line: \textbf{the \v{C}ech obstruction is a computable measure of
+how far an STE problem is from being solvable window-by-window}, zero
+exactly when it factors into independent pieces.
+
+\section{What is actually machine-checked}
+To keep the bright line the project insists on, here is what is a
+theorem (checked by Lean's kernel, sorry-free) versus what is intuition.
+
+\emph{Theorems} (names are Lean identifiers on the project's main
+branch): the compatible-family / gluing / vanishing definitions
+(\code{CompatibleFamily}, \code{GluesCover}, \code{CechVanishesCover} in
+\code{Ste.CechCover}); rectangles glue over every cover
+(\code{rectangular\_cechVanishesCover}); vanishing forces rectangularity
+and the diagonal's obstruction is $2$ (\code{Ste.CechObstruction}); the
+support-cover form, that vanishing is equivalent to the constraint being
+generated by pieces whose scopes fit the cover
+(\code{cechVanishesCover\_iff\_exists\_scopedGeneration} in
+\code{Ste.SupportCover}); and the frame Helly-2 collapse
+(\code{frame\_hasHelly\_two}).
+
+\emph{Intuition / framing, not claimed as proven here:} the word
+``cohomology'' as the \emph{full} \v{C}ech $H^1$ machinery --- a cochain
+complex with a coboundary map and $H^1 = \ker/\operatorname{im}$ over a
+coefficient module --- is the \citet{abramsky2011sheaf,abramsky2012cohomology}
+sheaf-theoretic framework the project draws on.  This note uses the
+$H^1 = 0$ / obstruction-vanishing \emph{level}, which is what is
+mechanized; the graded cochain-complex construction in full generality
+is cited, not reproved here.
+
+\section*{The recast, restated}
+STE asks whether many sources share a common answer.  Split the question
+into windows.  ``Every window is fine and the overlaps match'' is cheap
+to check.  Whether that local agreement assembles into one global answer
+is governed by a single obstruction: it vanishes exactly for the
+uncoupled (rectangular) problems, and then STE is a local computation;
+it is nonzero exactly when the problem is genuinely coupled, and then it
+measures and locates the coupling.  That obstruction is the cohomology,
+and that equivalence is the recast.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
