@@ -56,3 +56,4 @@ import Ste.TidesCorpus
 import Ste.FiniteInstance
 import Ste.TidesComputable
 import Ste.HellyConsistency
+import Ste.PartitionRank
