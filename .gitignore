@@ -14,3 +14,6 @@
 *.out
 *.toc
 *.synctex.gz
+
+# Claude Code local dir (agent worktrees, settings)
+.claude/
