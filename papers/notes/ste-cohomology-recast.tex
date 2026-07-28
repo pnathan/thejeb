@@ -16,14 +16,18 @@
 \maketitle
 
 \begin{abstract}
-This note explains, in as little jargon as possible, one idea: the
-gap between \emph{local agreement} and a \emph{global solution} in set
+This note explains, in as little jargon as possible, one idea: the gap
+between \emph{local agreement} and a \emph{global solution} in set
 theoretic estimation (STE) is exactly the kind of gap that cohomology
-was invented to measure.  We define every term as it appears, work one
-tiny example by hand, and give a plain dictionary between the STE words
-and the sheaf/cohomology words.  Everything asserted as a theorem here
-is machine-checked in the project's Lean library and cited by name; the
-rest is clearly flagged as intuition.  No prior cohomology is assumed.
+was invented to measure.  Because the words ``presheaf'' and ``sheaf''
+scare people off, we build them from scratch with everyday examples ---
+temperature maps, continuous functions, and one deliberately broken
+example that shows why the gluing axiom earns its keep --- before
+connecting them to STE.  We work one tiny example by hand and give a
+plain dictionary between the STE words and the sheaf words.  Everything
+asserted as a theorem is machine-checked in the project's Lean library
+and cited by name; the rest is clearly flagged as intuition.  No prior
+cohomology is assumed.
 \end{abstract}
 
 \section{STE in one paragraph}
@@ -44,7 +48,7 @@ answer satisfy every source, and if so, which ones?
 Checking $F \neq \varnothing$ directly means reasoning about all
 sources and all variables simultaneously --- expensive.  In practice we
 would rather check things \emph{locally}: does each variable, looked at
-on its own, have a consistent value?  Do each small group of sources
+on its own, have a consistent value?  Does each small group of sources
 agree on the piece they share?
 
 The catch is that local agreement need not add up to a global answer.
@@ -62,13 +66,132 @@ much the problem is genuinely coupled --- how far local reasoning falls
 short.
 \end{quote}
 
-This is the same phenomenon cohomology measures everywhere it appears:
-a consistent choice made on every small patch that provably cannot come
-from one choice made on the whole.  We now make each word precise.
+The mathematics that studies ``local pieces and how they assemble'' is
+sheaf theory.  Its two central words, \emph{presheaf} and \emph{sheaf},
+have fearsome reputations but modest content, and the whole recast
+becomes transparent once they are unpacked.  So we unpack them,
+starting far away from STE.
 
-\section{The building blocks, defined plainly}
-Fix a set $V$ of \emph{variables}.  Each variable $v$ ranges over some
-value set $A_v$.
+\section{What is a presheaf?}
+Forget STE for a moment.  A \textbf{presheaf} is nothing more than a
+systematic way of talking about \emph{data attached to regions}.  It
+consists of two things:
+\begin{enumerate}
+\item a rule that assigns to each region $U$ (an open set, a window, a
+  patch --- the geometry supplies these) a set $\mathcal{F}(U)$ of
+  ``data that can live on $U$''; and
+\item for every smaller region $W \subseteq U$, a \emph{restriction
+  map} $\mathcal{F}(U) \to \mathcal{F}(W)$ that takes data on the big
+  region and forgets everything outside the small one.
+\end{enumerate}
+The restriction maps must be sane: restricting from $U$ to $U$ itself
+does nothing, and restricting in two steps ($U$ to $W$, then $W$ to
+$W'$) is the same as restricting in one ($U$ straight to $W'$).  That
+is the entire definition.  An element of $\mathcal{F}(U)$ is called a
+\emph{section over $U$}, and a section over the whole space is a
+\emph{global section}.  Three examples make the definition feel
+obvious rather than abstract.
+
+\paragraph{Example 1: temperature readings.}
+Let the regions be geographic areas, and let $\mathcal{F}(U)$ be the
+set of possible temperature maps over the area $U$ --- one temperature
+per point of $U$.  If you know the temperature everywhere in Europe,
+you certainly know it everywhere in France: just ignore the readings
+outside France.  That act of ignoring \emph{is} the restriction map.
+Restricting Europe to France and then France to Paris obviously gives
+the same answer as restricting Europe straight to Paris.  Nothing deep
+happened; the definition of a presheaf just names the bookkeeping.
+
+\paragraph{Example 2: continuous functions.}
+Let the regions be open subsets $U$ of the real line, and let
+$\mathcal{F}(U)$ be the set of continuous functions
+$f\colon U \to \mathbb{R}$.  The restriction map is literal: given $f$
+on $U$ and $W \subseteq U$, restrict the function, $f|_W$.  A
+continuous function stays continuous when you shrink its domain, so the
+data type is preserved, and two-step restriction equals one-step
+restriction because both are ``the same $f$, on a smaller set.''  This
+is the classic presheaf, and we will return to it.
+
+\paragraph{Example 3: partial answers on a window (the STE one).}
+Let the ``space'' be a finite set $V$ of variables, and let a region be
+any subset $U \subseteq V$ --- a \emph{window} of variables we are
+willing to look at together.  Let $\mathcal{F}(U)$ be the set of
+assignments of a value to each variable in $U$: partial answers that
+only speak about the window.  Restriction from a big window to a
+smaller one forgets the values of the variables you dropped.  A global
+section --- data on the whole of $V$ --- is a complete assignment, one
+value for every variable.  This is the presheaf STE lives in; hold the
+thought.
+
+\section{What makes a presheaf a sheaf?}
+A presheaf only records data and how to shrink it.  A \textbf{sheaf} is
+a presheaf whose data is genuinely \emph{local}: it can be checked, and
+assembled, patch by patch.  Concretely, cover a region $U$ by patches
+$\{U_j\}$ (so every point of $U$ is in some $U_j$).  The presheaf is a
+sheaf if two axioms hold:
+
+\begin{description}
+\item[Locality (separation).]  If two sections over $U$ restrict to the
+  same thing on every patch $U_j$, they were already equal.  ``Data is
+  determined by its local values --- no invisible global information.''
+\item[Gluing.]  If you choose a section $s_j$ on each patch, and any
+  two choices agree on the overlap of their patches
+  ($s_j = s_k$ on $U_j \cap U_k$), then there exists a section on all
+  of $U$ that restricts to each $s_j$.  (Unique, by locality.)
+  ``Compatible local data assembles into global data.''
+\end{description}
+
+Locality is rarely the interesting axiom; in all our examples it holds
+because the data literally is a function on points.  Gluing is where
+the action lives, and the fastest way to respect it is to watch it
+\emph{fail}.
+
+\paragraph{A presheaf that is not a sheaf: bounded functions.}
+On open subsets of the real line, let $\mathcal{B}(U)$ be the set of
+\emph{bounded} continuous functions on $U$.  This is a perfectly good
+presheaf: restricting a bounded function keeps it bounded.  Now cover
+the whole line by the intervals $U_n = (-n, n)$ for
+$n = 1, 2, 3, \dots$ and put on each patch the section
+$s_n(x) = x$, the identity function --- bounded on $(-n,n)$, since it
+never exceeds $n$ there.  Any two of these agree on their overlap (they
+are all the same formula), so the gluing axiom demands a global bounded
+function restricting to every $s_n$.  The only candidate is $f(x)=x$ on
+all of $\mathbb{R}$ --- which is \emph{not bounded}.  The compatible
+local family exists; the global section does not.  Gluing fails, and
+the reason is worth stating plainly: \emph{boundedness is not a local
+property}.  Each patch honestly certifies its own piece, yet the
+certificates do not add up, because the property being certified
+secretly refers to the whole domain.
+
+(A second classic failure, in one line: on a space with two separate
+components, ``locally constant functions that agree on overlaps'' can
+take value $0$ on one component and $1$ on the other --- gluable as a
+function, but not to anything \emph{constant}.  Constancy, like
+boundedness, is a global property wearing local clothing.)
+
+\paragraph{A presheaf that is a sheaf: continuous functions.}
+Contrast Example 2.  If continuous functions $s_j$ on patches agree on
+all overlaps, define $f(x) = s_j(x)$ for any patch containing $x$ ---
+the agreement makes this unambiguous --- and $f$ is continuous, because
+continuity \emph{is} a local property: it is checked point by point, in
+a small neighborhood.  So continuous functions glue.  The temperature
+presheaf glues for the same reason: a temperature map is just a value
+at each point, and compatible local maps trivially paste together.
+
+\begin{quote}
+\textbf{The moral.}  A sheaf is a presheaf whose data has no hidden
+global commitments.  The gluing axiom is precisely the promise
+``local agreement implies a global answer'' --- which is the promise
+STE wishes it could make.  Whether a given presheaf keeps that promise,
+and by how much it breaks it, is what cohomology measures: the failures
+of gluing are, in the standard framework, classes in a group called
+$H^1$, and ``every compatible family glues'' is the statement
+$H^1 = 0$.
+\end{quote}
+
+\section{The STE presheaf, and its building blocks}
+Now aim this machinery at STE.  Fix a set $V$ of \emph{variables},
+each variable $v$ ranging over a value set $A_v$.
 
 \begin{description}
 \item[Global configuration.] One choice of a value for every variable
@@ -76,71 +199,88 @@ value set $A_v$.
   of all of them as $\prod_v A_v$.
 \item[Constraint.] A set $T$ of allowed global configurations,
   $T\subseteq\prod_v A_v$.  In STE, $T$ is the feasible set $F$; the
-  recast just insists on viewing $F$ as a subset of the full
-  configuration space, so we can talk about restricting it.
-\item[Context (scope).] A subset $U\subseteq V$ of variables --- a
-  ``window'' we are willing to look at all at once.  A small context is
-  cheap; the full set $V$ is the expensive global view.
+  recast just insists on viewing $F$ inside the full configuration
+  space, so that restriction makes sense.
+\item[Context.] A window $U\subseteq V$, as in Example~3.  A small
+  context is cheap; the full set $V$ is the expensive global view.
 \item[Cover.] A collection of contexts $\{U_j\}$ that together touch
-  every variable (every $v$ lies in some $U_j$).  This is how we chop
-  the global problem into local windows.
-\item[Local section.] A partial assignment on a context $U_j$ --- a
-  choice of value for just the variables in that window --- that
-  \emph{could} be extended to a full allowed configuration in $T$.  ``A
-  local piece that is not obviously doomed.''
+  every variable.  This is how we chop the global problem into local
+  windows.
+\item[Local section.] Here is where the constraint enters.  On each
+  window $U_j$, keep only the partial assignments that \emph{could} be
+  extended to a full configuration in $T$ --- ``a local piece that is
+  not obviously doomed.''  These extendable partial answers are the
+  sections of a sub-presheaf of Example~3 carved out by $T$: call it
+  \emph{the presheaf of local sections of $T$}.  Its restriction maps
+  are still just ``forget the dropped variables'' (a partial answer
+  extendable to $T$ stays extendable after forgetting variables).
 \end{description}
 
+The bare presheaf of Example~3 --- all partial assignments, no
+constraint --- is a sheaf for boring reasons, exactly like temperature
+maps.  The interesting object is the constrained presheaf of local
+sections, and the interesting question is Section~4's question aimed at
+it: \emph{does the constrained presheaf satisfy the gluing axiom over
+the given cover?}  A constraint, like boundedness, may impose hidden
+global commitments that no window can see.
+
 \section{Local agreement versus a global solution}
-Two definitions carry the whole idea.
+Two definitions carry the whole idea; they are the sheaf axioms of
+Section~4, specialized.
 
 \paragraph{Compatible family (local agreement).}
-Pick one local section $s_j$ on each context $U_j$, such that any two of
-them \emph{agree on the variables their contexts share}:
+Pick one local section $s_j$ on each context $U_j$, such that any two
+agree on the variables their contexts share:
 \[
   \text{for all }j,k \text{ and every } v\in U_j\cap U_k,\qquad
   s_j(v) = s_k(v).
 \]
-This is ``everything is locally fine and the overlaps match.'' It is the
-cheap, checkable condition.  (In cohomology this overlap-agreement is
-called the \emph{cocycle condition}.)
+This is the hypothesis of the gluing axiom: ``everything is locally
+fine and the overlaps match.''  It is the cheap, checkable condition.
+(In cohomology this overlap-agreement is called the \emph{cocycle
+condition}.)
 
 \paragraph{Gluing (a global solution).}
 The family \emph{glues} if there is a single global configuration
-$f\in T$ whose restriction to each window $U_j$ is exactly $s_j$.  One
-answer that explains all the local pieces simultaneously.  This is the
-expensive thing we actually want.
+$f\in T$ whose restriction to each window $U_j$ is exactly $s_j$ ---
+the conclusion of the gluing axiom.  One answer that explains all the
+local pieces simultaneously.  This is the expensive thing we actually
+want.
 
 \paragraph{The obstruction.}
-Every genuine global solution obviously produces a compatible family
-(just restrict it to each window).  The question is the converse:
-
+Every genuine global solution produces a compatible family (restrict it
+to each window).  The question is the converse:
 \begin{quote}
 \emph{Does every compatible family glue?}
 \end{quote}
-
 When the answer is \emph{yes} for a constraint $T$ and a cover, we say
-\textbf{$T$ glues over that cover}, or that its \emph{\v{C}ech
-obstruction vanishes}.  Local agreement then \emph{is} global solvability.
-When the answer is \emph{no}, some compatible family is locally perfect
-but globally impossible; the number of such stuck families is the size
-of the obstruction --- the cohomology.  A vanishing obstruction is the
-statement ``$H^1 = 0$'' in this setting; a nonzero one is a nonzero
-$H^1$ class.
+\textbf{$T$ glues over that cover} --- its presheaf of local sections
+behaves like a sheaf for that cover, and its \emph{\v{C}ech
+obstruction vanishes} ($H^1 = 0$, in the language of the moral above).
+Local agreement then \emph{is} global solvability.  When the answer is
+\emph{no}, some compatible family is locally perfect but globally
+impossible --- the constraint has the bounded-functions disease --- and
+the number of such stuck families is the size of the obstruction, a
+nonzero $H^1$ class.
 
 \section{A dictionary}
 \begin{center}
+\small
 \begin{tabular}{@{}lll@{}}
 \toprule
-\textbf{STE / plain word} & \textbf{Sheaf-cohomology word} & \textbf{What it means}\\
+\textbf{STE / plain word} & \textbf{Sheaf word} & \textbf{What it means}\\
 \midrule
 Variable value space $A_v$ & Stalk / local data & values a coordinate can take\\
-Constraint / feasible set $T$ & The (sub)presheaf of sections & the allowed answers\\
 Context $U_j$ & Open set / patch & a window of variables\\
-Partial answer on $U_j$ & Local section & a value on that window\\
-Extendable partial answer & Section of the (sub)sheaf & a locally-valid piece\\
-Overlaps match & Cocycle / compatibility & pieces agree where they share\\
+All partial answers on windows & Presheaf (of assignments) & data attached to regions\\
+Forget the dropped variables & Restriction map & big-window data to small-window\\
+Constraint / feasible set $T$ & Sub-presheaf of local sections & the not-obviously-doomed pieces\\
+Partial answer on $U_j$ & Section over $U_j$ & a value on that window\\
+Extendable partial answer & Local section of $T$ & a locally-valid piece\\
+Overlaps match & Cocycle / gluing hypothesis & pieces agree where they share\\
 One answer fits all pieces & Global section / gluing & a genuine global solution\\
-Local agreement $\Rightarrow$ global & Sheaf condition / $H^1=0$ & the obstruction vanishes\\
+Local determines global & Locality (separation) axiom & no invisible global data\\
+Local agreement $\Rightarrow$ global & Gluing axiom / $H^1=0$ & the obstruction vanishes\\
 Stuck locally-fine families & Nonzero $H^1$ class & the coupling obstruction\\
 \bottomrule
 \end{tabular}
@@ -159,18 +299,21 @@ four compatible families glue --- each is just a global configuration
 read locally.  Obstruction: zero.  More generally any \emph{product}
 constraint $\prod_v P_v$ (each variable independently confined to some
 allowed set $P_v$, no cross-variable link) glues over \emph{every}
-cover.
+cover.  Product constraints are the continuous functions of this story:
+the property each window certifies is genuinely local.
 
 \paragraph{A non-gluable constraint (coupled).}
 Let $T$ be the ``diagonal'' $\{(0,0),(1,1)\}$: the two variables are
-forced equal (this is the XOR/equality link).  Locally each variable can
-still be $0$ or $1$, so all four compatible families are still there.
-But only \emph{two} of them --- $(0,0)$ and $(1,1)$ --- come from a
-global configuration in $T$.  The mixed family ``$x\mapsto 0,\;
-y\mapsto 1$'' is locally flawless and globally impossible.  Two stuck
-families remain: the obstruction is $2\neq 0$.  The coupling between $x$
-and $y$ is invisible in any single window and shows up \emph{only} as
-this obstruction.
+forced equal (the XOR/equality link).  Locally each variable can still
+be $0$ or $1$ --- both values extend to \emph{some} element of $T$ ---
+so all four compatible families are still there.  But only \emph{two}
+of them, $(0,0)$ and $(1,1)$, come from a global configuration in $T$.
+The mixed family ``$x\mapsto 0,\; y\mapsto 1$'' is locally flawless and
+globally impossible: it is the $f(x)=x$ of bounded functions, a
+compatible family with no global section above it.  Two stuck families
+remain: the obstruction is $2\neq 0$.  The coupling between $x$ and $y$
+is invisible in any single window and shows up \emph{only} as this
+obstruction.
 
 That contrast --- rectangle glues, diagonal does not --- is the entire
 mechanism in miniature.
@@ -181,13 +324,15 @@ sides are theorems:
 \begin{itemize}
 \item \textbf{Uncoupled $\Rightarrow$ gluable.}  Every product
   (``rectangular'') constraint glues over every cover
-  (\code{rectangular\_cechVanishesCover}).
+  (\code{rectangular\_cechVanishesCover}, module \code{Ste.CechCover}).
 \item \textbf{Gluable $\Rightarrow$ uncoupled.}  If the obstruction
-  vanishes, the constraint \emph{must} be a rectangle
-  (\code{CechVanishes} forces \code{IsRectangle}, in module
+  vanishes, the constraint \emph{must} be a rectangle --- the product
+  of its own per-variable projections
+  (\code{rectangular\_of\_cechVanishes}, module
   \code{Ste.CechObstruction}).
-\item \textbf{The witness.}  The diagonal has obstruction exactly $2$,
-  a genuinely nonzero class (\code{Ste.CechObstruction}).
+\item \textbf{The witness.}  The diagonal's obstruction is computed to
+  be exactly $2$, a genuinely nonzero class
+  (\code{diagonal\_cechObstruction}, module \code{Ste.CechObstruction}).
 \end{itemize}
 So, in this setting, \emph{gluable = rectangular = uncoupled} are one
 and the same, and the obstruction is a sharp detector of coupling.
@@ -217,43 +362,59 @@ Why it matters for solving problems:
 \end{enumerate}
 
 In one line: \textbf{the \v{C}ech obstruction is a computable measure of
-how far an STE problem is from being solvable window-by-window}, zero
-exactly when it factors into independent pieces.
+how far an STE problem is from being solvable window-by-window},
+zero exactly when it factors into independent pieces.
 
 \section{What is actually machine-checked}
 To keep the bright line the project insists on, here is what is a
 theorem (checked by Lean's kernel, sorry-free) versus what is intuition.
 
 \emph{Theorems} (names are Lean identifiers on the project's main
-branch): the compatible-family / gluing / vanishing definitions
-(\code{CompatibleFamily}, \code{GluesCover}, \code{CechVanishesCover} in
-\code{Ste.CechCover}); rectangles glue over every cover
-(\code{rectangular\_cechVanishesCover}); vanishing forces rectangularity
-and the diagonal's obstruction is $2$ (\code{Ste.CechObstruction}); the
-support-cover form, that vanishing is equivalent to the constraint being
-generated by pieces whose scopes fit the cover
-(\code{cechVanishesCover\_iff\_exists\_scopedGeneration} in
-\code{Ste.SupportCover}); and the frame Helly-2 collapse
-(\code{frame\_hasHelly\_two}).
+branch):
+\begin{itemize}
+\item the compatible-family / gluing / vanishing definitions for any
+  cover: \code{CompatibleFamily}, \code{GluesCover},
+  \code{CechVanishesCover} in \code{Ste.CechCover};
+\item rectangles glue over every cover:
+  \code{rectangular\_cechVanishesCover} in \code{Ste.CechCover};
+\item vanishing forces rectangularity
+  (\code{rectangular\_of\_cechVanishes}) and the diagonal's obstruction
+  is $2$ (\code{diagonal\_cechObstruction}), both in
+  \code{Ste.CechObstruction};
+\item the support-cover form --- vanishing is equivalent to the
+  constraint being generated by pieces whose scopes fit the cover:\\
+  \code{cechVanishesCover\_iff\_exists\_scopedGeneration} in
+  \code{Ste.SupportCover};
+\item the frame Helly-2 collapse: \code{frame\_hasHelly\_two} in
+  \code{Ste.HellyConsistency}.
+\end{itemize}
 
-\emph{Intuition / framing, not claimed as proven here:} the word
-``cohomology'' as the \emph{full} \v{C}ech $H^1$ machinery --- a cochain
-complex with a coboundary map and $H^1 = \ker/\operatorname{im}$ over a
-coefficient module --- is the \citet{abramsky2011sheaf,abramsky2012cohomology}
-sheaf-theoretic framework the project draws on.  This note uses the
-$H^1 = 0$ / obstruction-vanishing \emph{level}, which is what is
-mechanized; the graded cochain-complex construction in full generality
-is cited, not reproved here.
+\emph{Intuition / framing, not claimed as proven here:} the everyday
+presheaf and sheaf examples of Sections~3--4 (temperature, continuous
+functions, bounded functions) are standard textbook material, used for
+intuition only.  And the word ``cohomology'' as the \emph{full}
+\v{C}ech $H^1$ machinery --- a cochain complex with a coboundary map
+and $H^1 = \ker/\operatorname{im}$ over a coefficient module --- is the
+\citet{abramsky2011sheaf,abramsky2012cohomology} sheaf-theoretic
+framework the project draws on.  This note uses the $H^1 = 0$ /
+obstruction-vanishing \emph{level}, which is what is mechanized; the
+graded cochain-complex construction in full generality is cited, not
+reproved here.
 
 \section*{The recast, restated}
-STE asks whether many sources share a common answer.  Split the question
-into windows.  ``Every window is fine and the overlaps match'' is cheap
-to check.  Whether that local agreement assembles into one global answer
-is governed by a single obstruction: it vanishes exactly for the
+STE asks whether many sources share a common answer.  A constraint
+induces a presheaf: on each window, the partial answers that could
+still extend to a full solution, with restriction maps that just forget
+variables.  ``Every window is fine and the overlaps match'' is the
+hypothesis of the sheaf gluing axiom, and is cheap to check.  Whether
+that local agreement assembles into one global answer is exactly the
+question of whether this presheaf glues --- and the failure, when it
+fails, is a single computable obstruction.  It vanishes exactly for the
 uncoupled (rectangular) problems, and then STE is a local computation;
-it is nonzero exactly when the problem is genuinely coupled, and then it
-measures and locates the coupling.  That obstruction is the cohomology,
-and that equivalence is the recast.
+it is nonzero exactly when the problem is genuinely coupled, and then
+it measures and locates the coupling, as boundedness haunts the bounded
+functions.  That obstruction is the cohomology, and that equivalence is
+the recast.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs}
