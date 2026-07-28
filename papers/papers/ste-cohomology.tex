@@ -134,8 +134,11 @@ distances.
 \item An honest \emph{Carlson connection}
   (Section~\ref{sec:carlsonconn}): which parts of the dissertation's
   STE cryptanalysis \citep{carlson2012} map onto the sheaf picture
-  (with mechanized witnesses), which parts are mechanized on a
-  not-yet-merged research branch, and which do not map.
+  --- with mechanized witnesses (\path{Ste.Carlson.SheafBridge}),
+  including the theorem that substitution-cipher keys are genuinely
+  \emph{coupled} (\path{bijKeys_not_rectangular}), the opposite end
+  of the obstruction spectrum from the corpora of
+  Section~\ref{sec:empirical} --- and which parts do not map.
 \item An \emph{empirical instantiation} (Section~\ref{sec:empirical}):
   a verified solver run on three historical corpora, whose
   per-variable check is proven equivalent to genuine feasibility
@@ -152,14 +155,12 @@ in the project library under continuous integration.  Everything not
 so cited is explicitly labelled: \emph{conjecture}, \emph{sketch},
 \emph{dispatched} (an exact statement handed to an in-flight
 mechanization effort, not yet part of the trusted base), or
-\emph{speculation}.  One refinement: a small number of results were
-mechanized, during the writing of this paper, on named research
-branches not yet merged into the main library; these are cited with
-their branch and commit stated inline, after independent
-verification that the branch file is sorry-free and compiles, and
-they are never silently mixed with main-library citations.  Adding
-intuition never relaxes this line; intuition sits beside the
-citations, not in place of them.
+\emph{speculation}.  Several results were dispatched to
+mechanization during the writing of this paper; all have since
+landed, sorry-free, in the main library, and are cited as ordinary
+theorems --- the provenance record is kept in
+Section~\ref{sec:conclusion}.  Adding intuition never relaxes this
+line; intuition sits beside the citations, not in place of them.
 
 \paragraph{How to read this paper.}  A reader who knows STE or
 constraint satisfaction but no algebraic topology can read
@@ -1130,13 +1131,13 @@ $=$ alphabet symbols), and the count is the number of \emph{global
 witnesses of one local section} --- the fiber of the restriction map
 over $\sigma|_T$.  Unicity (\path{Unicity}) is the statement that
 accumulated observations shrink every such fiber to one point.  This
-reading is faithful to the mechanized statement as it stands; its
-formal restatement through the restriction map used by
-\path{localSections} is now itself mechanized on a research branch
-(Section~\ref{sec:scopedobs}).
+reading is faithful to the mechanized statement as it stands, and
+its formal restatement through the restriction map used by
+\path{localSections} is itself mechanized
+(\path{card_restrict_fiber}; Section~\ref{sec:scopedobs}).
 
-\subsection{The scoped-observation theorems (mechanized on a research
-branch)}
+\subsection{The scoped-observation theorems (mechanized,
+\texttt{Ste.Carlson.SheafBridge})}
 \label{sec:scopedobs}
 
 The genuinely sheaf-shaped content of the substitution cipher is
@@ -1147,35 +1148,41 @@ scope the ciphertext's symbol set (on the decryption-side
 parametrization of keys).  Meanwhile the requirement that the key be
 a \emph{permutation} --- injectivity across all symbols --- is a
 global \emph{coupling}, the cryptanalytic cousin of
-$\mathrm{allEqual}$'s all-different flavor, and it is provably
-non-rectangular.  So Carlson's instance factors exactly along this
-paper's main axis: scoped evidence (gluable, by
-Theorem~\ref{thm:supportcover}(a), over any cover the symbol sets
-refine) against one global coupling (the permutation constraint,
-which no proper cover swallows).
+$\mathrm{allEqual}$'s all-different flavor.  Both facts, conjectured
+during the writing of this paper, are now mechanized sorry-free in
+the main-library module \path{Ste.Carlson.SheafBridge}: the
+decryption-side observation constraint \path{decConstraint} has
+support exactly the ciphertext's symbol set
+(\path{hasSupport_decConstraint}); it is Carlson's
+\path{keyPropertySet} of the substitution cipher system
+\path{subCipher}, read through key inversion
+(\path{mem_keyPropertySet_iff_decConstraint}); the permutation
+coupling \path{bijKeys} is \emph{not} rectangular over any
+nontrivial alphabet (\path{bijKeys_not_rectangular}); and Carlson's
+Lemma~4.1 restates through the restriction map used by
+\path{localSections} --- the permutations restricting on $T$ to a
+given local section number $(|A|-|T|)!$
+(\path{card_restrict_fiber}, derived from
+\path{card_consistent_keys}).  With these, the fiber-counting
+reading of Section~\ref{sec:carlsonconn} is a theorem, not an
+analogy.
 
-These statements were dispatched during the writing of this paper
-and have been \textbf{mechanized, sorry-free, on the research branch
-\texttt{research/carlson-sheaf-bridge}} (commit \texttt{4ae7425},
-module \texttt{Ste.Carlson.SheafBridge}; independently verified to
-contain no \texttt{sorry} and to compile against the project ---
-axioms limited to the standard three).  The branch is \emph{not yet
-merged} into the main library, so per the bright line these four
-results are cited with the branch stated and are kept out of the
-main-library tally: \texttt{hasSupport\_decConstraint} (the
-decryption-side observation constraint \texttt{decConstraint} has
-support exactly the ciphertext's symbol set);
-\texttt{mem\_keyPropertySet\_iff\_decConstraint} (it is Carlson's
-\path{keyPropertySet} of the substitution \texttt{subCipher}, read
-through key inversion); \texttt{bijKeys\_not\_rectangular} (the
-permutation coupling \texttt{bijKeys} is not rectangular over any
-nontrivial alphabet); and \texttt{card\_restrict\_fiber} (Carlson's
-Lemma~4.1 restated through the restriction map used by
-\path{localSections}: the permutations restricting on $T$ to a given
-local section number $(|A|-|T|)!$, derived from
-\path{card_consistent_keys}).  With these, the fiber-counting reading
-of Section~\ref{sec:carlsonconn} is a theorem, not an analogy ---
-modulo the merge.
+So Carlson's instance factors exactly along this paper's main axis:
+scoped evidence (gluable, by Theorem~\ref{thm:supportcover}(a), over
+any cover the symbol sets refine) against one global coupling (the
+permutation constraint, which no proper cover swallows).  And the
+factorization places the two applied instantiations of this paper at
+\emph{opposite ends of the obstruction spectrum}, machine-checked at
+both ends: the frame corpora of Section~\ref{sec:empirical} are
+rectangular --- obstruction zero over every cover
+(\path{isRectangle_feasibilitySet_frame},
+\path{frame_cechVanishesCover}) --- which is why a linear per-variable
+solver decides them completely, while Carlson's substitution-cipher
+keys are provably \emph{non}-rectangular
+(\path{bijKeys_not_rectangular}) --- genuinely coupled, on the
+nontrivial side of the spectrum, which is why cryptanalysis cannot
+be finished by per-symbol reasoning and Shannon-style accumulation
+toward unicity is needed at all.
 
 \subsection{What does not map}
 
@@ -1366,7 +1373,11 @@ identifications \path{table_eq_localSections} and
 \path{junctionWidth_eq_inducedTreewidth} that make it literally a
 theory of the section presheaf on the bag cover.  Carlson's STE
 recast, counting lemma, and reduction chain are mechanized
-(\path{Ste.Carlson}).  The frame-corpus solver equivalence is
+(\path{Ste.Carlson}), and so is the sheaf bridge: observation
+constraints are scoped (\path{hasSupport_decConstraint}), residual
+key counting is fiber counting (\path{card_restrict_fiber}), and the
+permutation coupling is non-rectangular
+(\path{bijKeys_not_rectangular}).  The frame-corpus solver equivalence is
 mechanized down to the per-variable scan the executable runs
 (\path{nonempty_iff_consistent},
 \path{consistent_iff_forall_disagreementDegree_le_one}), it ran on
@@ -1395,18 +1406,15 @@ explicitly speculation.
 \subsection{Proof obligations: dispatched and discharged}
 
 The exact obligations below were dispatched to Lean mechanization
-efforts during the writing of this paper.  Two batches
-(Obligations~\ref{ob:frame} and~\ref{ob:backlog}) have since been
-discharged \emph{and merged to the main library}, and the relevant
-sections cite them as ordinary main-library theorems; the record is
-kept here for provenance.  Obligation~\ref{ob:carlson} is discharged
-on its research branch but \emph{not yet merged}, and per the bright
-line its results are cited only with the branch stated
-(Section~\ref{sec:scopedobs}), never as main-library theorems.
+efforts during the writing of this paper.  All three batches have
+since been discharged \emph{and merged to the main library}, and the
+relevant sections cite them as ordinary main-library theorems; the
+record is kept here for provenance, as a worked example of the
+bright-line workflow (conjecture $\to$ dispatched $\to$ discharged
+$\to$ merged, with the paper's wording tracking each transition).
 
-\begin{obligation}[Carlson sheaf bridge; branch
-\texttt{research/carlson-sheaf-bridge} --- \textbf{discharged},
-awaiting merge]
+\begin{obligation}[Carlson sheaf bridge --- \textbf{discharged and
+merged}]
 \label{ob:carlson}
 (a) The decryption-side observation constraint of the substitution
 cipher has \path{HasSupport} equal to the symbol set of the
@@ -1415,10 +1423,12 @@ substitution \path{CipherSystem} via key inversion.  (c) The
 permutation coupling $\{g : A \to A \mid g \text{ bijective}\}$ is
 not rectangular over a nontrivial alphabet.  (d) Carlson's Lemma~4.1
 restated through the restriction map (from
-\path{card_consistent_keys}).  \emph{Status: all four items
-mechanized sorry-free on the branch at commit \texttt{4ae7425}
-(Section~\ref{sec:scopedobs}); they enter the main-library tally on
-merge.}
+\path{card_consistent_keys}).  \emph{Status: mechanized and merged
+to the main library as module \path{Ste.Carlson.SheafBridge}
+(\path{hasSupport_decConstraint},
+\path{mem_keyPropertySet_iff_decConstraint},
+\path{bijKeys_not_rectangular}, \path{card_restrict_fiber});
+Section~\ref{sec:scopedobs} cites them as main-library theorems.}
 \end{obligation}
 
 \begin{obligation}[Frame rectangularity --- \textbf{discharged and
