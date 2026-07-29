@@ -1,0 +1,339 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title{Hyperframes and the Epistemology of Machine-Gathered Semantics\\
+\large Coherence, not truth, and where that leads mathematically}
+\author{Project \texttt{thejeb}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Set theoretic estimation (STE) as mechanized in this project does not
+start from a crisp assertion ``$X = v$.''  It starts from a
+\emph{possibility set}: a source commits only to ``the referent is
+somewhere in $S \subseteq \Xi$.''  We call this primitive object a
+\emph{hyperframe}, and argue it is the right primitive precisely
+because the alternative --- pretending a text (or a labeler reading a
+text) hands us a single determinate referent --- is false to how
+meaning is actually gathered, by machine or by hand.  This note states
+that epistemological position plainly, brackets two rival pictures of
+meaning it is \emph{not} chasing (a Platonic universal meaning, a
+Chomskyan deep structure resolved in the mind), and is honest about
+where the project's formal guarantees stop and interpretation begins.
+It then works out the mathematics that dropping ``truth as
+correspondence'' and keeping ``coherence as criterion'' actually
+forces: lattice theory and Formal Concept Analysis, rough-set
+indiscernibility, monotone update semantics, a paraconsistent reading
+of local contradiction, and a genuine metric geometry on readings.
+Every claim marked as a \emph{theorem} is machine-checked in the
+project's Lean library and cited by name; everything else is framing,
+cited to the literature it borrows from.
+\end{abstract}
+
+\section{The primitive is the hyperframe, not the crisp frame}
+\label{sec:primitive}
+
+A \emph{crisp frame} says a variable $X$ takes a specific value $v$.
+That is the textbook picture, and it is the wrong starting point for
+text.  When a document is read --- by a person or by a language model
+standing in for one --- what is actually extracted is rarely ``$X =
+v$.''  It is closer to ``on the evidence in this passage, $X$ is one
+of $S$,'' where $S$ may be a singleton, but need not be.  The reader
+does not know, and the text does not always determine, the exact
+referent; reference is \emph{underdetermined by design}, not by
+accident of a lazy extractor. This is Quine's inscrutability of
+reference in a concrete engineering guise: even fully cooperative,
+fully competent interpretation leaves room for more than one referent
+consistent with everything actually said \citep{quine1960word}.
+
+The project's Lean development takes this underdetermination as the
+object level, not as noise to be denoised away. In
+\code{Ste.HyperFrame}, a source contributes a \emph{possibility set}
+\code{S i \ensuremath{\subseteq} \ensuremath{\Xi}} over a space of
+candidate referents \code{\ensuremath{\Xi}}, and satisfaction is
+literally membership:
+\[
+  \code{sat S a i := a \ensuremath{\in} S i}.
+\]
+A crisp frame is the special case $|S\,i| = 1$; nothing downstream
+requires that specialization. Estimation over a corpus is then the
+question this note is really about: do the possibility sets contributed
+by many sources cohere, and what does the object built from that
+coherence look like?
+
+\section{What is bracketed, and why}
+\label{sec:bracket}
+
+Two rival pictures of ``the meaning'' are conspicuously absent from
+this project, and their absence is a decision, not an oversight.
+
+\textbf{Not a Platonic meaning.} One may privately hold that beneath
+any author's words there is a mind-independent fact of the matter ---
+an ideal Tree, an ideal Justice --- that the text either does or does
+not correctly describe. This note takes no position on that question
+and needs none. It is bracketed, in the sense Husserl gave that word:
+the metaphysical question is suspended, not answered, because the
+object under study is not the world the text is about but the meaning
+the text \emph{commits to} \citep{husserl1913ideas}. Call this a
+methodological \emph{epoch\'e}: whatever one believes about
+correspondence to an external reality, it plays no role in what STE
+checks.
+
+\textbf{Not a Chomskyan universal deep structure either.} A different,
+non-Platonic universalism is also declined: the idea that every
+utterance resolves, in a competent mind, to one shared underlying
+representation across speakers, languages, and eras --- a deep
+structure of which surface texts are mere transformations
+\citep{chomsky1965aspects}. That picture chases a single semantics
+\emph{behind} the corpus. This project chases the opposite: the
+semantics \emph{of} the corpus, as specified, document by document, by
+what each document's author actually committed to. Two corpora need
+not, and generally will not, resolve to the same underlying meaning
+even for words that look alike on the page, because there is no
+``underneath'' being posited at all.
+
+What is left, once both universalisms are set aside, is what the
+Cambridge School of intellectual history calls the object of the
+exercise: \emph{situated authorial commitment} --- what a given writer,
+in a given idiom, at a given moment, was doing with these words, which
+is recoverable, if at all, only from context: the text, its
+contemporaries, its conventions \citep{skinner1969meaning}. Recovering
+it is an act of interpretation that only makes sense from inside a
+horizon of prior understanding brought to the text and revised against
+it --- the Gadamerian hermeneutic circle
+\citep{gadamer1960truth}. Under this scoping, truth-as-correspondence
+to an external world is simply the wrong target: a corpus of internally
+coherent falsehoods (a consistent conspiracy theory, a self-contained
+myth cycle, a novel's invented history) is a perfectly good object of
+study, and STE should say so --- \emph{coherent}, not \emph{true} ---
+without complaint. That is a feature of the scoping, not an
+embarrassment to be argued around.
+
+\section{The extractor is a fallible, situated labeler}
+\label{sec:extractor}
+
+Nothing about using a large language model to pull frames out of a
+document changes this picture; it only makes the mechanism explicit.
+An LLM extractor stands in for a human labeler doing the same job by
+hand, and a human labeler is exactly as fallible and exactly as
+situated as the model: both bring priors, both make judgment calls
+about what a passage commits its author to, and neither has privileged
+access to an author's mind.
+
+Concretely: read Spenser's \emph{The Faerie Queene} against Rowling's
+\emph{Harry Potter} and try to extract a shared frame schema for, say,
+\textsc{quest} or \textsc{wizard}. The two texts will produce
+\emph{materially different} frames --- different slot structures,
+different obligatory fillers, different implicit background
+assumptions --- not because one extraction is more careful than the
+other, but because the frames genuinely are specified by, and bounded
+by, each text's own idiom, allegorical machinery, and narrative
+conventions. There is no neutral, text-independent \textsc{wizard}
+frame that both authors are imperfectly instantiating. The object of
+study, stated without hedging, is: \emph{context-bounded texts, and the
+machine (or human) gathering of the semantics as specified by those
+texts.} Nothing more universal is on offer, and nothing more universal
+is being claimed.
+
+\section{Two levels of coherence, and only one is machine-checked}
+\label{sec:twolevel}
+
+Once frames are extracted, two different questions can be asked about
+them, and the project is careful to keep them separate.
+
+\begin{description}
+\item[Fidelity (frame $\leftrightarrow$ document).] Does an extracted
+  possibility set $S_i$ faithfully render what document $i$ actually
+  commits to? This is an act of interpretation. It is not, and in
+  principle cannot be, kernel-checkable: no proof assistant can compare
+  a formal set to a paragraph of English (or Elizabethan English) and
+  certify that the set says what the paragraph means. The extractor,
+  human or machine, is fallible, and an extracted frame \emph{might not}
+  cohere with its document even when every downstream computation is
+  flawless.
+\item[Consistency (frame $\leftrightarrow$ frame).] Do the extracted
+  frames cohere with one another --- is $\bigcap_i S_i \ne
+  \varnothing$, or, more generally, is the corpus feasible on some
+  constraint set? This is exactly STE feasibility, and it \emph{is}
+  machine-checked: it is a computation over sets, and the project's
+  Lean development proves theorems about it.
+\end{description}
+
+The honest statement of what the machinery guarantees is therefore a
+conditional, not an unconditional truth claim:
+\begin{quote}
+\emph{If} the extracted frames faithfully render what their documents
+commit to, \emph{then} the feasibility verdict STE returns is sound.
+\end{quote}
+The consequent is a theorem. The antecedent is an empirical, auditable,
+non-formal claim about extraction quality that the project does not
+and cannot discharge inside the kernel. This is worth quarantining in
+plain sight, the same way the project already keeps
+\code{native\_decide} out of its trusted proof base: not because the
+excluded step is worthless, but because pretending it is
+kernel-strength would be dishonest about what has actually been
+checked.
+
+This scoping is productive, not merely modest. Because fidelity and
+consistency are separated, STE can partially \emph{audit} its own
+extractor rather than simply trust it. Two independent renderings of
+the \emph{same} document that STE-conflict are pure extraction noise
+--- a fidelity failure, localized and re-checkable, and clearly
+distinguishable from genuine cross-\emph{document} authorial
+disagreement (which is consistency information, not noise). And
+because frames can be required to carry provenance spans back to the
+source text, frame$\leftrightarrow$document coherence is made
+\emph{inspectable} by a human reviewer even though it is not, and will
+not be, formally provable.
+
+\section{Where that leads us, in a math kind of way}
+\label{sec:math}
+
+Bracketing truth-as-correspondence and adopting coherence-as-criterion
+is not a retreat into vagueness. It relocates the target of formal
+work: meaning is no longer analyzed as a proposition that is true or
+false of the world, so the natural home for it is no longer the logic
+of propositions. It becomes an object in \emph{order theory} and
+\emph{closure systems} instead --- and that relocation has real,
+provable content. Five consequences follow, each with a machine-checked
+piece already in the Lean development.
+
+\paragraph{1. Meaning is a lattice object (Formal Concept Analysis).}
+The STE satisfaction relation \code{sat S a i := a \ensuremath{\in} S i} is, on
+the nose, a \emph{formal context} in the sense of Ganter and Wille
+\citep{ganter1999fca}: hypotheses ($a \in \Xi$) as objects, constraints
+($i \in I$) as attributes. \code{Ste.HyperFrame} proves that the
+partial feasibility set on a constraint window $J$ is
+\emph{definitionally} the lower polar of that context
+(\code{partialFeasibilitySet\_eq\_lowerPolar}), so the hyperframes of a
+corpus --- pairs of a feasible-hypothesis set and its matching
+constraint signature --- are exactly the \emph{formal concepts} of the
+context and form a complete lattice (the abbreviation \code{HyperFrame}
+for Mathlib's \code{Order.Concept}, with its inherited
+\code{CompleteLattice} instance). Every partial feasibility set is a
+concept extent (\code{isExtent\_partialFeasibilitySet}), and every
+concept's extent recovers the feasible set of its own intent
+(\code{hyperFrame\_extent\_eq\_feasibilitySet}). Meaning, on this
+picture, is not a truth-value assignment; it is a point in a concept
+lattice, and STE feasibility \emph{is} Formal Concept Analysis.
+
+\paragraph{2. Reference is a rough-set indiscernibility floor.}
+Two candidate referents can be indistinguishable by every constraint a
+corpus happens to supply, without being the same referent. \code{Indisc
+S a b := \ensuremath{\forall} i, a \ensuremath{\in} S i \ensuremath{\leftrightarrow} b
+\ensuremath{\in} S i} captures this: it is an equivalence relation
+(\code{indisc\_equivalence}), and it is exactly Pawlak's
+indiscernibility relation for the STE formal context
+\citep{pawlak1982rough}. No subfamily of constraints can ever separate
+indiscernible hypotheses (\code{indisc\_mem\_iff}) --- this is the
+resolution floor of the corpus, below which reference is irreducibly
+underdetermined, not a defect to be engineered away. Reference, on this
+picture, is not delivered as a single object; it is a fixed point of
+constraint accumulation, and the indiscernibility classes are exactly
+the fibers of the constraint-signature map on the concept lattice
+(\code{indisc\_iff\_upperPolar\_singleton\_eq}).
+
+\paragraph{3. Content is monotone and dynamic.}
+Because $\bigcap_{i \in K} S_i \subseteq \bigcap_{i \in J} S_i$
+whenever $J \subseteq K$, pure accumulation of evidence can only shrink
+what remains feasible; over a finite hypothesis space this is
+cardinality-monotone
+(\code{ncard\_partialFeasibilitySet\_antitone}), and it disproves a
+naive worry about oscillation: if enforcing a larger constraint set
+somehow yields a \emph{larger} feasible set, that set was not actually
+larger --- some constraint must have been \emph{dropped}
+(\code{lt\_ncard\_imp\_not\_subset}). Growth in what is deemed feasible
+therefore always signals retraction, never pure accumulation, which is
+exactly the shape update semantics gives information states: possibility
+sets that only ever shrink on genuine new information and require
+explicit retraction otherwise \citep{veltman1996defaults}. Enforcing two
+constraint sets together is enforcing their union, and feasibility sets
+compose by intersection under that union
+(\code{partialFeasibilitySet\_union}) --- readings superpose rather
+than overwrite.
+
+\paragraph{4. Contradiction is local and paraconsistent, not
+explosive.}
+A possibility set $S_i(v)$ for a variable $v$ can be a singleton
+(determinate), empty (over-determined --- a local contradiction), or
+have more than one element (under-determined). This is exactly Belnap's
+four-valued generalization of classical truth
+\citep{belnap1977computer}, transported from the two-element set
+$\{\text{true}, \text{false}\}$ to an arbitrary reference space $\Xi$:
+none, one, or many admissible values, instead of just true or false.
+Crucially, emptiness on one variable does not trivialize the rest of
+the corpus --- there is no principle of explosion here, in the spirit
+of da Costa's paraconsistent logics \citep{dacosta1974paraconsistent}.
+When the \emph{global} intersection across all sources is empty, the
+right object to hand back is not silence but the concept lattice of
+maximal jointly-feasible sub-readings --- an admissible-precisification
+move in the sense of van Fraassen's supervaluationism
+\citep{vanfraassen1966supervaluations}: keep every way of resolving the
+conflict that is itself internally coherent, and let disagreement show
+up as multiplicity in the lattice rather than as global collapse.
+
+\paragraph{5. Content has geometry.}
+The lattice of readings is not just ordered; it carries a genuine
+metric. \code{Ste.PartitionRank} equips the coreference partition
+lattice with a combinatorial, entropy-free rank
+$r(P) = |\alpha| - {}$blocks$(P)$ and proves it \emph{submodular}
+(\code{rank\_submodular}), the counting shadow of Shannon's 1953
+observation that entropy is a submodular rank function on the lattice
+of partitions \citep{delsol2024}; this rank is monotone in the corpus
+(\code{mustSetoid\_eq\_sInf}, \code{rank\_mustSetoid\_mono}), so more
+documents can only add forced identifications, never remove them.
+\code{Ste.InfoDistance} turns this rank into an honest metric, the
+counting shadow of Shannon's information distance: symmetric,
+vanishing exactly on equal readings (\code{shannonDist\_eq\_zero\_iff}),
+and satisfying the triangle inequality
+(\code{shannonDist\_triangle}) --- so ``how far apart are two
+readings'' is a well-posed question with a real answer, not a metaphor.
+On top of that metric, \code{Ste.CouplingRank} makes ``genuine
+cross-topic coupling'' measurable rather than impressionistic: the
+excess rank a partition carries once forced through another
+(\code{couplingExcess}) is provably positive exactly when the
+partitions are not already aligned
+(\code{couplingExcess\_pos\_of\_not\_le}). And where the corpus really
+is uncoupled --- rectangular, in the project's terms --- feasibility
+becomes a purely local check with no obstruction to gluing
+(\code{Ste.HellyConsistency}'s \code{frame\_hasHelly\_two}: pairwise
+consistency of authors already certifies whole-corpus consistency, a
+frame-theoretic Helly number of 2; \code{Ste.CechCover}'s
+\code{rectangular\_cechVanishesCover} and \code{Ste.CechObstruction}'s
+\code{diagonal\_cechObstruction} for the discriminating example where
+that vanishing genuinely fails). The correctness criterion throughout
+is \emph{internal} coherence --- a consistency and closure condition
+on a lattice --- never external correspondence to a fact of the matter
+outside the corpus.
+
+\section{The through-line}
+\label{sec:conclusion}
+
+None of this is a way of avoiding hard questions about meaning by
+retreating into formalism. It is the opposite move: bracketing
+truth-as-correspondence is what \emph{lets} the hard questions be asked
+in a setting that has theorems --- lattices, closure systems,
+rough-set indiscernibility, paraconsistent possibility spaces, and a
+genuine metric geometry on readings --- instead of a setting
+(propositional truth of an authorial intention no one can access) that
+mostly has aphorisms. Section~\ref{sec:twolevel}'s conditional is the
+hinge the whole argument turns on: STE never claims a document's frame
+is correct, only that \emph{if} extraction was faithful, feasibility is
+sound, and the machinery is built so that claim can be inspected,
+partially audited, and never quietly upgraded to more than it is.
+Where the fidelity question stops --- at the boundary of what a
+possibility set can say about a paragraph of Spenser or a paragraph of
+Rowling --- is exactly where situated, competent, fallible
+interpretation has to take over, the way it always has.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
