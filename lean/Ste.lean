@@ -58,3 +58,4 @@ import Ste.TidesComputable
 import Ste.HellyConsistency
 import Ste.PartitionRank
 import Ste.CouplingRank
+import Ste.InfoDistance
