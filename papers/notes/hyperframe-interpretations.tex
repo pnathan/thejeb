@@ -177,28 +177,70 @@ not know which reading'' move --- disjunction over readings --- is not
 free; it costs locality, which is the very property that made the
 first-order theory tractable.
 
-\section{Information-lattice topology}
-\emph{(Thread in progress --- \code{Ste.InfoTopology}.)}
-Slot reserved.  The mechanizable target is the continuity/geometry of the
-information lattice under the counting Shannon metric: Lipschitz bounds on
-meet/join, and betweenness/median structure extending
-\code{shannonDist\_chain\_add}.  The finite metric topology is discrete
-and will be flagged as such; the genuine content is geometric
-(continuity, geodesics, median embedding), not point-set.  Interpretation
-to be written when the module lands.
+\section{Information-lattice geometry: coherence has a curvature}
+\emph{Module \code{Ste.InfoTopology}.}
+The honest first move is to kill the trivial reading: on a finite carrier
+the Shannon metric is uniformly discrete (\code{one\_le\_shannonDist\_of\_ne}),
+so the point-set \emph{topology} is nothing.  The content is
+\emph{geometric}, and it is a dichotomy between the two lattice
+operations.  \textbf{Join is a contraction} and jointly 1-Lipschitz
+(\code{shannonDist\_sup\_right\_le}, \code{shannonDist\_sup\_le\_add}):
+combining information is metrically stable.  \textbf{Meet is not}
+(\code{shannonDist\_inf\_not\_contraction}, a \code{Fin 4} witness): a
+tiny change in two readings can produce an arbitrarily large change in
+their common information.  And the metric, though bipartite-parity
+(\code{shannonDist\_add\_rank\_add\_rank}), embeds in no $\ell_1$ cube
+(\code{pentagonal\_violation}, already at $|\alpha|=3$) and is not a
+median space (\code{median\_not\_unique}); it is the covering-graph
+distance of a geometric lattice --- geodesic along refinement chains
+(\code{aligned\_of\_chain}, \code{le\_sup\_of\_aligned}), submodular-rank
+controlled, but non-cubical.
+
+\emph{Interpretation.} The join/meet asymmetry is the geometric face of
+the whole program's recurring theme.  \emph{Aggregating} evidence
+(join, `and all these readings together') is well-conditioned --- small
+perturbations of the inputs move the consensus only a little, which is
+exactly what a trustworthy accumulation procedure needs, and it is why
+corpus growth slides the STE consensus along a geodesic rather than
+lurching.  \emph{Extracting what readings share} (meet, common
+information) is ill-conditioned: this is the counting-shadow of the
+Gács--Körner discontinuity of common information, and it is a warning ---
+``what do these sources agree on, exactly'' is a numerically unstable
+question, and any procedure that leans on it inherits that instability.
+The non-$\ell_1$, non-median results say the geometry is genuinely its
+own: coherence-space is not a Hamming cube one can coordinate away, even
+in the crisp counting shadow.  The single open direction is asymptotic
+--- normalized, these finite discrete spaces should converge to the
+measurable-partition space under the Rokhlin metric (Delsol's $D$ in
+ergodic-theory clothing), where the topology is finally non-trivial; that
+is not a near-term Lean target and is flagged as such.
 
 \section*{Toward a paper}
-The throughline, once the topology thread lands, is a single claim with
-six machine-checked faces: \emph{the hyperframe --- a bounded but
-underdetermined, possibly graded, possibly higher-order set of admissible
-readings --- carries exactly the structure needed to reason about
-coherence without truth, and that structure is a lattice with a metric, a
-gluing complex, and a sharp locality invariant that degrades and lifts in
-controlled ways.}  Set-valued frames give the primitive; local gluing
-gives coherence a shape; coreference gives identity as a lattice limit;
-fuzzy frames add the gradient; the set-of-sets result marks the locality
-cliff; and the metric/topology gives it geometry.  Each face is a
-theorem; the paper will be their assembly.
+All six faces are now machine-checked, and the throughline is a single
+claim: \emph{the hyperframe --- a bounded but underdetermined, possibly
+graded, possibly higher-order set of admissible readings --- carries
+exactly the structure needed to reason about coherence without truth, and
+that structure is a lattice with a metric, a gluing complex, and a sharp
+locality invariant that degrades and lifts in controlled ways.}
+Set-valued frames give the primitive; local gluing gives coherence a
+shape (the gluing complex); coreference gives identity as a lattice
+limit; fuzzy frames add the gradient and degrade to crisp at each
+threshold; the set-of-sets result marks the locality cliff (Helly $2 \to
+\geq 3$); and the metric geometry gives it a curvature --- aggregation
+(join) well-conditioned, common-information (meet) not.  Each face is a
+theorem; the paper is their assembly, and its spine is the join/meet
+conditioning asymmetry, which recurs as the tractable/hard, decomposed/
+coupled, and gluable/obstructed dichotomy under three other names.
+
+\emph{Proposed paper skeleton.}  (i) The hyperframe primitive and
+coherence-not-truth (epistemology note as \S1--2); (ii) the feasibility
+lattice and 2-locality (backbone + set-valued frame); (iii) coherence as
+gluing, local to tight (gluing complex, Čech obstruction); (iv) the
+geometry of coherence (Shannon metric, join/meet conditioning); (v) the
+controlled deformations --- graded (fuzzy) and higher-order (set-of-sets,
+the locality cliff); (vi) identity across documents (coreference); (vii)
+the honest boundary (fidelity vs consistency, the entropy ceiling).
+Everything cited by Lean name; nothing claimed beyond the kernel.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs}
