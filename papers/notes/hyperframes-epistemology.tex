@@ -19,25 +19,28 @@ Set theoretic estimation (STE) as mechanized in this project does not
 start from a crisp assertion ``$X = v$.''  It starts from a
 \emph{possibility set}: a source commits only to ``the referent is
 somewhere in $S \subseteq \Xi$.''  We call this primitive object a
-\emph{hyperframe}, and argue it is the right primitive precisely
+\emph{set-valued frame}, and argue it is the right primitive precisely
 because the alternative --- pretending a text (or a labeler reading a
 text) hands us a single determinate referent --- is false to how
 meaning is actually gathered, by machine or by hand.  This note states
 that epistemological position plainly, brackets two rival pictures of
 meaning it is \emph{not} chasing (a Platonic universal meaning, a
-Chomskyan deep structure resolved in the mind), and is honest about
+universal deep meaning in the Chomskyan lineage), and is honest about
 where the project's formal guarantees stop and interpretation begins.
 It then works out the mathematics that dropping ``truth as
-correspondence'' and keeping ``coherence as criterion'' actually
-forces: lattice theory and Formal Concept Analysis, rough-set
-indiscernibility, monotone update semantics, a paraconsistent reading
-of local contradiction, and a genuine metric geometry on readings.
+correspondence'' and keeping ``coherence as criterion'' makes natural
+and provable --- and, in the central cases, genuinely forces: lattice
+theory and Formal Concept Analysis (whose formal concepts are the
+\emph{hyperframes} of the title), rough-set indiscernibility, monotone
+update semantics, a paraconsistent reading of local contradiction, a
+genuine metric geometry on readings, and local-to-global criteria for
+when coherence checking localizes.
 Every claim marked as a \emph{theorem} is machine-checked in the
 project's Lean library and cited by name; everything else is framing,
 cited to the literature it borrows from.
 \end{abstract}
 
-\section{The primitive is the hyperframe, not the crisp frame}
+\section{The primitive is the set-valued frame, not the crisp frame}
 \label{sec:primitive}
 
 A \emph{crisp frame} says a variable $X$ takes a specific value $v$.
@@ -86,12 +89,16 @@ methodological \emph{epoch\'e}: whatever one believes about
 correspondence to an external reality, it plays no role in what STE
 checks.
 
-\textbf{Not a Chomskyan universal deep structure either.} A different,
-non-Platonic universalism is also declined: the idea that every
-utterance resolves, in a competent mind, to one shared underlying
-representation across speakers, languages, and eras --- a deep
-structure of which surface texts are mere transformations
-\citep{chomsky1965aspects}. That picture chases a single semantics
+\textbf{Not a universal deep meaning either.} A different,
+non-Platonic universalism is also declined: the strongest reading of a
+picture often built on Chomskyan deep structure
+\citep{chomsky1965aspects} --- that every utterance resolves, in a
+competent mind, to one shared underlying representation across
+speakers, languages, and eras, of which surface texts are mere
+transformations. (\emph{Aspects} itself posits deep structure as
+language-internal syntax; the cross-linguistic meaning claim is its
+inheritors' extension, and it is that extension being declined
+here.) That picture chases a single semantics
 \emph{behind} the corpus. This project chases the opposite: the
 semantics \emph{of} the corpus, as specified, document by document, by
 what each document's author actually committed to. Two corpora need
@@ -202,8 +209,15 @@ work: meaning is no longer analyzed as a proposition that is true or
 false of the world, so the natural home for it is no longer the logic
 of propositions. It becomes an object in \emph{order theory} and
 \emph{closure systems} instead --- and that relocation has real,
-provable content. Five consequences follow, each with a machine-checked
-piece already in the Lean development.
+provable content. Six consequences follow, each with a machine-checked
+piece already in the Lean development. They are not all forced in the
+same sense, and it is worth saying which is which: the first three ---
+the concept lattice, the indiscernibility floor, monotone update ---
+are automatic consequences of taking a set-valued primitive at all,
+via the Galois connection every relation carries; the paraconsistent
+reading and the partition-rank metric are \emph{afforded} rather than
+forced --- structure the same primitive makes natural and provable
+without dictating it.
 
 \paragraph{1. Meaning is a lattice object (Formal Concept Analysis).}
 The STE satisfaction relation \code{sat S a i := a \ensuremath{\in} S i} is, on
@@ -211,13 +225,17 @@ the nose, a \emph{formal context} in the sense of Ganter and Wille
 \citep{ganter1999fca}: hypotheses ($a \in \Xi$) as objects, constraints
 ($i \in I$) as attributes. \code{Ste.HyperFrame} proves that the
 partial feasibility set on a constraint window $J$ is
-\emph{definitionally} the lower polar of that context
+exactly the lower polar of that context
 (\code{partialFeasibilitySet\_eq\_lowerPolar}), so the hyperframes of a
 corpus --- pairs of a feasible-hypothesis set and its matching
 constraint signature --- are exactly the \emph{formal concepts} of the
 context and form a complete lattice (the abbreviation \code{HyperFrame}
 for Mathlib's \code{Order.Concept}, with its inherited
-\code{CompleteLattice} instance). Every partial feasibility set is a
+\code{CompleteLattice} instance). This is where the title's term
+lives, and it names the closure, not the primitive: a
+\emph{hyperframe} is what a family of set-valued frames generates at
+corpus level --- a Galois-closed pair, not any single source's
+$S\,i$. Every partial feasibility set is a
 concept extent (\code{isExtent\_partialFeasibilitySet}), and every
 concept's extent recovers the feasible set of its own intent
 (\code{hyperFrame\_extent\_eq\_feasibilitySet}). Meaning, on this
@@ -246,9 +264,9 @@ whenever $J \subseteq K$, pure accumulation of evidence can only shrink
 what remains feasible; over a finite hypothesis space this is
 cardinality-monotone
 (\code{ncard\_partialFeasibilitySet\_antitone}), and it disproves a
-naive worry about oscillation: if enforcing a larger constraint set
-somehow yields a \emph{larger} feasible set, that set was not actually
-larger --- some constraint must have been \emph{dropped}
+naive worry about oscillation: if the feasible set somehow
+\emph{grows}, the enforced constraint set cannot in fact have grown ---
+some constraint must have been \emph{dropped}
 (\code{lt\_ncard\_imp\_not\_subset}). Growth in what is deemed feasible
 therefore always signals retraction, never pure accumulation, which is
 exactly the shape update semantics gives information states: possibility
@@ -272,12 +290,29 @@ Crucially, emptiness on one variable does not trivialize the rest of
 the corpus --- there is no principle of explosion here, in the spirit
 of da Costa's paraconsistent logics \citep{dacosta1974paraconsistent}.
 When the \emph{global} intersection across all sources is empty, the
-right object to hand back is not silence but the concept lattice of
-maximal jointly-feasible sub-readings --- an admissible-precisification
-move in the sense of van Fraassen's supervaluationism
-\citep{vanfraassen1966supervaluations}: keep every way of resolving the
-conflict that is itself internally coherent, and let disagreement show
-up as multiplicity in the lattice rather than as global collapse.
+right object to hand back is not silence but the lattice of maximal
+jointly-feasible sub-readings. The exact ancestor of that repair is
+Rescher and Manor's reasoning from maximal consistent subsets of an
+inconsistent premiss set \citep{rescher1970}; van Fraassen's
+supervaluationism supplies the complementary, gap-tolerant half ---
+evaluation over all admissible resolutions of what remains
+underdetermined \citep{vanfraassen1966supervaluations}. Either way,
+disagreement shows up as multiplicity in the lattice rather than as
+global collapse.
+
+This is also where the coherence stance parts company with the
+classical theory of \emph{semantic information}. Bar-Hillel and
+Carnap's measure is truth-anchored --- content is measured against
+state-descriptions of the world --- and famously pays for it with the
+paradox that a contradiction carries \emph{maximal} information
+\citep{barhillel1952semantic}. Floridi's veridicality thesis pays at
+the other counter: false content is not semantic information at all
+\citep{floridi2011semantic}. A contradictory corpus, for STE, is
+neither maximally informative nor informationally void; it has
+structured, local, auditable content --- the lattice of sub-readings
+just described and, in the local-to-global analysis below, a finite
+count of exactly which compatible families fail to glue
+(\code{diagonal\_cechObstruction}).
 
 \paragraph{5. Content has geometry.}
 The lattice of readings is not just ordered; it carries a genuine
@@ -286,11 +321,14 @@ lattice with a combinatorial, entropy-free rank
 $r(P) = |\alpha| - {}$blocks$(P)$ and proves it \emph{submodular}
 (\code{rank\_submodular}), the counting shadow of Shannon's 1953
 observation that entropy is a submodular rank function on the lattice
-of partitions \citep{delsol2024}; this rank is monotone in the corpus
-(\code{mustSetoid\_eq\_sInf}, \code{rank\_mustSetoid\_mono}), so more
+of partitions \citep{shannon1953lattice,delsol2024}; the
+must-partition of a corpus is the infimum of its feasible partitions
+(\code{mustSetoid\_eq\_sInf}), and its rank is monotone in the corpus
+(\code{rank\_mustSetoid\_mono}), so more
 documents can only add forced identifications, never remove them.
 \code{Ste.InfoDistance} turns this rank into an honest metric, the
-counting shadow of Shannon's information distance: symmetric,
+counting shadow of Shannon's information distance
+\citep{shannon1953lattice,delsol2024}: symmetric,
 vanishing exactly on equal readings (\code{shannonDist\_eq\_zero\_iff}),
 and satisfying the triangle inequality
 (\code{shannonDist\_triangle}) --- so ``how far apart are two
@@ -301,7 +339,12 @@ excess rank a partition carries once forced through another
 (\code{couplingExcess}) is provably positive exactly when the
 partitions are not already aligned
 (\code{couplingExcess\_pos\_of\_not\_le}; the converse is
-\code{couplingExcess\_eq\_zero\_iff}). And where the corpus really
+\code{couplingExcess\_eq\_zero\_iff}).
+
+\paragraph{6. Coherence checking is local-to-global, with a computable
+obstruction.}
+The last consequence is not geometry but a gluing principle: when does
+checking coherence locally certify it globally? Where the corpus really
 is uncoupled --- rectangular, in the project's terms --- feasibility
 becomes a purely local check with no obstruction to gluing
 (\code{Ste.HellyConsistency}'s \code{frame\_hasHelly\_two}: pairwise
