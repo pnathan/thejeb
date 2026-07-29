@@ -1,15 +1,26 @@
-\documentclass[11pt]{report}
-\usepackage[margin=1in]{geometry}
+\documentclass[10pt,twocolumn]{report}
+\usepackage[margin=0.75in]{geometry}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{seqsplit}
 \usepackage{hyperref}
 \usepackage[numbers,sort&compress]{natbib}
 
-\newcommand{\code}[1]{\texttt{#1}}
+% Two-column readability: let long Lean identifiers break at underscores,
+% scoped to \code only so bib keys / URLs / bookmarks are untouched.
+\newcommand{\code}[1]{\texttt{\seqsplit{#1}}}
+\AtBeginDocument{%
+  \renewcommand{\[}{\par\smallskip\noindent\begin{adjustbox}{max width=\columnwidth}$\displaystyle}%
+  \renewcommand{\]}{$\end{adjustbox}\par\smallskip}%
+}
 \emergencystretch=3em
 \sloppy
-\newcommand{\Ste}[1]{\texttt{Ste.#1}}
+\newcommand{\Ste}[1]{\texttt{\seqsplit{Ste.#1}}}
 
 \newtheorem{theorem}{Theorem}[chapter]
 \newtheorem{proposition}[theorem]{Proposition}
@@ -585,8 +596,7 @@ truth-maintenance ancestry \citep{doyle1979tms,dekleer1986atms}.
 One theorem from that development must be quoted here, because
 Chapter~\ref{ch:coref} is built directly on it.  Must-coreference is
 the lattice meet of the feasible hypotheses' partitions:
-\[
-  \code{mustSetoid}\,(D) \;=\; \operatorname{sInf}\,
+\[\code{mustSetoid}\,(D) \;=\; \operatorname{sInf}\,
   \{\,\text{exact partition of } h : h \in \text{feasible}(D)\,\}
 \]
 (\code{mustSetoid\_eq\_sInf}, \Ste{PartitionRank}), monotone in the
@@ -716,12 +726,11 @@ active document set $S \subseteq \mathrm{Doc}$, the
 \emph{corpus-forced coreference} is the join, in the complete lattice
 of setoids on $\mathrm{Mention}$, of every active document's
 contribution with the equivalence closure of the links:
-\[
-  \mathrm{forcedCoref}(\mathrm{loc},\mathrm{Link},S)
+\[\mathrm{forcedCoref}(\mathrm{loc},\mathrm{Link},S)
   \;=\;
   \bigsqcup_{d\in S} \mathrm{docSetoid}(\mathrm{loc},d)
   \;\sqcup\;
-  \mathrm{EqvGen}(\mathrm{Link}).
+  \mathrm{EqvGen}(\mathrm{Link})
 \]
 \end{definition}
 
@@ -733,12 +742,11 @@ The construction has the universal property one should demand of
 \begin{theorem}[Identity as a lattice limit;
 \code{forcedCoref\_eq\_sInf}]
 The forced coreference is the least adequate setoid:
-\[
-  \mathrm{forcedCoref}(\mathrm{loc},\mathrm{Link},S)
+\[\mathrm{forcedCoref}(\mathrm{loc},\mathrm{Link},S)
   \;=\;
   \operatorname{sInf}\,\bigl\{\, s \;\bigm|\;
     \forall d\in S,\ \mathrm{docSetoid}(\mathrm{loc},d) \le s
-    \ \wedge\ \mathrm{Link} \subseteq s \,\bigr\}.
+    \ \wedge\ \mathrm{Link} \subseteq s \,\bigr\}
 \]
 \end{theorem}
 
@@ -942,7 +950,7 @@ existing paper is edited by this book.
 
 \begin{center}
 \small
-\begin{tabular}{@{}p{0.44\textwidth}p{0.5\textwidth}@{}}
+\begin{tabular}{@{}p{0.44\columnwidth}p{0.5\columnwidth}@{}}
 \toprule
 \textbf{Topic} & \textbf{Owning deep dive} \\
 \midrule
@@ -1037,8 +1045,8 @@ All identifiers verified sorry-free in the project's Lean~4 library at
 the time of writing; module names are relative to \code{lean/Ste/}.
 
 \begin{center}
-\small
-\begin{tabular}{@{}llp{0.20\textwidth}@{}}
+\footnotesize
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\columnwidth}>{\raggedright\arraybackslash}p{0.28\columnwidth}>{\raggedright\arraybackslash}p{0.24\columnwidth}@{}}
 \toprule
 \textbf{Lean identifier} & \textbf{Module} & \textbf{Cited in} \\
 \midrule
