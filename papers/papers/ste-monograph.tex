@@ -1,0 +1,1098 @@
+\documentclass[11pt]{report}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\emergencystretch=3em
+\sloppy
+\newcommand{\Ste}[1]{\texttt{Ste.#1}}
+
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{interpretation}[theorem]{Interpretation}
+
+\title{Set-Theoretic Estimation over Non-Metric Domains\\
+\large From Feasibility in Hilbert Space to Coherence in Language:\\
+a Machine-Checked Monograph}
+\author{Project \texttt{thejeb}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Set-theoretic estimation (STE) answers an estimation problem by
+intersection: an estimate is acceptable exactly when it is consistent
+with every piece of available information.  The classical theory
+\citep{combettes1993} lives in metric --- indeed Hilbert --- space,
+where convexity and projection operators make the feasible set both
+meaningful and computable.  This monograph is about what happens to STE
+\emph{when the underlying set is non-metric}.  We follow
+\citet{carlson2012} in the topological origination of STE --- set
+estimation over topological spaces with no metric, motivated by
+decryption --- and then carry the theory into a domain where no metric
+was ever on offer: language.  The carriage proceeds in three moves:
+first, a link to \emph{parsing}, where Constraint Grammar's eliminative
+algebra is shown to be exactly STE; second, \emph{frame analysis},
+where set-valued and dynamic frames give a possible-worlds semantics
+for machine-gathered meaning; third, accepting the challenge of
+\emph{multi-document coreference}, where identity itself becomes a
+lattice limit --- the least partition adequate to the accumulated
+evidence.  What replaces the metric is order: the feasibility lattice,
+its sheaf-theoretic gluing, and a combinatorial Shannon geometry on
+readings.  The monograph's unifying thread is a single machine-checked
+dichotomy in that geometry: joining information is a metric contraction,
+extracting common information is not --- and this join/meet conditioning
+asymmetry recurs, under three other names, as the tractable/hard,
+decomposed/coupled, and gluable/obstructed divides that organize every
+chapter.  Every result cited as a theorem is verified in the project's
+Lean~4 library and cited by exact identifier; everything else is
+framing, and is marked as such.
+\end{abstract}
+
+\tableofcontents
+
+\chapter*{Preface: how to read this book}
+\addcontentsline{toc}{chapter}{Preface}
+
+This monograph is a \emph{spine}, not an omnibus.  The project it
+unifies has produced a body of papers and notes, each of which remains
+the owning, self-contained deep dive for its topic; this book supplies
+the connective narrative that makes them chapters of one argument, and
+it originates in full only the material that exists nowhere else in
+prose --- chiefly the multi-document coreference theory of
+Chapter~\ref{ch:coref}.  Each part opens with synthesis that is new
+here, states what its topic contributes to the whole, and then
+delegates: ``the full treatment is [paper].''  Appendix~\ref{app:map}
+gives the complete ownership map, together with recommendations for
+trimming the residual overlaps among the existing papers.
+
+Three disciplines hold throughout.
+
+\emph{First, the mechanization bright line.}  Every claim labeled a
+theorem is machine-checked in the project's Lean~4 / Mathlib
+\citep{moura2021,mathlib2020} library, sorry-free, verified in
+continuous integration, and cited by its exact Lean identifier, e.g.\
+\code{frame\_hasHelly\_two} (\Ste{HellyConsistency}).  Surrounding
+prose is interpretation --- ours to defend, never the kernel's.
+
+\emph{Second, coherence, not truth.}  The theory studies when a body of
+machine-gathered readings is \emph{coherent} --- jointly satisfiable ---
+not whether it is \emph{true}.  The epistemological position, its
+bracketing of rival pictures of meaning, the fidelity/consistency
+conditional (a feasible set is only as good as the extraction that
+produced its constraints), and the Shannon-entropy ceiling on what
+crisp set-valued methods can express are stated once, carefully, in the
+project's epistemology note (\emph{Hyperframes and the Epistemology of
+Machine-Gathered Semantics}, \code{hyperframes-epistemology.tex}).  We
+reference that position throughout and do not re-litigate it.
+
+\emph{Third, no duplicated deep dives.}  Where a chapter's material has
+an owning paper, this book states the result, its place in the arc, and
+its Lean anchor --- and stops.
+
+\part{From Metric to Topological: the Classical Inheritance}
+\label{part:classical}
+
+\chapter{Estimation by intersection: the metric theory}
+\label{ch:combettes}
+
+Set-theoretic estimation begins with a reversal of habit.  Classical
+estimation optimizes: it posits a criterion and returns the single
+point that extremizes it.  STE instead \emph{intersects}: every piece
+of information --- a measurement, a bound, a prior structural fact ---
+is recorded as the set of hypotheses consistent with it (its
+\emph{property set}), and the deliverable is the \emph{feasibility
+set}, the intersection of all property sets.  Any member is an
+acceptable estimate; the set itself is the honest answer.
+\citet{combettes1993} founded the framework in this generality, drawing
+on a lineage running through unknown-but-bounded state estimation
+\citep{schweppe1968}, image recovery by convex projections
+\citep{youla1982,combettes1993numerical}, and set-membership
+identification in signal processing \citep{deller1989}.
+
+The classical theory is emphatically \emph{metric}.  Its home is a
+Hilbert space; its property sets are closed and convex; its engine is
+the projection operator, well-defined precisely because a nearest point
+exists and is unique in that geometry.  The great algorithmic corpus
+--- POCS, parallel projection methods, and their convergence theory
+\citep{bauschke1996,combettes2011proximal} --- is a corpus about
+metric structure: distances to sets decrease, Fej\'er monotonicity
+holds, fixed points attract.  When textbooks say ``set-theoretic
+estimation works,'' they mostly mean: \emph{the metric makes it work}.
+
+This monograph asks what survives when the metric is removed --- and
+the honest first answer is: the \emph{definitions} survive untouched.
+Feasibility is an intersection; intersections need no metric.  The
+consistent/fair/ideal taxonomy of estimators, information monotonicity
+(more constraints, smaller feasible set), and the detection of invalid
+information by inconsistency are order-theoretic facts.  The project's
+machine-checked core formalizes exactly this metric-free skeleton ---
+the feasibility set and its lattice laws, the taxonomy, antitone
+refinement --- and verifies that the classical statements hold with no
+appeal to distance.  \textbf{The full treatment is the mechanization
+paper} (\emph{A Machine-Checked Core for Set Theoretic Estimation},
+\code{ste-mechanization.tex}), which owns the formal model and the
+core theorem list; the primary-source assessment of
+\citet{combettes1993} is owned by the literature review
+(\code{literature-review.tex}).
+
+What does \emph{not} survive metric removal is the algorithmics: no
+projections, no nearest points, no convergence-by-contraction.  The
+burden of the rest of this book is that something else takes their
+place --- order, lattice, and sheaf structure --- and that the
+replacement is not a consolation prize but a theory with its own exact
+dichotomies, its own geometry, and its own frontier.
+
+\chapter{The topological origination: Carlson}
+\label{ch:carlson}
+
+The first deliberate step off the metric was taken by
+\citet{carlson2012}, who recast STE over bare topological spaces to
+attack decryption.  The move is conceptually prior to any application:
+if property sets are closed sets of a compact space, the feasibility
+set is closed, and nonemptiness --- existence of an estimate --- follows
+from the finite-intersection property, with no metric anywhere.
+Carlson's cryptanalytic instantiation makes the stakes concrete: the
+hypothesis space is a key space, each intercepted ciphertext constrains
+it, and estimation is the shrinking of the feasible key set; the
+unicity phenomenon of \citet{shannon1949} becomes a statement about
+when the feasibility set collapses to a point.  A continuing line of
+work develops the program
+\citep{carlson2005,carlson2014breaking,carlson2021keyspace,
+carlson2022equivalence,carlson2022localentropy,carlson2026entropy}.
+
+For this monograph Carlson supplies three things.  First, the
+\emph{license}: STE over non-metric spaces is not our invention but an
+established origination that we follow and mechanize --- the project's
+library formalizes the closedness/compactness existence theorems, the
+skeleton of Carlson's STE-decryption reduction, and his key-counting
+and cipher-reduction chain (owned by \code{ste-mechanization.tex}).
+Second, the \emph{partition insight}: Carlson's asymptotic-equipartition
+work partition is STE-invariant --- an early sign that when the metric
+goes, \emph{partitions} (and their lattice) become the load-bearing
+structure; this observation is developed in the language note
+(\code{ste-and-language.tex}) via rough-set indiscernibility
+\citep{pawlak1982rough}.  Third, the \emph{template for a domain
+carriage}: Carlson carried STE from signal recovery to cryptanalysis by
+identifying the domain's native constraint structure.  Parts
+\ref{part:parsing}--\ref{part:frontier} of this book perform the same
+carriage into language.
+
+The surveys own the surrounding scholarship: the projection-algorithm
+inheritance and the set-membership tradition
+(\code{topological-ste-survey.tex}), and the post-2012 uptake of
+topological STE together with the mechanization gap that this project
+fills (\code{decade-followon-survey.tex}).  \textbf{Those two surveys,
+plus the literature review, are the owning deep dives for everything
+historical in this part}; we do not repeat their bibliographies here.
+
+One more inheritance deserves its own flag, because it becomes the
+spine of the book.  Shannon himself, in a paper that predates STE by
+four decades, described \emph{the lattice theory of information}
+\citep{shannon1953lattice}: information sources ordered by refinement,
+with join and meet.  Modern work \citep{delsol2024} equips that lattice
+with a metric derived from conditional entropy.  When STE goes
+non-metric, it lands --- provably, in the finite counting shadow --- on
+exactly Shannon's lattice.  That landing is Chapter~\ref{ch:spine}.
+
+\part{The Non-Metric Structure Theory}
+\label{part:structure}
+
+\chapter{The conditioning dichotomy: the spine of the book}
+\label{ch:spine}
+
+This chapter states, once, the single mathematical fact that organizes
+the entire monograph.  Later chapters will not restate it; they will
+point here.
+
+\section{The lattice that replaces the metric space}
+
+Remove the metric from STE and ask what structure the readings of a
+corpus actually carry.  The project's answer, accumulated across its
+Lean modules, is: a \emph{partition lattice with a counting geometry}.
+Hypotheses about a corpus induce partitions (which claims corefer,
+which readings agree); partitions form a complete lattice; and on that
+lattice there is a genuine metric --- not assumed, but derived.  Define
+the combinatorial Shannon distance as the counting shadow of
+$D(X,Y)=H(X\mid Y)+H(Y\mid X)$:
+\[
+  \code{shannonDist}\,(P,Q)
+  \;=\;
+  \bigl(r(P \sqcup Q)-r(P)\bigr)+\bigl(r(P\sqcup Q)-r(Q)\bigr),
+\]
+where $r$ is the partition rank (\code{shannonDist},
+\Ste{InfoDistance}; \code{rank}, \Ste{PartitionRank}).  The triangle
+inequality is a theorem, and its proof is the submodularity of rank
+(\code{shannonDist\_triangle}, \Ste{InfoDistance};
+\code{rank\_submodular}, \Ste{PartitionRank}) --- the lattice-theoretic
+residue of the entropy inequalities, exactly as in the
+information-lattice synthesis of \citet{delsol2024} descending from
+\citet{shannon1953lattice}.
+
+The honest first observation kills a tempting misreading: on a finite
+carrier this metric is uniformly discrete --- distinct partitions are at
+distance at least one (\code{one\_le\_shannonDist\_of\_ne},
+\Ste{InfoTopology}) --- so the induced point-set \emph{topology} is
+trivial.  The content of the non-metric theory is not topological but
+\emph{metric-geometric}: it lies in how the lattice operations behave
+with respect to this distance.
+
+\section{The dichotomy}
+
+Here is the spine.  The two lattice operations are \emph{not}
+symmetric with respect to the Shannon geometry.
+
+\begin{theorem}[Join is a contraction]
+For all partitions $P,Q,R$,
+\[
+  d(P\sqcup R,\; Q\sqcup R) \;\le\; d(P,Q),
+\]
+and join is jointly 1-Lipschitz:
+$d(P\sqcup Q, P'\sqcup Q') \le d(P,P') + d(Q,Q')$.
+\emph{(\code{shannonDist\_sup\_right\_le},
+\code{shannonDist\_sup\_le\_add}, \Ste{InfoTopology}.)}
+\end{theorem}
+
+\begin{theorem}[Meet is not]
+There exist partitions $P,Q,R$ of a four-element carrier with
+$d(P,Q) < d(P\sqcap R,\; Q\sqcap R)$; on a $2k$-element carrier the gap
+scales with $k$, so meet admits no Lipschitz constant uniform in the
+carrier.  \emph{(\code{shannonDist\_inf\_not\_contraction},
+\Ste{InfoTopology}; the scaling claim is interpretation of the
+construction, the $k=2$ instance is the mechanized witness.)}
+\end{theorem}
+
+\begin{interpretation}
+\emph{Aggregating} information --- join, ``all these readings
+together'' --- is well-conditioned: perturbing the inputs moves the
+aggregate by no more than the perturbation.  \emph{Extracting what
+readings share} --- meet, common information --- is ill-conditioned: an
+arbitrarily small change in the inputs can move the common part
+arbitrarily far.  This is the counting shadow of the G\'acs--K\"orner
+phenomenon --- common information is discontinuous and far less than
+mutual information \citep{gacs1973common} --- surfacing inside STE with
+no probability in sight.
+\end{interpretation}
+
+The remaining geometry sharpens the picture: the metric is
+bipartite-parity like a hypercube skeleton
+(\code{shannonDist\_add\_rank\_add\_rank}) yet embeds in no $\ell_1$
+cube (\code{pentagonal\_violation}) and is not median
+(\code{median\_not\_unique}); it is geodesic along refinement chains
+(\code{aligned\_of\_chain}, \code{le\_sup\_of\_aligned}) --- the
+covering-graph distance of a geometric lattice, genuinely its own
+space (all \Ste{InfoTopology}).  Coherence-space cannot be
+coordinatized away into a Hamming cube even in its crisp counting
+shadow.
+
+\section{The same dichotomy under three other names}
+
+The claim that earns this chapter its title: the join/meet conditioning
+asymmetry is the \emph{same} divide that the structure theory meets
+three more times, each occurrence machine-checked.
+
+\paragraph{Tractable versus hard.}  For frame-structured corpora,
+pairwise consistency forces global consistency: the Helly number is two
+(\code{frame\_hasHelly\_two}, \Ste{HellyConsistency}).  Checking
+coherence is a \emph{join-side} activity --- accumulate constraints,
+scan pairs --- and it is correspondingly cheap and stable.  The moment
+a question requires knowing what a family of readings has \emph{in
+common} at higher order, locality fails: for second-order (set-of-sets)
+sources the Helly number provably jumps to at least three
+(\code{exists\_not\_hasHellySel\_two}, \Ste{Carlson.SetOfSets};
+Chapter~\ref{ch:frames}).
+
+\paragraph{Decomposed versus coupled.}  The partition rank is
+submodular (\code{rank\_submodular}), and the \emph{coupling excess}
+of a constraint against a product structure is zero exactly when the
+readings decompose and strictly positive exactly when they genuinely
+entangle (\code{couplingExcess\_pos\_of\_not\_le},
+\Ste{CouplingRank}).  Decomposable constraints are the ones whose
+information content is exhausted by joins of marginal information;
+coupling is precisely the residue that only a meet-like common-part
+analysis would see --- and it is the exact source of representational
+blow-up (Chapter~\ref{ch:representation}).
+
+\paragraph{Gluable versus obstructed.}  Rectangular (product)
+constraints glue over every cover with vanishing \v{C}ech obstruction
+(\code{propertySet\_cechVanishesCover}, \Ste{SetValuedFrame}); the
+diagonal --- the archetypal coupled constraint --- has obstruction
+exactly~$2$ (\code{diagonal\_cechObstruction}, \Ste{CechObstruction}).
+Local-to-global success is the geometric face of decomposition; the
+obstruction is the geometric face of coupling
+(Chapter~\ref{ch:gluing}).
+
+\begin{interpretation}
+One dichotomy, four costumes: join/meet conditioning
+(well/ill-conditioned), Helly locality (tractable/hard), coupling
+excess (decomposed/coupled), \v{C}ech obstruction
+(gluable/obstructed).  In each case the benign side is the side
+reachable by accumulating and combining --- the join side --- and the
+malignant side is the side that asks what parts share, agree on, or
+jointly determine --- the meet side.  Every subsequent chapter of this
+book instantiates the dichotomy in its own domain, and none of them
+escapes it.
+\end{interpretation}
+
+The detailed geometry --- proofs-in-prose, the non-embeddability
+witnesses, the asymptotic Rokhlin-metric outlook --- is recorded in the
+interpretive log (\code{hyperframe-interpretations.tex}, the
+information-lattice section), which is the owning document for
+\Ste{InfoTopology} until its dedicated paper exists; this chapter is
+the monograph-level statement and is deliberately complete as such.
+
+\chapter{Coherence as gluing: sheaves, obstructions, and the gluing complex}
+\label{ch:gluing}
+
+When the hypothesis space is a product over $N$ variables, the
+feasibility set lives behind an exponential wall, and every practical
+scheme keeps only \emph{local} information: small tables over small,
+overlapping sets of variables.  Every such scheme lives or dies on one
+question --- when does locally consistent partial information determine
+a global solution?  The mathematics of that question is sheaf theory
+and \v{C}ech cohomology, transplanted to constraint satisfaction by the
+contextuality program of
+\citet{abramsky2011sheaf,abramsky2012cohomology}, and developed for STE
+in machine-checked form by this project's flagship paper.
+
+\textbf{The full treatment is the flagship} (\emph{Local Pieces, Global
+Solutions}, \code{ste-cohomology.tex}), whose centerpiece, the
+support--cover gluing theorem (\Ste{SupportCover}), characterizes
+exactly when every compatible family of local sections glues: precisely
+when the constraint is generated by pieces whose scopes fit inside the
+cover.  Its accessible companion (\code{ste-cohomology-recast.tex})
+re-derives the dictionary for readers with no topology; the
+transplant's relation to the contextuality literature is owned by the
+obstruction lit-review (\code{cohomological-obstruction-litreview.tex}).
+Within the spine's terms: gluing succeeds on the decomposed side of the
+dichotomy and is obstructed on the coupled side, with the diagonal's
+obstruction of exactly $2$ (\code{diagonal\_cechObstruction}) as the
+minimal witness.
+
+What this chapter adds --- because it exists so far only in Lean and in
+the interpretive log --- is the \emph{refinement} of the gluing verdict
+into a shape.  The module \Ste{LocalGluing} drops the all-or-nothing
+sheaf condition: \code{GluesOn} asks whether a compatible family
+assembles over a \emph{sub-cover}, and the family of sub-covers on
+which it does --- the \code{gluingComplex} --- is downward closed
+(\code{mem\_gluingComplex\_of\_subset}), hence an abstract simplicial
+complex.  The tight sheaf condition is exactly the presence of the top
+face (\code{cechVanishesCover\_iff\_gluesLocallyAt\_card}), and the
+diagonal separates the notions: it glues locally at width one but not
+at width two
+(\code{diagonal\_gluesLocallyAt\_one},
+\code{diagonal\_not\_gluesLocallyAt\_two},
+\code{diagonal\_local\_not\_tight}).  A bridge theorem returns to the
+spine's tractable side: enough Helly structure on the gluing fibers
+forces the top face --- local coherence climbs to global
+(\code{cechVanishesCover\_of\_hasHelly\_gluingFiber}).
+
+\begin{interpretation}
+Incoherence is not a single bit.  A corpus that fails to cohere
+globally still coheres over a structured family of sub-corpora, and
+that family --- the gluing complex --- is the real object of study: the
+paraconsistent stance \citep{dacosta1974paraconsistent} made geometric.
+The obstruction is thereby \emph{located}, not merely detected.  This
+becomes load-bearing for language in Part~\ref{part:frames}: a corpus
+of documents that contradict each other still has a shape of partial
+coherence, and Chapter~\ref{ch:empirical}'s ratification corpus
+exhibits exactly that shape in the wild.
+\end{interpretation}
+
+The gluing complex is new material; its deep dive belongs to a future
+revision of the flagship (Appendix~\ref{app:map} records this
+assignment), and this section is its monograph-level statement.
+
+\chapter{Representation and its limits}
+\label{ch:representation}
+
+The gluing theory says \emph{when} local pieces determine the whole;
+the representation theory says \emph{what it costs}.  The project's
+answer is a mechanized dichotomy stack: rectangular constraints are the
+tractable upper bound; coupling is the obstruction
+(\code{couplingExcess\_pos\_of\_not\_le}); block decomposition trades
+sums for products; conditioning and variable elimination are
+machine-checked; treewidth bounds the bags; and unbounded coupling is
+provably exponential --- with the relation between obstruction size and
+representation blow-up a \emph{sandwich, not an equality}.
+\textbf{The full treatment is the representation paper}
+(\emph{Representation and Tractability in Set Theoretic Estimation},
+\code{ste-representation-sheaves.tex}), with the sandwich's
+literature setting owned by \code{representation-bounds-litreview.tex};
+the classical constraint-processing background is
+\citet{dechter2003constraint,dechter1999bucket,robertson1986graphminorsII,
+yannakakis1991expressing}, and the lower-bound toolkit descends from
+communication complexity and extension complexity
+\citep{kushilevitz1997communication,fiorini2015exponential}.
+
+In the spine's terms this chapter is the computational shadow of the
+dichotomy: everything join-like (accumulate, eliminate, decompose along
+a tree) is polynomial in the width; everything meet-like (what do these
+variables jointly determine that no projection sees) is where the
+exponential lives.  We state this once and move on; the paper owns the
+proofs, and Appendix~\ref{app:map} flags its one overlap with the
+flagship for trimming.
+
+\part{Language I: Parsing}
+\label{part:parsing}
+
+\chapter{Constraint Grammar is set-theoretic estimation}
+\label{ch:parsing}
+
+The first move into language is the most conservative one available:
+find the corner of computational linguistics that is \emph{already}
+STE, and prove it.  That corner is Constraint Grammar
+\citep{karlsson1990constraint,karlsson1995constraint}: begin with a
+universe of candidate morphosyntactic analyses, and let rules
+\emph{eliminate} candidates until what survives is the parse.  The
+practice matured through implemented parsers
+\citep{tapanainen1994tagging,bick2015cg3}, always described
+operationally, never estimation-theoretically.
+
+The identification is now a theorem-level equivalence: for the hard,
+purely eliminative fragment, a CG rule \emph{is} an STE property set,
+the surviving analyses \emph{are} the feasibility set, rule addition is
+antitone refinement, fairness is preservation of the intended parse,
+and unambiguous successful analysis is ideal information --- verified
+as an explicit equivalence in \Ste{ConstraintGrammar}.  \textbf{The
+full treatment is the parsing note} (\emph{The Algebraic Core of
+Constraint Grammar as Set Theoretic Estimation},
+\code{constraint-grammar-ste.tex}), which also owns the scoping: CG
+operations that genuinely change the candidate universe are not
+isomorphic to static STE and must be treated as staged maps between STE
+problems.  The broader historical claim --- that unification grammar
+\citep{shieber1986unification} and underspecification semantics
+\citep{copestake2005mrs,egg2001cls,bos1996hole} are likewise doing
+uncited STE, and that the bridge to \citet{combettes1993} is unclaimed
+--- is owned by the language note (\code{ste-and-language.tex}),
+together with the Formal Concept Analysis reading
+\citep{ganter1999fca} in which feasible sets are extents of a concept
+lattice.
+
+For the monograph's arc, parsing contributes two lessons.  First,
+\emph{proof of carriage}: language admits STE not by analogy but by
+isomorphism, in at least one exactly-delimited fragment --- the
+non-metric theory has a native application, with the domain supplying
+eliminative constraints where cryptanalysis supplied ciphertexts.
+Second, \emph{the boundary lesson}: the isomorphism stops exactly where
+the candidate universe stops being fixed.  A parser's universe is one
+sentence's analyses; a corpus's universe of \emph{readings} is neither
+fixed nor crisp.  Pushing past that boundary is what forces the
+set-valued frame --- the primitive of Part~\ref{part:frames}.
+
+\part{Language II: Frames}
+\label{part:frames}
+
+\chapter{The set-valued frame and its deformations}
+\label{ch:frames}
+
+The primitive of the language-side theory is not the crisp assertion
+``$X=v$'' but the \emph{possibility set}: a source commits only to
+``the referent lies in $S$.''  The epistemology note
+(\code{hyperframes-epistemology.tex}) owns the defense of this choice
+--- reference as gathered by machines or readers is underdetermined but
+bounded, and pretending otherwise is false to the gathering --- along
+with everything the position brackets.  Here we record what the
+primitive \emph{is}, machine-checked, and how it deforms.
+
+The set-valued frame is a first-class object (\Ste{SetValuedFrame}):
+each variable receives a possibility set; the induced constraint is the
+product box, hence rectangular (\code{propertySet\_isRectangle}) and
+obstruction-free over every cover
+(\code{propertySet\_cechVanishesCover}); a corpus is feasible exactly
+when every variable's possibility-set intersection is nonempty
+(\code{corpusFeasibilitySet\_nonempty\_iff}); the feasibility set is a
+formal-concept extent (\code{isExtent\_corpusFeasibilitySet}),
+unifying the possibility-set and concept-lattice
+\citep{ganter1999fca} pictures; and the crisp determinate-reference
+model embeds as the singleton case with 2-locality transported
+(\code{hasHelly\_ofCrisp\_two}).  In spine terms: the set-valued frame
+is engineered to live entirely on the benign side of the dichotomy ---
+rectangular, gluable, Helly-2 --- which is precisely why frame-based
+corpus checking is tractable at all.
+
+Two deformations test how far the benign side extends.
+
+\emph{Graded possibility.}  A fuzzy frame \citep{zadeh1965fuzzy} grades
+membership in $[0,1]$; feasibility becomes a
+\code{consistencyDegree}; and the $\alpha$-cut theorem
+(\code{cut\_fuzzyFeasibility}, \Ste{FuzzyFrame}) shows the graded
+theory is a \emph{stack} of crisp theories indexed by confidence
+threshold --- every crisp result acquires a graded shadow by cutting,
+the crisp theory sits at the boundary
+(\code{consistencyDegree\_crisp\_eq\_one\_iff}), and 2-locality
+survives in graded form (\code{weightedFrame\_gradedHelly\_two}).
+Grading is a \emph{safe} deformation.
+
+\emph{Higher-order possibility.}  A Carlson-style set-of-sets source
+--- ``the answer is one of these sets'' --- makes consistency a
+selectability problem (\code{SelectableConsistent},
+\Ste{Carlson.SetOfSets}).  The singleton case recovers the first-order
+theory exactly (\code{selectable\_singleton\_iff},
+\code{hasHellySel\_singletonFamily\_iff}), but the deformation is
+\emph{not} safe: a three-element triangle of two-element families is
+pairwise selectable with no global selection
+(\code{exists\_not\_hasHellySel\_two}), so the second-order Helly
+number is at least three.  Disjunction over readings costs locality ---
+the first recurrence of the spine's dichotomy on language soil, and an
+operational correctness cliff: any solver ingesting set-of-sets data
+that relies on a pairwise scan is unsound.
+
+\textbf{The owning document for both deformations and their
+interpretation is the interpretive log}
+(\code{hyperframe-interpretations.tex}), pending their dedicated
+paper; the epistemology note owns the position that the probabilistic
+deformation (a normalized density with Shannon entropy on top) is
+currently out of mechanized reach, and why the honest boundary is drawn
+there.
+
+\chapter{Dynamic corpora: frames in motion}
+\label{ch:dynamic}
+
+Real corpora are mutable: documents arrive, are deleted, and carry
+several candidate frame interpretations at once; coreference among
+their claims must not be forced to one early clustering.  The project's
+answer is a possible-worlds semantics: every exact interpretation and
+strict coreference partition is a candidate normalization hypothesis,
+constraints denote property sets of hypotheses, and the solver is
+literally STE.  Identity statements then come in exact modal grades ---
+inconsistent, must, cannot, uncertain --- with must-coreference the
+safe quotient and the uncertainty overlay provably non-transitive.
+\textbf{The full treatment is the dynamic-frames paper}
+(\emph{Dynamic Set-Theoretic Normalization}, %
+\code{dynamic-frame-normalization.tex}): document-insertion
+antitonicity, deletion expansion, order independence, delta
+decomposition, minimal document supports, the $2^N$ tight limit, and an
+executable solver proved extensionally equal to the abstract
+semantics.  The engineering face --- how to shrink the feasible family
+while preserving the queries that matter, and where compression
+provably cannot go --- is owned by the shrinking note
+(\code{ste-feasible-set-shrinking.tex}).  The database lineage the
+paper builds on is conditional tables and provenance
+\citep{imielinski1984incomplete,green2007provenance}, with
+truth-maintenance ancestry \citep{doyle1979tms,dekleer1986atms}.
+
+One theorem from that development must be quoted here, because
+Chapter~\ref{ch:coref} is built directly on it.  Must-coreference is
+the lattice meet of the feasible hypotheses' partitions:
+\[
+  \code{mustSetoid}\,(D) \;=\; \operatorname{sInf}\,
+  \{\,\text{exact partition of } h : h \in \text{feasible}(D)\,\}
+\]
+(\code{mustSetoid\_eq\_sInf}, \Ste{PartitionRank}), monotone in the
+corpus (\code{mustSetoid\_mono}, \code{rank\_mustSetoid\_mono}).  This
+is Shannon's lattice reading of the STE consensus: what \emph{every}
+surviving hypothesis agrees on.  Note its position in the spine: it is
+a \emph{meet} over hypotheses --- an agreement question --- and the
+dichotomy warns that such questions are the ill-conditioned ones.  The
+frontier chapter will take up the dual, join-side notion of identity
+and find it, by contrast, benign.
+
+\chapter{Three corpora, three shapes}
+\label{ch:empirical}
+
+The theory has been run, end to end, on real text three times, with a
+fallible LLM extractor producing set-valued frames and the verified
+Lean pipeline doing everything from the frames onward.  The three runs
+returned three different shapes of verdict, and together they span the
+gluing trichotomy of Chapter~\ref{ch:gluing}.
+
+\emph{The tides corpus} (multi-voice historical writing on tidal
+theory \citep{galileo1632dialogue,kepler1609astronomia,
+newton1687principia,descartes1644principia,pliny77naturalis}): a
+consistent core exists after the machine \emph{corrects} extraction
+slips --- the inconsistency detector doing its founding job of invalid
+information detection.  \emph{The Federalist corpus}
+\citep{hamilton1788federalist}: 86 documents pass through the proven
+pipeline and cohere at scale --- the linear per-variable scan, proved
+complete for rectangular frame corpora, verifying feasibility cheaply
+exactly as the Helly-2 theory predicts.  \emph{The ratification
+two-camp corpus}: the consistent core \emph{shatters}, cleanly and
+camp-wise --- global gluing fails while camp-local coherence survives,
+the gluing complex exhibited in the wild.  \textbf{The full treatments
+are the three results notes}
+(\code{ste-corpus-tides-results.tex},
+\code{ste-corpus-federalist-results.tex},
+\code{ste-corpus-ratification-twocamp.tex}), each of which states its
+own boundary-of-trust section; the fidelity/consistency conditional ---
+the kernel verifies coherence of the extracted frames, never fidelity
+of extraction --- is stated there and in the epistemology note, and we
+do not re-litigate it.
+
+For the arc, the empirical chapters certify one thing: the non-metric
+theory is not a redescription but a running instrument, and its three
+possible verdicts --- cohere, cohere-after-correction, shatter-with-
+located-obstruction --- are exactly the three outcomes the structure
+theory said were possible.
+
+\part{Language III: the Frontier}
+\label{part:frontier}
+
+\chapter{Multi-document coreference: identity as a lattice limit}
+\label{ch:coref}
+
+This chapter is the monograph's frontier and is originated here in
+full: its mathematics exists only in the Lean module \Ste{Coreference}
+and in the interpretive log, and this is its first complete prose
+treatment.
+
+\section{The problem, and why it is the right frontier}
+
+Everything in Part~\ref{part:frames} lived, formally, inside one
+mention space: the dynamic-frames development partitions a single
+\code{Claim} type, and its must-coreference is a single partition of
+it.  But the questions that motivate corpus-scale semantics are
+cross-document by nature: \emph{is the ``General Carlson'' of document
+12 the ``B.~Carlson'' of document 40?}  Cross-document coreference
+resolution is a mature engineering problem
+\citep{singh2011crossDocumentCoreference,barhom2021eventCoreference,
+cattan2021sequentialCoreference}, entangled with the hard ontology of
+event identity \citep{hovy2013events}, and closely allied to record
+linkage and truth discovery in databases
+\citep{elmagarmid2007duplicateRecordDetection,dong2009dataFusion,
+li2015truthDiscoverySurvey,yin2007truthfinder}.  The dominant method
+shape is the same everywhere: featurize pairs of mentions, score
+similarity, cluster --- identity as the output of an optimizer.
+
+The STE stance dictates a different decomposition of the problem, and
+it is the same decomposition the whole book has practiced: separate
+\emph{what the evidence forces} from \emph{what a scorer guesses}.  A
+similarity model may propose links; that is extraction, fallible and
+outside the kernel.  What the kernel can own is the question:
+\emph{given} the per-document coreference decisions and a set of
+asserted cross-document links, what identifications follow?  The answer
+is not a cluster assignment but a partition-lattice construction ---
+and it turns out to have a universal property, exact monotonicity laws,
+a locality guardrail, and a place on the benign side of the spine's
+dichotomy.  Each of these is a machine-checked theorem.
+
+\section{Mentions with provenance}
+
+Fix a type $\mathrm{Doc}$ of documents and, for each $d$, a type
+$\mathrm{Local}\,d$ of mention identifiers local to $d$.  A
+\emph{mention} is a dependent pair:
+\[
+  \mathrm{Mention} \;=\; \Sigma_{d : \mathrm{Doc}}\, \mathrm{Local}\,d
+  \qquad (\code{Mention},\ \Ste{Coreference}).
+\]
+Provenance is thus carried in the type: two mentions from different
+documents are never conflated by construction, only ever by
+\emph{evidence}.  Each document contributes its local coreference
+decisions as a setoid (equivalence relation)
+$\mathrm{loc}\,d$ on $\mathrm{Local}\,d$ --- the output of
+within-document resolution, which we take as given.  The embedding
+\code{docSetoid} lifts $\mathrm{loc}\,d$ to a setoid on all of
+$\mathrm{Mention}$ that relates mentions of document $d$ as
+$\mathrm{loc}\,d$ does and relates every other mention only to itself.
+The lift is provably provenance-respecting: it lies below the
+same-document kernel setoid
+$\code{sameDocSetoid} = \operatorname{ker}(\pi_1)$
+(\code{docSetoid\_le\_sameDoc}).
+
+Cross-document evidence enters as a \emph{raw relation}
+$\mathrm{Link} \subseteq \mathrm{Mention}\times\mathrm{Mention}$ ---
+deliberately not assumed symmetric, transitive, or reflexive.  This
+models the epistemic situation honestly: an extractor asserts
+individual links (``these two mentions co-refer''), and nothing about
+the assertion process guarantees closure properties.  Equivalence is
+something we \emph{impose} on evidence by closure, never something we
+\emph{presume} of it.
+
+\section{The forced coreference and its universal property}
+
+\begin{definition}[\code{forcedCoref}, \Ste{Coreference}]
+Given local coreferences $\mathrm{loc}$, links $\mathrm{Link}$, and an
+active document set $S \subseteq \mathrm{Doc}$, the
+\emph{corpus-forced coreference} is the join, in the complete lattice
+of setoids on $\mathrm{Mention}$, of every active document's
+contribution with the equivalence closure of the links:
+\[
+  \mathrm{forcedCoref}(\mathrm{loc},\mathrm{Link},S)
+  \;=\;
+  \bigsqcup_{d\in S} \mathrm{docSetoid}(\mathrm{loc},d)
+  \;\sqcup\;
+  \mathrm{EqvGen}(\mathrm{Link}).
+\]
+\end{definition}
+
+Call a setoid $s$ \emph{adequate} (to the evidence) if it dominates
+every active document's contribution and contains every asserted link.
+The construction has the universal property one should demand of
+``what the evidence forces'':
+
+\begin{theorem}[Identity as a lattice limit;
+\code{forcedCoref\_eq\_sInf}]
+The forced coreference is the least adequate setoid:
+\[
+  \mathrm{forcedCoref}(\mathrm{loc},\mathrm{Link},S)
+  \;=\;
+  \operatorname{sInf}\,\bigl\{\, s \;\bigm|\;
+    \forall d\in S,\ \mathrm{docSetoid}(\mathrm{loc},d) \le s
+    \ \wedge\ \mathrm{Link} \subseteq s \,\bigr\}.
+\]
+\end{theorem}
+
+\begin{interpretation}
+``Who is the same as whom, across the corpus'' is not a search problem
+whose answer must be guessed; it is a \emph{fixed point of constraint
+accumulation} --- the unique smallest partition consistent with all the
+local readings and all the asserted links.  The join reading (close up
+the evidence) and the meet reading (intersect everything adequate)
+provably coincide, so the construction is canonical: any resolver that
+returns fewer identifications has ignored evidence, and any that
+returns more has invented some.  Identity is \emph{derived, not
+posited}.
+\end{interpretation}
+
+The theorem is the exact dual of the single-document consensus theorem
+quoted in Chapter~\ref{ch:dynamic}: there, \code{mustSetoid\_eq\_sInf}
+computes the \emph{meet over hypotheses} --- what every surviving world
+agrees on; here, \code{forcedCoref\_eq\_sInf} computes the \emph{join
+over evidence} --- the least commitment adequate to what was actually
+asserted.  Both are $\operatorname{sInf}$ characterizations in the same
+lattice $\mathrm{Setoid}$, indexed differently: by feasible worlds
+there, by document provenance here.  This duality --- consensus as
+meet, accumulation as join --- is the spine's dichotomy expressed
+inside a single application, and we return to it in
+\S\ref{sec:coref-spine}.
+
+\section{Monotonicity: evidence only sharpens}
+
+\begin{theorem}[\code{forcedCoref\_mono\_docs},
+\code{forcedCoref\_mono\_link}]
+The forced coreference is monotone in the active document set and in
+the link relation: $S \subseteq S'$ implies
+$\mathrm{forcedCoref}(S) \le \mathrm{forcedCoref}(S')$, and pointwise
+$\mathrm{Link} \subseteq \mathrm{Link}'$ implies
+$\mathrm{forcedCoref}(\mathrm{Link}) \le
+ \mathrm{forcedCoref}(\mathrm{Link}')$.
+\end{theorem}
+
+\begin{theorem}[\code{rank\_forcedCoref\_mono\_docs}]
+On finite corpora the monotonicity is quantitative: adding documents
+can only raise the partition rank of the forced coreference,
+\emph{i.e.}\ the number of merges the evidence has bought.
+\end{theorem}
+
+\begin{interpretation}
+Identity can only sharpen as documents arrive.  This is the
+cross-document analogue of information monotonicity in classical STE
+--- more constraints, smaller feasible set --- but note the polarity
+flip that provenance indexing produces: in the dynamic-frames world,
+document insertion is \emph{antitone} on the feasible hypothesis set;
+here it is \emph{monotone} on forced identifications.  Both statements
+are the same phenomenon (evidence accumulates) read on opposite sides
+of a Galois-style correspondence between hypotheses and commitments.
+Retraction --- a document deleted, a link withdrawn --- is deliberately
+outside this chapter's formalism: the dynamic-frames paper owns
+deletion semantics, and grafting its deletion-expansion laws onto the
+provenance-indexed setting is future work
+(\S\ref{sec:coref-open}).
+\end{interpretation}
+
+\section{The locality guardrail}
+
+A resolver that can merge anything must be trusted not to merge
+everything.  The formal system earns that trust with a separation
+theorem:
+
+\begin{theorem}[\code{forcedCoref\_no\_links\_same\_doc}]
+With no cross-document links asserted, the forced coreference never
+crosses a document boundary: if
+$\mathrm{forcedCoref}(\mathrm{loc}, \varnothing, S)$ relates $x$ and
+$y$, then $x$ and $y$ belong to the same document.  (Via
+\code{forcedCoref\_no\_links\_le\_sameDoc}: the whole relation lies
+below the same-document kernel.)
+\end{theorem}
+
+\begin{interpretation}
+The formalism refuses to invent cross-document identity out of thin
+air.  However rich each document's internal coreference, and however
+many documents are active, no identification leaks across a boundary
+without a chain of asserted evidence.  This is the guardrail that
+similarity-clustering architectures lack by construction: there,
+any two sufficiently similar mentions may be merged, and the burden of
+\emph{not} merging namesakes falls on the score.  Here the default is
+separation; merging is what must be paid for, link by link.  In the
+epistemology note's terms, the guardrail is part of the coherence
+discipline: the kernel polices what follows from evidence, and the
+fallibility of the links themselves is exactly where the
+fidelity/consistency conditional applies.
+\end{interpretation}
+
+\section{The witness: transitivity is the inference engine}
+
+The guardrail bounds the formalism from below; a concrete witness
+bounds it from above, showing the closure genuinely infers.
+
+\begin{theorem}[\code{witness\_cross\_doc\_forced}]
+Take three documents with one mention apiece, no internal coreference,
+and a chain of two links: document~0 to document~1, and document~1 to
+document~2 --- but, provably, no direct 0--2 link
+(\code{chainLink\_not\_direct}), and the endpoints in genuinely
+different documents (\code{m0\_ne\_m2\_doc}).  The forced coreference
+identifies the document-0 mention with the document-2 mention.
+\end{theorem}
+
+\begin{interpretation}
+Together the guardrail and the witness bracket the system's inferential
+power exactly: \emph{nothing} without a chain of evidence,
+\emph{everything} a chain licenses.  All the inferential work is done
+by transitive closure over asserted links --- which is also a precise
+statement of risk.  One wrong link does not stay local: closure can
+propagate it into a cascade of merges.  The monotonicity theorems then
+say the cascade is at least \emph{orderly} (adding evidence never
+un-merges), and the rank corollary meters its size.  A production
+resolver built on this kernel would therefore treat link assertion as
+the audited, expensive act --- precisely the inversion of the
+similarity-clustering economy, where merging is cheap and auditing is
+impossible.
+\end{interpretation}
+
+\section{The spine, one last time}
+\label{sec:coref-spine}
+
+The forced coreference is a \emph{join-side} construction: it
+accumulates evidence by $\sqcup$ in the setoid lattice.  The spine's
+contraction theorem (\code{shannonDist\_sup\_right\_le},
+Chapter~\ref{ch:spine}) holds in every setoid lattice over a finite
+carrier, so it applies verbatim to the mention partitions of a finite
+corpus: perturbing one contribution --- swapping a document's local
+coreference for a nearby one, adding or dropping a link --- moves the
+forced coreference by no more than the perturbation, in the
+combinatorial Shannon metric.  Cross-document identity, as formalized
+here, is a \emph{well-conditioned} quantity.
+
+The meet-side questions are also present in this domain, and the
+dichotomy predicts their character.  ``What identifications do
+\emph{all} feasible hypotheses agree on'' (the \code{mustSetoid}
+consensus of Chapter~\ref{ch:dynamic}) and ``what do these two
+corpora's coreference structures have in common'' are
+$\sqcap$-questions, and \code{shannonDist\_inf\_not\_contraction} warns
+that they are ill-conditioned: a small change in one input can move the
+agreement arbitrarily far.  The practical reading is a design rule for
+corpus systems: \emph{publish forced (join-side) identity; treat
+consensus (meet-side) identity as fragile, and never build downstream
+pipelines that differentiate through it}.  That rule is this
+monograph's thesis made operational, and it is the reason the frontier
+chapter belongs to the same book as the geometry chapter.
+
+\section{What is deliberately not yet mechanized}
+\label{sec:coref-open}
+
+The chapter closes with its honest boundary, in the project's standard
+form.  Mechanized: everything cited above, sorry-free.  Not mechanized,
+and flagged as the frontier's frontier:
+(i)~\emph{link fallibility} --- graded links with a fuzzy-frame lift
+(Chapter~\ref{ch:frames}), so that a forced merge carries the minimum
+confidence along its evidence chain, in the spirit of subjective logic
+\citep{josang2016subjectiveLogic};
+(ii)~\emph{retraction} --- transporting the dynamic-frames deletion
+laws to the provenance-indexed setting;
+(iii)~\emph{entity-level frames} --- attaching set-valued frames to
+merged clusters and asking when the merged frame remains feasible,
+which is where coreference re-enters the gluing theory of
+Chapter~\ref{ch:gluing};
+(iv)~\emph{the Helly question} --- whether 2-locality survives the
+sigma-type indexing of mentions, or whether provenance, like
+second-order possibility, has a locality price.  Conjecture: it
+survives for link-free corpora (which are rectangular in the
+appropriate sense) and fails in general once links couple documents ---
+that is, the dichotomy will reappear exactly here.
+
+\chapter{The honest boundary}
+\label{ch:boundary}
+
+Every load-bearing caveat in this book has a single owning statement in
+the epistemology note (\code{hyperframes-epistemology.tex}), and this
+chapter is only its index.  The theory studies \emph{coherence, not
+truth}; its verdicts are conditional on extraction fidelity, and the
+kernel checks the consistency side of that conditional only.  The crisp
+set-valued formalism has a stated expressiveness ceiling --- no
+normalized densities, hence no genuine Shannon entropy over readings,
+until the mechanization landscape changes; the fuzzy stack of
+Chapter~\ref{ch:frames} is the possibilistic approximation, honestly
+labeled.  The empirical chapters' boundary-of-trust sections
+instantiate the conditional per corpus.  Nothing in this monograph
+strengthens, weakens, or renegotiates that position; a reader who wants
+it argued should read the note, which argues it at length.
+
+\appendix
+
+\chapter{The overlap-resolution map}
+\label{app:map}
+
+This appendix is the monograph's contract with its corpus: for every
+topic, exactly one document owns the deep dive; this book cites owners
+and never re-derives; and the residual overlaps among existing
+documents are flagged for trimming, as recommendations only --- no
+existing paper is edited by this book.
+
+\section{Ownership}
+
+\begin{center}
+\small
+\begin{tabular}{@{}p{0.44\textwidth}p{0.5\textwidth}@{}}
+\toprule
+\textbf{Topic} & \textbf{Owning deep dive} \\
+\midrule
+Formal STE core; taxonomy; Carlson counting/reduction chain &
+  \code{ste-mechanization.tex} \\
+Primary-source review (Combettes, Carlson) &
+  \code{literature-review.tex} \\
+Projection/convex inheritance; set-membership tradition &
+  \code{topological-ste-survey.tex} \\
+Post-2012 uptake; mechanization gap &
+  \code{decade-followon-survey.tex} \\
+Sheaf/\v{C}ech gluing for STE; support--cover theorem &
+  \code{ste-cohomology.tex} (flagship) \\
+Accessible gluing dictionary &
+  \code{ste-cohomology-recast.tex} \\
+Contextuality-literature setting of the obstruction &
+  \code{cohomological-obstruction-litreview.tex} \\
+Representation, treewidth stack, exponential lower bounds &
+  \code{ste-representation-sheaves.tex} \\
+Obstruction-vs-blow-up sandwich, literature &
+  \code{representation-bounds-litreview.tex} \\
+CG-as-STE equivalence and its scope &
+  \code{constraint-grammar-ste.tex} \\
+Historical bridge to CL; FCA/hyperframe lattice &
+  \code{ste-and-language.tex} \\
+Epistemology; coherence-not-truth; entropy ceiling &
+  \code{hyperframes-epistemology.tex} \\
+Dynamic corpus semantics; modal identity grades; $2^N$ limit &
+  \code{dynamic-frame-normalization.tex} \\
+Feasible-family reduction/compression contract &
+  \code{ste-feasible-set-shrinking.tex} \\
+New Lean threads (set-valued, fuzzy, set-of-sets, gluing complex,
+info-geometry): interpretations &
+  \code{hyperframe-interpretations.tex} (running log) \\
+Tides / Federalist / ratification runs &
+  the three \code{ste-corpus-*-results} notes \\
+Multi-document coreference (\Ste{Coreference}) &
+  \textbf{this monograph}, Chapter~\ref{ch:coref} \\
+Conditioning dichotomy as unifying thread &
+  \textbf{this monograph}, Chapter~\ref{ch:spine} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Overlaps flagged for trimming (recommendations)}
+
+\begin{enumerate}
+\item \textbf{Flagship vs.\ representation paper.}
+  \code{ste-cohomology.tex} currently re-develops the
+  bounded-treewidth algorithmic stack and the rectangle-cover /
+  fooling-set bounds that \code{ste-representation-sheaves.tex} owns.
+  Recommend: the flagship trims those sections to statements plus
+  citations, keeping only what the support--cover theorem itself needs.
+\item \textbf{Flagship vs.\ mechanization paper.}
+  The flagship's foundations sections (\S2--3) re-explain the STE core
+  and the Carlson turn owned by \code{ste-mechanization.tex} and the
+  surveys.  Recommend: compress to a one-page recap with pointers.
+\item \textbf{Recast note vs.\ the metric-geometry thread.}
+  \code{ste-cohomology-recast.tex}'s ``readings form a metric space''
+  section predates \Ste{InfoTopology} and now duplicates (in weaker
+  form) material owned by the interpretive log and
+  Chapter~\ref{ch:spine}.  Recommend: reduce to a pointer.
+\item \textbf{The three surveys.}
+  \code{literature-review.tex}, \code{topological-ste-survey.tex}, and
+  \code{decade-followon-survey.tex} each re-summarize
+  \citet{carlson2012}'s core construction.  Recommend: the two surveys
+  cite the literature review's summary instead of repeating it, keeping
+  only their period-specific material.
+\item \textbf{Dynamic frames vs.\ shrinking note.}
+  The $2^N$ tight-limit theorem, minimal supports, and cross-corpus
+  gluing appear in both \code{dynamic-frame-normalization.tex} and
+  \code{ste-feasible-set-shrinking.tex}.  Recommend: the shrinking note
+  keeps the practitioner contract and cites the paper for the theorems.
+\item \textbf{CG note vs.\ language note.}
+  \code{constraint-grammar-ste.tex}'s ``consequences transported''
+  section partially re-derives monotonicity facts owned by
+  \code{ste-and-language.tex}.  Minor; recommend cross-reference.
+\item \textbf{Tides plan vs.\ tides results.}
+  \code{ste-corpus-tides-plan.tex} is superseded by the results note.
+  Recommend: mark as historical/superseded in its header.
+\item \textbf{Gluing complex placement.}
+  \Ste{LocalGluing} currently has prose only in the log and in
+  Chapter~\ref{ch:gluing} here.  Recommend: its deep dive be added to a
+  future revision of the flagship (not to a new paper), keeping
+  ownership consolidated.
+\end{enumerate}
+
+\chapter{Index of machine-checked results cited}
+\label{app:lean}
+
+All identifiers verified sorry-free in the project's Lean~4 library at
+the time of writing; module names are relative to \code{lean/Ste/}.
+
+\begin{center}
+\small
+\begin{tabular}{@{}llp{0.20\textwidth}@{}}
+\toprule
+\textbf{Lean identifier} & \textbf{Module} & \textbf{Cited in} \\
+\midrule
+\code{frame\_hasHelly\_two} & \Ste{HellyConsistency} & Ch.~\ref{ch:spine} \\
+\code{rank\_submodular} & \Ste{PartitionRank} & Ch.~\ref{ch:spine} \\
+\code{mustSetoid\_eq\_sInf} & \Ste{PartitionRank} & Ch.~\ref{ch:dynamic} \\
+\code{mustSetoid\_mono} & \Ste{PartitionRank} & Ch.~\ref{ch:dynamic} \\
+\code{rank\_mustSetoid\_mono} & \Ste{PartitionRank} & Ch.~\ref{ch:dynamic} \\
+\code{couplingExcess\_pos\_of\_not\_le} & \Ste{CouplingRank} & Ch.~\ref{ch:spine} \\
+\code{shannonDist}, \code{shannonDist\_triangle} & \Ste{InfoDistance} & Ch.~\ref{ch:spine} \\
+\code{one\_le\_shannonDist\_of\_ne} & \Ste{InfoTopology} & Ch.~\ref{ch:spine} \\
+\code{shannonDist\_sup\_right\_le} & \Ste{InfoTopology} & Ch.~\ref{ch:spine}, \ref{ch:coref} \\
+\code{shannonDist\_sup\_le\_add} & \Ste{InfoTopology} & Ch.~\ref{ch:spine} \\
+\code{shannonDist\_inf\_not\_contraction} & \Ste{InfoTopology} & Ch.~\ref{ch:spine}, \ref{ch:coref} \\
+\code{shannonDist\_add\_rank\_add\_rank} & \Ste{InfoTopology} & Ch.~\ref{ch:spine} \\
+\code{pentagonal\_violation}, \code{median\_not\_unique} & \Ste{InfoTopology} & Ch.~\ref{ch:spine} \\
+\code{aligned\_of\_chain}, \code{le\_sup\_of\_aligned} & \Ste{InfoTopology} & Ch.~\ref{ch:spine} \\
+\code{diagonal\_cechObstruction} & \Ste{CechObstruction} & Ch.~\ref{ch:spine}, \ref{ch:gluing} \\
+\code{GluesOn}, \code{gluingComplex} & \Ste{LocalGluing} & Ch.~\ref{ch:gluing} \\
+\code{mem\_gluingComplex\_of\_subset} & \Ste{LocalGluing} & Ch.~\ref{ch:gluing} \\
+\code{cechVanishesCover\_iff\_gluesLocallyAt\_card} & \Ste{LocalGluing} & Ch.~\ref{ch:gluing} \\
+\code{diagonal\_gluesLocallyAt\_one} & \Ste{LocalGluing} & Ch.~\ref{ch:gluing} \\
+\code{diagonal\_not\_gluesLocallyAt\_two} & \Ste{LocalGluing} & Ch.~\ref{ch:gluing} \\
+\code{diagonal\_local\_not\_tight} & \Ste{LocalGluing} & Ch.~\ref{ch:gluing} \\
+\code{cechVanishesCover\_of\_hasHelly\_gluingFiber} & \Ste{LocalGluing} & Ch.~\ref{ch:gluing} \\
+\code{propertySet\_isRectangle} & \Ste{SetValuedFrame} & Ch.~\ref{ch:frames} \\
+\code{propertySet\_cechVanishesCover} & \Ste{SetValuedFrame} & Ch.~\ref{ch:spine}, \ref{ch:frames} \\
+\code{corpusFeasibilitySet\_nonempty\_iff} & \Ste{SetValuedFrame} & Ch.~\ref{ch:frames} \\
+\code{isExtent\_corpusFeasibilitySet} & \Ste{SetValuedFrame} & Ch.~\ref{ch:frames} \\
+\code{hasHelly\_ofCrisp\_two} & \Ste{SetValuedFrame} & Ch.~\ref{ch:frames} \\
+\code{consistencyDegree} & \Ste{FuzzyFrame} & Ch.~\ref{ch:frames} \\
+\code{cut\_fuzzyFeasibility} & \Ste{FuzzyFrame} & Ch.~\ref{ch:frames} \\
+\code{consistencyDegree\_crisp\_eq\_one\_iff} & \Ste{FuzzyFrame} & Ch.~\ref{ch:frames} \\
+\code{weightedFrame\_gradedHelly\_two} & \Ste{FuzzyFrame} & Ch.~\ref{ch:frames} \\
+\code{SelectableConsistent} & \Ste{Carlson.SetOfSets} & Ch.~\ref{ch:frames} \\
+\code{selectable\_singleton\_iff} & \Ste{Carlson.SetOfSets} & Ch.~\ref{ch:frames} \\
+\code{hasHellySel\_singletonFamily\_iff} & \Ste{Carlson.SetOfSets} & Ch.~\ref{ch:frames} \\
+\code{exists\_not\_hasHellySel\_two} & \Ste{Carlson.SetOfSets} & Ch.~\ref{ch:spine}, \ref{ch:frames} \\
+\code{Mention}, \code{docSetoid}, \code{sameDocSetoid} & \Ste{Coreference} & Ch.~\ref{ch:coref} \\
+\code{docSetoid\_le\_sameDoc} & \Ste{Coreference} & Ch.~\ref{ch:coref} \\
+\code{forcedCoref} & \Ste{Coreference} & Ch.~\ref{ch:coref} \\
+\code{forcedCoref\_eq\_sInf} & \Ste{Coreference} & Ch.~\ref{ch:coref} \\
+\code{forcedCoref\_mono\_docs} & \Ste{Coreference} & Ch.~\ref{ch:coref} \\
+\code{forcedCoref\_mono\_link} & \Ste{Coreference} & Ch.~\ref{ch:coref} \\
+\code{forcedCoref\_no\_links\_le\_sameDoc} & \Ste{Coreference} & Ch.~\ref{ch:coref} \\
+\code{forcedCoref\_no\_links\_same\_doc} & \Ste{Coreference} & Ch.~\ref{ch:coref} \\
+\code{witness\_cross\_doc\_forced} & \Ste{Coreference} & Ch.~\ref{ch:coref} \\
+\code{chainLink\_not\_direct}, \code{m0\_ne\_m2\_doc} & \Ste{Coreference} & Ch.~\ref{ch:coref} \\
+\code{rank\_forcedCoref\_mono\_docs} & \Ste{Coreference} & Ch.~\ref{ch:coref} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
