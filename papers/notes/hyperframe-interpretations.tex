@@ -1,0 +1,206 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{booktabs}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title{The Hyperframe Program: Accumulating Interpretations\\
+\large A running interpretive companion to the mechanized library}
+\author{Project \texttt{thejeb}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This is a working log, not a finished paper.  As each result is
+mechanized in Lean and merged to the main library, we record here
+\emph{what it means} --- the interpretation the machine-checked
+statement licenses --- so that the interpretations accumulate rather
+than evaporate.  The discipline is fixed: every theorem is cited by its
+exact Lean identifier and is proved (sorry-free, no \code{native\_decide};
+axioms \code{propext}, \code{Classical.choice}, \code{Quot.sound} only);
+the surrounding prose is interpretation, ours to defend, and is marked as
+such.  The frame of reference throughout is the hyperframe stance
+developed in the companion epistemology note: set theoretic estimation
+\citep{combettes1993} studies \emph{coherence, not truth}, over
+set-valued (possibility-set) frames extracted from context-bounded
+texts.  The information-lattice thread connects to Shannon's lattice of
+information as synthesized by \citet{delsol2024}; the set-of-sets thread
+extends the STE-for-decryption line of \citet{carlson2012}.
+\end{abstract}
+
+\section{The backbone (established earlier)}
+Three prior machine-checked facts anchor everything below and are used
+as load-bearing lemmas.
+\begin{itemize}
+\item \textbf{2-locality of frames.} \code{frame\_hasHelly\_two}
+  (\code{Ste.HellyConsistency}): for frame corpora, pairwise consistency
+  forces global consistency.  Coherence is a purely 2-local property ---
+  the metric-free discriminator of feasible structure.
+\item \textbf{The coupling dichotomy.} \code{rank\_submodular} and
+  \code{couplingExcess\_pos\_of\_not\_le}
+  (\code{Ste.PartitionRank}/\code{Ste.CouplingRank}): the partition rank
+  is submodular, and the coupling excess is zero exactly when readings
+  decompose and positive exactly when they genuinely entangle.
+\item \textbf{The lattice is metric.} \code{shannonDist\_triangle}
+  (\code{Ste.InfoDistance}): the reading lattice is a metric space under
+  the counting Shannon distance, the triangle inequality falling out of
+  submodularity.
+\end{itemize}
+Each new thread below is read against this backbone.
+
+\section{The set-valued frame: the primitive, made precise}
+\emph{Module \code{Ste.SetValuedFrame}.}
+The primitive of the whole program is now a first-class object.  A
+\emph{set-valued frame} assigns each variable a possibility set; its
+induced constraint is the box \code{propertySet F = Set.univ.pi F}
+(\code{propertySet\_isRectangle}), hence it glues with no obstruction over
+every cover (\code{propertySet\_cechVanishesCover}).  A corpus is feasible
+exactly when every variable's possibility-set intersection is nonempty
+(\code{corpusFeasibilitySet\_nonempty\_iff}).
+
+\emph{Interpretation.} This is the formal content of ``reference is
+underdetermined but bounded.''  A source does not name a referent; it
+fences a set of admissible ones, and the arithmetic of meaning is then
+\emph{coordinatewise set intersection}.  The crisp frame is recovered as
+the singleton special case (\code{ofCrisp}), with 2-locality transported
+(\code{hasHelly\_ofCrisp\_two}) --- so the classical determinate-reference
+model is not discarded but embedded as the zero-uncertainty corner of the
+set-valued one.  That the corpus feasibility set is a formal-concept
+extent (\code{isExtent\_corpusFeasibilitySet}) says the possibility-set
+picture and the concept-lattice picture are the same object seen twice.
+
+\section{Local, non-tight gluing: coherence has a shape, not a verdict}
+\emph{Module \code{Ste.LocalGluing}.}
+Gluing is no longer all-or-nothing.  \code{GluesOn T U J'} says a
+compatible family assembles over a \emph{sub-cover} $J'$; the
+\code{gluingComplex} is the family of sub-covers on which it does, and it
+is downward closed (\code{mem\_gluingComplex\_of\_subset}) --- an abstract
+simplicial complex.  The tight sheaf condition is exactly the top face
+being present
+(\code{cechVanishesCover\_iff\_forall\_univ\_mem\_gluingComplex},
+\code{cechVanishesCover\_iff\_gluesLocallyAt\_card}).  The diagonal is the
+separating witness: it glues locally at width one but not at two
+(\code{diagonal\_gluesLocallyAt\_one},
+\code{diagonal\_not\_gluesLocallyAt\_two},
+\code{diagonal\_local\_not\_tight}).
+
+\emph{Interpretation.} Incoherence is not a single bit.  A corpus that
+fails to cohere globally still coheres over a rich, structured family of
+sub-corpora, and that family --- the gluing complex --- is the real
+object of study.  This is the paraconsistent stance made geometric: when
+the whole does not glue, the meaningful content is the complex of pieces
+that do, and the obstruction is located, not merely detected.  The
+bridge \code{cechVanishesCover\_of\_hasHelly\_gluingFiber} ties this back
+to the backbone: enough local Helly structure on the fibers forces the
+top face, i.e.\ local coherence climbs to global.  ``Local but not
+tight'' was the right instinct; it names the strictly weaker middle
+between per-piece consistency and global solvability.
+
+\section{Multi-document coreference: identity as a lattice limit}
+\emph{Module \code{Ste.Coreference}.}
+Coreference across documents is now modeled.  Mentions live over
+disjoint documents; each document contributes a local coreference; the
+corpus-forced coreference is the setoid-lattice join of those
+contributions with the closure of the cross-document links
+(\code{forcedCoref}), characterized as the least adequate partition
+(\code{forcedCoref\_eq\_sInf}).  It is monotone in evidence
+(\code{forcedCoref\_mono\_docs}, \code{forcedCoref\_mono\_link},
+\code{rank\_forcedCoref\_mono\_docs}), it never crosses a document
+boundary without a link (\code{forcedCoref\_no\_links\_same\_doc}), and a
+two-link chain can force a cross-document identification
+(\code{witness\_cross\_doc\_forced}).
+
+\emph{Interpretation.} ``Who is the same as whom, across a corpus'' is
+not a search problem with an answer to be guessed; it is a
+\emph{fixed point} of constraint accumulation --- the least partition
+adequate to all the local readings and links.  Identity is derived, not
+posited, and it can only sharpen as documents arrive
+(monotonicity).  The locality lemma is the honest guardrail: the
+formalism refuses to invent cross-document identity out of thin air ---
+it merges two mentions only when a chain of evidence links them.  This is
+coreference as the partition-lattice meet, the same \code{sInf} structure
+the backbone's forced-reading result already used, now indexed by
+document provenance.
+
+\section{Fuzzy frames: possibility with a gradient}
+\emph{Module \code{Ste.FuzzyFrame}.}
+The possibility set acquires a degree.  A \code{FuzzyFrame} is a
+membership $\Xi \to [0,1]$; intersection is the min t-norm
+(\code{FuzzyFrame.inter}); the $\alpha$-cut recovers crisp sets
+(\code{FuzzyFrame.cut}).  Feasibility becomes graded --- a
+\code{consistencyDegree} --- and the two levels are tied at every
+threshold by \code{cut\_fuzzyFeasibility} (the $\alpha$-cut of fuzzy
+feasibility equals the crisp feasibility of the $\alpha$-cuts).  The
+crisp theory is the boundary: \code{consistencyDegree\_crisp\_eq\_one\_iff}
+(a crisp corpus scores $1$ iff feasible), and the graded Helly-2 analogue
+\code{weightedFrame\_gradedHelly\_two} holds.
+
+\emph{Interpretation.} This answers ``is a hyperframe really a fuzzy
+powerset with a density?'' in the possibilistic direction (Zadeh,
+Dubois--Prade): yes, and the crisp set-valued frame is exactly its
+$\{0,1\}$-valued restriction.  The $\alpha$-cut theorem is the load-bearing
+one --- it means the graded theory is not a separate universe but a
+\emph{stack} of crisp theories indexed by confidence threshold, so every
+crisp result (2-locality, gluing, feasibility) has an immediate graded
+shadow obtained by cutting.  The genuine \emph{probabilistic} direction ---
+a normalized density with Shannon entropy on top --- remains out of reach
+in Lean (no general discrete Shannon entropy in Mathlib); the honest
+boundary from the epistemology discussion stands.
+
+\section{Carlson set-of-sets: lifting a set breaks 2-locality}
+\emph{Module \code{Ste.Carlson.SetOfSets}.}
+A second-order extension of Carlson-style STE: a source offers not a
+possibility set but a \emph{set of} possibility sets, ``the answer is one
+of these sets.''  Consistency becomes selectability --- a system of
+representatives with nonempty intersection (\code{SelectableConsistent}).
+The singleton family recovers the first-order theory exactly
+(\code{selectable\_singleton\_iff},
+\code{hasHellySel\_singletonFamily\_iff}).  The headline: a \code{Fin 3}
+triangle of two-element families is pairwise selectable yet has no global
+selection (\code{exists\_not\_hasHellySel\_two}), so the second-order
+Helly number is at least three.
+
+\emph{Interpretation.} This is the sharpest ``the Helly number would
+change'' result.  Uncertainty \emph{about which possibility set applies}
+is a genuinely higher-order uncertainty than uncertainty \emph{within} a
+possibility set, and the jump is visible in exactly one invariant: the
+first order is 2-local (\code{frame\_hasHelly\_two}), the second order is
+not.  Operationally this is a correctness cliff: any solver that ingests
+set-of-sets data and relies on the linear pairwise scan is unsound; a
+$k\geq 3$ check is mandatory.  Interpretively it says the ``maybe we do
+not know which reading'' move --- disjunction over readings --- is not
+free; it costs locality, which is the very property that made the
+first-order theory tractable.
+
+\section{Information-lattice topology}
+\emph{(Thread in progress --- \code{Ste.InfoTopology}.)}
+Slot reserved.  The mechanizable target is the continuity/geometry of the
+information lattice under the counting Shannon metric: Lipschitz bounds on
+meet/join, and betweenness/median structure extending
+\code{shannonDist\_chain\_add}.  The finite metric topology is discrete
+and will be flagged as such; the genuine content is geometric
+(continuity, geodesics, median embedding), not point-set.  Interpretation
+to be written when the module lands.
+
+\section*{Toward a paper}
+The throughline, once the topology thread lands, is a single claim with
+six machine-checked faces: \emph{the hyperframe --- a bounded but
+underdetermined, possibly graded, possibly higher-order set of admissible
+readings --- carries exactly the structure needed to reason about
+coherence without truth, and that structure is a lattice with a metric, a
+gluing complex, and a sharp locality invariant that degrades and lifts in
+controlled ways.}  Set-valued frames give the primitive; local gluing
+gives coherence a shape; coreference gives identity as a lattice limit;
+fuzzy frames add the gradient; the set-of-sets result marks the locality
+cliff; and the metric/topology gives it geometry.  Each face is a
+theorem; the paper will be their assembly.
+
+\bibliographystyle{plainnat}
+\bibliography{../../refs}
+
+\end{document}
