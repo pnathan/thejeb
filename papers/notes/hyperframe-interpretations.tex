@@ -188,7 +188,12 @@ operations.  \textbf{Join is a contraction} and jointly 1-Lipschitz
 combining information is metrically stable.  \textbf{Meet is not}
 (\code{shannonDist\_inf\_not\_contraction}, a \code{Fin 4} witness): a
 tiny change in two readings can produce an arbitrarily large change in
-their common information.  And the metric, though bipartite-parity
+their common information.  In fact meet has \emph{no} Lipschitz constant
+at all: for every $C$ the $2k$-carrier witness ($k=C+1$; top vs.\ halves
+against the perfect matching) gives $d(P,Q)=1$ yet
+$d(P\sqcap R,Q\sqcap R)=k$ (\code{meet\_not\_lipschitz},
+\code{Ste.MeetScaling}) --- the general-$k$ theorem, no longer just the
+$k=2$ instance.  And the metric, though bipartite-parity
 (\code{shannonDist\_add\_rank\_add\_rank}), embeds in no $\ell_1$ cube
 (\code{pentagonal\_violation}, already at $|\alpha|=3$) and is not a
 median space (\code{median\_not\_unique}); it is the covering-graph

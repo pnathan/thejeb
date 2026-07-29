@@ -274,13 +274,19 @@ $d(P\sqcup Q, P'\sqcup Q') \le d(P,P') + d(Q,Q')$.
 \code{shannonDist\_sup\_le\_add}, \Ste{InfoTopology}.)}
 \end{theorem}
 
-\begin{theorem}[Meet is not]
+\begin{theorem}[Meet is not --- and has no uniform Lipschitz constant]
 There exist partitions $P,Q,R$ of a four-element carrier with
-$d(P,Q) < d(P\sqcap R,\; Q\sqcap R)$; on a $2k$-element carrier the gap
-scales with $k$, so meet admits no Lipschitz constant uniform in the
-carrier.  \emph{(\code{shannonDist\_inf\_not\_contraction},
-\Ste{InfoTopology}; the scaling claim is interpretation of the
-construction, the $k=2$ instance is the mechanized witness.)}
+$d(P,Q) < d(P\sqcap R,\; Q\sqcap R)$
+(\code{shannonDist\_inf\_not\_contraction}).  More: for \emph{every}
+constant $C$ there exist $P,Q,R$ --- on the $2k$-element carrier with
+$k=C+1$, taking $P=\top$, $Q$ the two halves, $R$ the perfect matching
+--- with
+$C\cdot d(P,Q) < d(P\sqcap R,\; Q\sqcap R)$, because
+$d(P,Q)=1$ throughout the family while $d(P\sqcap R,\;Q\sqcap R)=k$ grows
+without bound (\code{shannonDist\_meetWitness\_eq}).  The meet operation
+therefore admits \emph{no} Lipschitz constant.  \emph{(Both mechanized:
+\code{shannonDist\_inf\_not\_contraction} and the general-$k$
+\code{meet\_not\_lipschitz}, \Ste{MeetScaling}.)}
 \end{theorem}
 
 \begin{interpretation}
