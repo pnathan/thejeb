@@ -365,6 +365,48 @@ In one line: \textbf{the \v{C}ech obstruction is a computable measure of
 how far an STE problem is from being solvable window-by-window},
 zero exactly when it factors into independent pieces.
 
+\section{A companion structure: the readings form a metric space}
+The gluing story above lives on the \emph{constraint} side.  There is a
+companion object on the \emph{answer} side worth naming, because it
+turns out to carry more than an order --- it carries a genuine
+\emph{distance}.
+
+Group the possible answers by what they identify: a ``reading'' is a
+partition of the underlying items into those forced to agree.  One
+reading is \emph{finer} than another if it splits at least as much, and
+this refinement relation makes the readings into a lattice (a
+meet/join order).  This is exactly Shannon's 1953 \emph{lattice of
+information}: a random variable, viewed by which distinctions it
+records, and ordered by ``is a coarsening of.''  Its recent synthetic
+treatment \citep{delsol2024} is what prompted this section.
+
+The point Shannon already saw is that this lattice is \emph{metric}.
+Assign each reading a \emph{rank} --- for a finite item set, the number
+of items minus the number of groups, i.e.\ how many merges the reading
+commits to.  Then
+\[
+  D(P,Q) \;=\; \bigl(\operatorname{rank}(P\sqcup Q)-\operatorname{rank}
+  P\bigr) + \bigl(\operatorname{rank}(P\sqcup Q)-\operatorname{rank}
+  Q\bigr)
+\]
+--- the counting shadow of Shannon's entropic distance
+$H(X\mid Y)+H(Y\mid X)$ --- is a true distance: it is zero exactly when
+$P$ and $Q$ are the same reading, it is symmetric, and it satisfies the
+triangle inequality.  Crucially, the triangle inequality is not a
+separate miracle: it falls straight out of the same \emph{submodularity}
+of the rank that governs the coupling story (larger overlaps cost less),
+so the metric and the obstruction spring from one structural fact.  All
+of this is machine-checked (module \code{Ste.InfoDistance}); the
+entropy-valued distance itself --- with genuine $\log$s and
+probabilities --- is the content of \citet{delsol2024} and is cited, not
+reproved.
+
+So the feasible structure is not merely a set or an order.  It is a
+metric space, and the same submodular rank that makes the \v{C}ech
+obstruction vanish for uncoupled problems is what makes the reading
+lattice metric.  ``Lighter than a metric space'' was the wrong worry:
+the metric was there all along.
+
 \section{What is actually machine-checked}
 To keep the bright line the project insists on, here is what is a
 theorem (checked by Lean's kernel, sorry-free) versus what is intuition.
@@ -386,7 +428,12 @@ branch):
   \code{cechVanishesCover\_iff\_exists\_scopedGeneration} in
   \code{Ste.SupportCover};
 \item the frame Helly-2 collapse: \code{frame\_hasHelly\_two} in
-  \code{Ste.HellyConsistency}.
+  \code{Ste.HellyConsistency};
+\item the reading lattice is a metric space under the counting Shannon
+  distance: \code{shannonDist\_self}, \code{shannonDist\_comm},
+  \code{shannonDist\_eq\_zero\_iff} (separation), and
+  \code{shannonDist\_triangle} (triangle inequality, from rank
+  submodularity), all in \code{Ste.InfoDistance}.
 \end{itemize}
 
 \emph{Intuition / framing, not claimed as proven here:} the everyday
