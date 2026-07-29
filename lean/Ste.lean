@@ -56,6 +56,7 @@ import Ste.TidesCorpus
 import Ste.FiniteInstance
 import Ste.TidesComputable
 import Ste.HellyConsistency
+import Ste.SetValuedFrame
 import Ste.PartitionRank
 import Ste.CouplingRank
 import Ste.InfoDistance
