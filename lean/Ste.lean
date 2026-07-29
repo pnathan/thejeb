@@ -60,3 +60,4 @@ import Ste.PartitionRank
 import Ste.CouplingRank
 import Ste.InfoDistance
 import Ste.SetValuedFrame
+import Ste.Carlson.SetOfSets
