@@ -63,3 +63,4 @@ import Ste.SetValuedFrame
 import Ste.Carlson.SetOfSets
 import Ste.Coreference
 import Ste.LocalGluing
+import Ste.FuzzyFrame
