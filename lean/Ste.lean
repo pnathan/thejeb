@@ -22,6 +22,7 @@ import Ste.DynamicFrame.Lineage
 import Ste.DynamicFrame.AmbiguitySplit
 import Ste.Carlson
 import Ste.HyperFrame
+import Ste.FuzzyFrame
 import Ste.Sheaf
 import Ste.Decomposition
 import Ste.Factorization
