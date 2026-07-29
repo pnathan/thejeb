@@ -62,3 +62,4 @@ import Ste.InfoDistance
 import Ste.SetValuedFrame
 import Ste.Carlson.SetOfSets
 import Ste.Coreference
+import Ste.LocalGluing
