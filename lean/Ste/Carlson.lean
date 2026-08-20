@@ -14,7 +14,10 @@ This module gathers:
   * `Ste.Carlson.Reduction` — Theorem 5.2 / Lemma 5.1 / Corollary 5.3,
                               the reduction of ciphers to substitution
                               ciphers.
+  * `Ste.Carlson.Asymptotic` — asymptotic unicity for a ciphertext
+                              stream (deterministic form).
 -/
 import Ste.Carlson.Cipher
 import Ste.Carlson.Counting
 import Ste.Carlson.Reduction
+import Ste.Carlson.Asymptotic
