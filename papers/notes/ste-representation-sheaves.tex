@@ -310,10 +310,12 @@ obstruction of Abramsky and Brandenburger \citep{abramsky2011sheaf}:
 a family of perfectly consistent local sections (here: both values
 possible at each variable) that admits no factorization through a
 product---the ``global section'' data is not determined by, and not
-recoverable from, the per-variable marginals.  In cohomological
-terms (made precise only in the outlook below), the diagonal carries a
-nonzero \v{C}ech gluing class relative to the cover of $V$ by
-singletons.
+recoverable from, the per-variable marginals.  Relative to the cover of
+$V$ by singletons, the diagonal fails the sheaf condition: some
+compatible family of local sections does not glue.  This is a
+degree-$0$ statement --- the singleton contexts are disjoint, so the
+honest \v{C}ech $\check{H}^1$ of that cover is zero and no
+``nonzero gluing class'' is available or claimed.
 
 It is also, structurally, the same countermodel this project already
 uses for a different purpose: \lean{Ste.DynamicFrame.Counterexample}
@@ -651,12 +653,12 @@ chosen value, so the fold decides the problem \emph{conditioned on the
 chosen values} $(a_v)$ (\lean{mem\_eliminate\_iff} makes this exact).
 The \emph{projective} step of bucket elimination --- existentially
 quantifying $v$ rather than substituting it, so that a single run
-decides unconditional feasibility --- is \emph{not yet proven}
-(outlook), as are: a tree-decomposition datatype with its
-junction-tree representation theorem, and the \lean{encard}
-factorization of the conditioned feasible set through restriction maps
-(the quantitative analogue of
-\lean{encard\_feasibilitySet\_blockFamily}).
+decides unconditional feasibility --- lifts that caveat, and is proved
+below (\lean{projectEliminate\_decides\_feasibility},
+Section~\ref{sec:projection}); so are the $n$-ary \lean{encard}
+factorization (\lean{encard\_feasibilitySet\_blocks}) and the
+junction-tree representation theorem
+(\lean{junctionTree\_size\_le}).
 
 \subsection*{The width hypothesis discharged: induced treewidth}
 
@@ -885,24 +887,27 @@ gluing succeeds precisely for rectangles
 general-cover version (gluing precisely on the tractable fragments)
 stays outlook.
 
-\subsection{The concrete \v{C}ech obstruction}
+\subsection{The concrete gluing defect}
 Following \citet{abramsky2011sheaf}, the obstruction to gluing
-compatible local sections into a global one is a \v{C}ech $\check{H}^1$ class.
-\lean{Ste.CechObstruction} computes it concretely for the singleton
-cover: with $\operatorname{compatible}(T)$ the rectangle of $T$'s
+compatible local sections into a global one is the failure of the sheaf
+condition; \citet{abramsky2012cohomology} grade such failures
+cohomologically.  \lean{Ste.CechObstruction} computes the
+\emph{degree-$0$} defect concretely for the singleton cover, where
+overlaps are empty and $\check{H}^1$ is identically zero: with $\operatorname{compatible}(T)$ the rectangle of $T$'s
 projections and $\operatorname{glued}(T) = T$, the obstruction is
 $\operatorname{cechObstruction}(T) = |\operatorname{compatible}(T)| -
 |\operatorname{glued}(T)|$.
 
 \begin{theorem}[\lean{rectangular\_cechObstruction};
 \lean{diagonal\_cechObstruction}]
-The obstruction vanishes for every rectangular constraint ($\check{H}^1 = 0$)
-and equals $2 \ne 0$ for the diagonal.
+The gluing defect vanishes for every rectangular constraint and equals
+$2 \ne 0$ for the diagonal --- a count of stuck compatible families, not
+a cohomological rank.
 \end{theorem}
 
 \noindent Vanishing forces rectangularity
-(\lean{rectangular\_of\_cechVanishes}), bridging the cohomological
-obstruction to the representation obstruction of the coupling.
+(\lean{rectangular\_of\_cechVanishes}), bridging the gluing defect to
+the representation obstruction of the coupling.
 The singleton cover is the finest; \lean{Ste.CechCover} lifts the
 gluing level to an \emph{arbitrary} cover $U : J \to \mathcal{P}(V)$
 with substantive overlaps.  A \emph{compatible family} assigns each
@@ -948,11 +953,22 @@ linearizes to a $0$-cocycle in the free module $(\forall v,\ A_v) \to_0
 R$ (\lean{globalZeroCochain\_mem\_cechH0}), injectively
 (\lean{globalZeroCochain\_injective}), and the set-level gluing of
 the general-cover gluing above lands in this linearized $\check{H}^0$
-(\lean{CompatibleFamily.exists\_cechH0}).  What remains genuinely open
-is a \emph{nonzero graded} $\check{H}^1$ locating the coupling --- which
-needs twisted (locally varying) coefficients or a non-full nerve, not
-the constant ones vanishing here --- and the quantitative ``obstruction
-size $=$ smallest-representation blow-up'' equality.
+(\lean{CompatibleFamily.exists\_cechH0}) --- faithfully, but
+\emph{cohomologically inertly}: that cochain is constant, hence a
+$0$-cocycle for \emph{any} input at all (\lean{cechD0\_const}), so
+$\check{H}^0$ here does not test gluing.  Both open items of earlier
+drafts are now settled, negatively.  The quantitative ``obstruction size
+$=$ representation blow-up'' equality fails in both directions
+(Section~\ref{sec:repbounds}).  And a \emph{nonzero graded}
+$\check{H}^1$ locating the coupling does not appear even after passing
+to twisted, section-presheaf-valued coefficients: in
+\lean{Ste.TwistedCech} the AMB per-section extension condition
+degenerates to always true (\lean{amb\_extension\_always}), and what
+detects the coupling is again a degree-$0$ invariant, the cokernel class
+\lean{mixedFamily\_not\_linearlyGlues}.  What is genuinely left is
+narrower: construct the relative presheaf and connecting map $\gamma$,
+and exhibit an overlapping cover whose twisted $\check{H}^1$ is
+nonzero.
 
 \subsection{The junction-tree representation}
 \lean{Ste.JunctionTree} packages the bucket-elimination trace as one
@@ -1195,7 +1211,7 @@ sheaf, and a global section is constructed greedily.
 \end{conjecture}
 
 \begin{conjecture}[$\check{H}^1$ measures intractability]
-Following \citet{abramsky2011sheaf}, the obstruction to a family of
+Following \citet{abramsky2012cohomology}, the obstruction to a family of
 compatible local sections extending to a global one should be captured
 by a \v{C}ech cohomology class in $\check{H}^1$ of the support cover
 with coefficients in the (relative) presheaf of partial solutions; the
@@ -1206,8 +1222,10 @@ smallest exact representation $\rho(T)$---is \emph{not} controlled by the
 raw magnitude of the obstruction in either direction; the correct
 mechanized statement is the fooling sandwich
 $\mathrm{fool}(T) \le \rho(T) \le |T|$, with rectangular families the
-$\rho = 1 \Leftrightarrow \check{H}^1 = 0$ case of Section~3 and the
-diagonal of Section~4 the minimal nonvanishing class.
+$\rho = 1 \Leftrightarrow$ zero-gluing-defect case of Section~3 and the
+diagonal of Section~4 the minimal nonvanishing defect.  The qualitative
+half remains conjectural, and note that no cover used here has the
+nonempty overlaps a nonzero $\check{H}^1$ would require.
 \end{conjecture}
 
 \begin{conjecture}[Tractability dichotomy]
@@ -1251,12 +1269,21 @@ unconditional $n \cdot k^{\operatorname{tw}(B)+1}$ decision-and-space
 bound (\lean{bucketEliminate\_treewidth\_bound}).  The
 constraint-side gluing (\lean{feasibilitySet\_eq\_iInter\_cover})
 guarantees the difficulty is genuinely about variables, not about how
-information is indexed.  Open in this direction: projective
-($\exists$-)elimination, the quantitative \lean{encard} factorization
-of the conditioned feasible set over a partition, the equivalence of
-elimination width with tree-decomposition treewidth, junction trees,
-efficient (or any) computation of $\operatorname{tw}(B)$, and the full
-treewidth dichotomy.
+information is indexed.  Four items listed as open in earlier drafts
+are now theorems of this document and are removed from the list:
+projective ($\exists$-)elimination
+(\lean{projectEliminate\_decides\_feasibility}), the $n$-ary
+\lean{encard} factorization (\lean{encard\_feasibilitySet\_blocks}),
+the equivalence of elimination width with tree-decomposition treewidth
+(\lean{treewidth\_primalGraph\_eq}), and the junction-tree
+representation bound (\lean{junctionTree\_size\_le}).  What is open in
+this direction is the genuine residue: efficient (or any) computation of
+$\operatorname{tw}(B)$; the full treewidth dichotomy (the hard side is
+only exhibited on the all-equal coupling, not proved in general);
+building a width-$w$ elimination order from a separator width bound, and
+the converse for width-$\ge k$ networks; and, on the cohomological side,
+the relative presheaf with its connecting map $\gamma$ together with any
+overlapping cover carrying a nonzero twisted $\check{H}^1$.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs}
