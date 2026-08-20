@@ -64,20 +64,26 @@ citing Combettes or the set-membership estimation literature at all.
 In unification-based approaches to grammar
 \citep{shieber1986unification, carpenter1992logic}, partial information
 about a linguistic object is a \emph{feature structure}, and combining
-two pieces of information is \emph{unification}: the greatest lower
-bound in the subsumption order, when it exists.  Each feature structure
-$F$ denotes the set $\sem{F}$ of fully specified objects
-it subsumes, and the defining property of unification is precisely
-constraint intersection:
+two pieces of information is \emph{unification}.  Two dual orders are
+in play, and it is worth keeping them apart.  In the \emph{subsumption}
+order of \citet{carpenter1992logic}---where $F \sqsubseteq G$ means $F$
+is less informative than (subsumes) $G$---unification is the
+\emph{least upper bound} $F \sqcup G$, when it exists: it is the least
+informative structure carrying all the information of both.  In the
+dual \emph{denotational} order, each feature structure $F$ denotes the
+set $\sem{F}$ of fully specified objects it subsumes, more information
+means a smaller set, and unification is the \emph{meet}---ordinary
+intersection:
 \[
-\sem{F \sqcap G} \;=\; \sem{F} \cap \sem{G} .
+\sem{F \sqcup G} \;=\; \sem{F} \cap \sem{G} .
 \]
 Unification failure is the empty intersection---in STE terms, an
 infeasible (over-constrained) problem.  A parse succeeds ideally when
 the accumulated constraints cut the candidate space to a singleton.
 This is STE's ``intersect the property sets'' scheme executed by a
 grammar, with subsumption playing the role of informativeness and
-$\sqcap$ playing the role of adding an item of information.
+unification playing the role of adding an item of information (a join
+$\sqcup$ on structures, a meet $\cap$ on their denotations).
 
 \paragraph{Underspecification semantics.}
 In underspecification semantics the denotation of an ambiguous sentence
@@ -263,8 +269,16 @@ form would subsume both the concept-lattice picture and the dynamic
 gluing law.
 \end{conjecture}
 
-We flag this explicitly as \emph{not yet proven}: no sheaf condition,
-site structure, or representation theorem is currently formalized, and
+We flag this explicitly as \emph{not yet proven}.  Sheaf-theoretic
+machinery does exist in the library---the presheaf/sheaf condition and
+gluing (\texttt{Ste.Sheaf}, \texttt{Ste.LocalGluing}), \v{C}ech covers
+and their obstruction (\texttt{Ste.CechCover}, with
+\texttt{rectangular\_cechVanishesCover}; \texttt{Ste.CechComplex},
+\texttt{Ste.TwistedCech}).  What is \emph{not} formalized is precisely
+what this conjecture asks for: a site over the \emph{constraint} poset
+(with covers given by unions, or a Grothendieck topology on the
+document poset), and a representation theorem recovering the
+hyperframe lattice as its lattice of closed subsheaf sections, and
 we deliberately do not pursue sheaf- or homotopy-theoretic
 formalization here.  It is the open direction this note points at.
 

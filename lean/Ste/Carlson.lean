@@ -16,8 +16,20 @@ This module gathers:
                               ciphers.
   * `Ste.Carlson.Asymptotic` — asymptotic unicity for a ciphertext
                               stream (deterministic form).
+  * `Ste.Carlson.SheafBridge` — the bridge from the cipher STE picture to
+                              the project's support / variable-presheaf
+                              layer (scoped decryption constraints,
+                              `keyPropertySet` as a decryption
+                              constraint, non-rectangularity of the key
+                              coupling, residual keys as a restriction
+                              fiber).
+  * `Ste.Carlson.SetOfSets`  — the second-order extension: sources that
+                              contribute a set of candidate possibility
+                              sets rather than a single one.
 -/
 import Ste.Carlson.Cipher
 import Ste.Carlson.Counting
 import Ste.Carlson.Reduction
 import Ste.Carlson.Asymptotic
+import Ste.Carlson.SheafBridge
+import Ste.Carlson.SetOfSets

@@ -17,7 +17,10 @@ this as the outstanding item: "The treewidth half of the
 arity-vs-treewidth separation --- that `allEqual`'s primal-graph induced
 width is `n - 1` as a Lean theorem (only the gluing-width-1 half is
 mechanized, Observation~\ref{obs:arity})".  This file discharges exactly
-that gap.
+that gap.  (The paper's "`n - 1`" is the *classical* induced width; the
+repo's `inducedTreewidth` is one less, so what is proved below is
+`inducedTreewidth = n - 2`, i.e. `inducedTreewidth + 1 = n - 1`.  See
+the convention recorded at `AchievesWidth` in `Ste.Treedecomp`.)
 
 **Contents.**
 
@@ -50,6 +53,15 @@ that gap.
   bucket-elimination form, via `treewidth_primalGraph_eq`
   (`Ste.TreewidthConverse`): `inducedTreewidth (allEqualInstance n α) + 1
   = n - 1`.
+
+**Width convention.**  The paper's target is stated with the classical
+induced width, `n - 1`.  This library's `inducedTreewidth` is one *less*
+than the classical induced width (see the convention recorded at
+`AchievesWidth` in `Ste.Treedecomp`: bags exclude the eliminated
+variable, so `treewidth = inducedTreewidth + 1`).  Hence the mechanized
+statement is `inducedTreewidth (allEqualInstance n α) = n - 2`, written
+here as `inducedTreewidth ... + 1 = n - 1`; it is the same claim as the
+paper's, in the repo's offset.
 
 References: N. Robertson, P. D. Seymour, *Graph minors II* (tree
 decompositions, treewidth); H. L. Bodlaender, *A partial k-arboretum of
@@ -246,7 +258,9 @@ observation in `Ste.CouplingLowerBound`, since the library had only the
 treewidth upper bound `treewidth_le_card` and no clique lower bound).
 Combined with `allEqual_gluesAtWidth_one` (`Ste.GluingWidth`) — gluing
 width `1` — the arity-vs-treewidth separation of Observation~\ref{obs:arity}
-is now mechanized on both sides: gluing width `≠` treewidth, in Lean. -/
+is now mechanized on both sides: for `n ≥ 3`, gluing width `≠`
+treewidth, in Lean.  (For `n ≤ 2` the two coincide — `n - 1 ≤ 1` — so
+the separation is genuinely an `n ≥ 3` phenomenon.) -/
 theorem treewidth_primalGraph_allEqualInstance (n : ℕ) (α : Type*) :
     treewidth (primalGraph (A := fun _ : Fin n => α) (allEqualInstance n α))
       = n - 1 := by
@@ -256,7 +270,11 @@ theorem treewidth_primalGraph_allEqualInstance (n : ℕ) (α : Type*) :
 `treewidth_primalGraph_eq` (`Ste.TreewidthConverse`), an adjacency
 witness in the primal graph converts the treewidth equality into the
 induced-width equality
-`inducedTreewidth (allEqualInstance n α) + 1 = n - 1`. -/
+`inducedTreewidth (allEqualInstance n α) + 1 = n - 1`.
+
+Equivalently `inducedTreewidth (allEqualInstance n α) = n - 2`: the repo's
+`inducedTreewidth` sits one below the classical induced width `n - 1`
+quoted in the paper (convention at `AchievesWidth`, `Ste.Treedecomp`). -/
 theorem inducedTreewidth_allEqualInstance {n : ℕ} {α : Type*} [Nonempty α]
     (hn : 2 ≤ n) :
     inducedTreewidth (allEqualInstance n α) + 1 = n - 1 := by

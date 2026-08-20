@@ -17,8 +17,9 @@ This module makes the lattice structure explicit in three steps.
   shows `mustSetoid` is literally the infimum (`sInf`) of the feasible image.
 * Part B (`STE.PartitionRank`) equips the partition lattice of a finite
   carrier with the combinatorial rank `r(P) = |α| − #blocks(P)`, and proves
-  it is submodular: the metric-free, "lighter than a metric" shadow of
-  entropy submodularity in Shannon's information lattice.
+  it is submodular: the metric-free, "lighter than a metric" counting
+  analogue of entropy submodularity in Shannon's information lattice, taken
+  on the order-dual side (`rank` is a co-entropy).
 * Part C transfers the rank inequalities back to the STE must-partition.
 -/
 import Ste.DynamicFrame
@@ -42,9 +43,9 @@ def frameSetoid (h : Hypothesis) : Setoid Claim :=
 
 /-- Must-coreference IS the lattice meet (common refinement) of the feasible
 partitions, in Mathlib's complete lattice `Setoid Claim`.  This is Shannon's
-lattice reading of "the STE consensus source": `mustSetoid` is the join of
+lattice reading of "the STE consensus source": `mustSetoid` is the common
 information forced by every surviving hypothesis, i.e. the infimum of their
-partitions under refinement. -/
+partitions under Mathlib's `Setoid` order. -/
 theorem mustSetoid_eq_sInf (D : Set Document) :
     M.mustSetoid D = sInf (M.frameSetoid '' M.feasible D) := by
   apply Setoid.ext
@@ -73,10 +74,13 @@ end STE.DynamicFrame.Model
 ## Part B: block count and rank on the partition lattice, and submodularity
 
 The partition lattice of a finite carrier `α` is a geometric lattice; its
-rank function `r(P) = |α| − #blocks(P)` is the combinatorial (metric-free)
-analogue of Shannon entropy on the information lattice, and it is
-submodular in exactly the same shape as entropy: `r(A ∨ B) + r(A ∧ B) ≤
-r(A) + r(B)`.
+rank function `r(P) = |α| − #blocks(P)` is the order-dual (co-entropy)
+counting analogue of Shannon entropy on the information lattice: the
+submodular shape is the same, `r(A ⊔ B) + r(A ⊓ B) ≤ r(A) + r(B)`, but the
+monotonicity direction is opposite — entropy increases under refinement,
+`r` increases under coarsening (`r(⊥) = 0`, `r(⊤) = |α| − 1`).  See the
+header of `Ste.InfoDistance` for the full dictionary relating `⊓`/`⊔` here
+to Shannon's joint `∨` and common information `∧`.
 -/
 
 namespace STE.PartitionRank
@@ -91,10 +95,11 @@ open scoped Classical
 noncomputable def blockCount (s : Setoid α) : ℕ := Fintype.card (Quotient s)
 
 /-- Shannon-style combinatorial rank of a partition: carrier size minus block
-count.  This is the rank of the partition lattice (the lattice of a
-geometric lattice), and `rank_submodular` shows it is submodular — the
-metric-free analogue of entropy submodularity in Shannon's 1953 information
-lattice. -/
+count.  This is the rank function of the partition lattice (a geometric
+lattice), and `rank_submodular` shows it is submodular — the order-dual
+(co-entropy) counting analogue of entropy submodularity in Shannon's 1953
+information lattice: same submodular shape, opposite monotonicity direction
+(`rank` grows under coarsening, entropy under refinement). -/
 noncomputable def rank (s : Setoid α) : ℕ := Fintype.card α - blockCount s
 
 theorem blockCount_le_card (s : Setoid α) : blockCount s ≤ Fintype.card α :=
@@ -208,8 +213,9 @@ theorem blockCount_mergePair {s : Setoid α} {u v : α} (h : ¬ s u v) :
 /-- Supermodularity of the block-count on the partition lattice of a finite
 carrier: `#blocks(A) + #blocks(B) ≤ #blocks(A ⊔ B) + #blocks(A ⊓ B)`.
 Equivalently (see `rank_submodular`) the partition-lattice rank is
-submodular — the finite, metric-free shadow of entropy submodularity in
-Shannon's 1953 information lattice. -/
+submodular — the finite, metric-free counting analogue of entropy
+submodularity in Shannon's 1953 information lattice, on the order-dual
+(co-entropy) side. -/
 theorem blockCount_supermodular (A B : Setoid α) :
     blockCount A + blockCount B ≤ blockCount (A ⊔ B) + blockCount (A ⊓ B) := by
   suffices h : ∀ n, ∀ A B : Setoid α, blockCount A ≤ n →
@@ -254,8 +260,11 @@ theorem blockCount_supermodular (A B : Setoid α) :
       omega
 
 /-- Submodularity of the partition-lattice rank `r(P) = |α| - #blocks(P)`:
-`r(A ⊔ B) + r(A ⊓ B) ≤ r(A) + r(B)`.  This is Shannon's information-lattice
-inequality with counting rank in place of entropy. -/
+`r(A ⊔ B) + r(A ⊓ B) ≤ r(A) + r(B)`.  This has the shape of Shannon's
+information-lattice inequality with the counting co-entropy `rank` in place
+of entropy; the operator roles are order-dual to Shannon's (`⊓` is the joint
+`∨`, `⊔` the common information `∧`), so the sum is the same but the
+monotonicity reading is reversed. -/
 theorem rank_submodular (A B : Setoid α) :
     rank (A ⊔ B) + rank (A ⊓ B) ≤ rank A + rank B := by
   have hsm := blockCount_supermodular A B

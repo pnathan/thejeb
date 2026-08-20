@@ -49,28 +49,36 @@ every compatible family glues.
 
 * *Cover-dependence* (`cechVanishesCover_univ`): for the trivial
   one-context cover `U = univ` every constraint glues — the
-  obstruction genuinely depends on the cover, with singletons the
-  finest (hardest) case.
+  obstruction genuinely depends on the cover.  (CONJECTURE, not
+  mechanized: that singletons are the finest/hardest case.  No
+  refinement-monotonicity theorem is proved anywhere in this
+  development, so the two computed endpoints are an observation, not a
+  monotone scale.)
 
-* *The `Ȟ⁰`-level obstruction number* (`coverCechObstruction`): the
+* *The gluing-defect count* (`coverCechObstruction`): the
   extended-natural count `|compatible| - |glued|` for the cover, zero
   whenever vanishing holds (`coverCechObstruction_eq_zero`), hence
   zero for rectangles over every cover
-  (`rectangular_coverCechObstruction`).
+  (`rectangular_coverCechObstruction`).  This is truncated subtraction
+  in `ℕ∞`, a cardinality gap at the sheaf-condition level — not a
+  cohomological rank, and in general not recoverable from one.
 
-**Honest boundary.**  This file lifts the GLUING/SHEAF level (`Ȟ⁰`
-exactness: compatible families = glued families) from the singleton
-cover to arbitrary covers.  The full Čech `Ȟ¹` as a linearized cochain
+**Honest boundary.**  This file lifts the GLUING/SHEAF-CONDITION
+level (compatible families = glued families) from the singleton cover
+to arbitrary covers.  The full Čech `Ȟ¹` as a linearized cochain
 complex — `C⁰ → C¹` with a coboundary map over a free module,
 cohomology as `ker/im`, relative cohomology with local coefficients —
 and the quantitative claim "obstruction size = forced representation
-blow-up" for general constraint families remain the cited
-Abramsky–Brandenburger framework and OUTLOOK; they are not claimed,
-and not mechanized, here.
+blow-up" for general constraint families remain the
+Abramsky–Mansfield–Barbosa framework and OUTLOOK; they are not
+claimed, and not mechanized, here.
 
-Reference: S. Abramsky, A. Brandenburger, *The sheaf-theoretic
+References: S. Abramsky, A. Brandenburger, *The sheaf-theoretic
 structure of non-locality and contextuality*, New J. Phys. 13 (2011)
-113036 (`abramsky2011sheaf`).
+113036 (`abramsky2011sheaf`), for the sheaf-level story; S. Abramsky,
+S. Mansfield, R. S. Barbosa, *The cohomology of non-locality and
+contextuality*, EPTCS 95 (2012) 1–14 (`abramsky2012cohomology`), for
+the cohomological grading.
 -/
 import Ste.VariablePresheaf
 import Ste.CechObstruction
@@ -260,7 +268,7 @@ theorem diagonal_not_cechVanishesCover :
       (fun v : Fin 2 => ({v} : Set (Fin 2))) := fun h =>
   diagonal_not_cechVanishes (cechVanishes_of_cechVanishesCover_singleton h)
 
-/-! ### The `Ȟ⁰`-level obstruction for a cover -/
+/-! ### The gluing-defect count for a cover -/
 
 /-- The set of compatible families of local sections for the cover. -/
 def coverCompatibleFamilies (T : Set (∀ v, A v)) (U : J → Set V) :
@@ -284,11 +292,12 @@ theorem cechVanishesCover_iff_subset (T : Set (∀ v, A v)) (U : J → Set V) :
       coverCompatibleFamilies T U ⊆ coverGluedFamilies T U :=
   ⟨fun h s hs => ⟨hs, h s hs⟩, fun h s hs => (h hs).2⟩
 
-/-- **The Čech obstruction number of a cover**: how many compatible
-families of local sections fail to glue, as a difference of
-extended-natural counts — the cover-level generalization of
+/-- **The gluing-defect count of a cover**: how many compatible
+families of local sections fail to glue, as a TRUNCATED difference of
+extended-natural counts in `ℕ∞` — the cover-level generalization of
 `cechObstruction` (`Ste.CechObstruction`).  Zero means the sheaf
-condition holds for this cover (in the finite case). -/
+condition holds for this cover (in the finite case).  This is a
+cardinality gap, not a cohomological invariant. -/
 noncomputable def coverCechObstruction (T : Set (∀ v, A v))
     (U : J → Set V) : ℕ∞ :=
   (coverCompatibleFamilies T U).encard - (coverGluedFamilies T U).encard
@@ -303,9 +312,9 @@ theorem coverCechObstruction_eq_zero {T : Set (∀ v, A v)}
     ((cechVanishesCover_iff_subset T U).mp h)]
   exact tsub_self _
 
-/-- **`Ȟ⁰`-exactness for rectangles over every cover, numerically**:
-the obstruction number of a rectangular constraint vanishes for any
-cover of the variable set. -/
+/-- **Zero gluing defect for rectangles over every cover,
+numerically**: the defect count of a rectangular constraint vanishes
+for any cover of the variable set. -/
 theorem rectangular_coverCechObstruction (P : ∀ v, Set (A v))
     (U : J → Set V) (hcover : ∀ v, ∃ j, v ∈ U j) :
     coverCechObstruction (Set.univ.pi P) U = 0 :=

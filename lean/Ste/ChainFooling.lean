@@ -11,7 +11,9 @@ direction; not mechanized]`, restated in §"What remains conjectural"):
 > alternating assignments looks plausible).
 
 This file builds exactly that fooling-set construction and mechanizes
-the bound.  The chain `neqChain n α` (`{f | ∀ i, f i ≠ f (i+1)}`) is the
+the `ρ` bound; the "width-1" attribute is taken from the conjecture's
+statement as a prose observation (the primal graph is a path), not
+proved here.  The chain `neqChain n α` (`{f | ∀ i, f i ≠ f (i+1)}`) is the
 width-1 disequality chain of the conjecture: consecutive coordinates
 (under the ℕ-valued successor relation, which sidesteps `Fin.castSucc`
 bookkeeping) must differ.
@@ -62,7 +64,12 @@ stake); the general-`k`-from-`Fintype.card` packaging is included only
 as far as it falls out cleanly (`two_pow_le_rectCoverNumber_neqChain`
 already covers every 3-element-or-larger alphabet via any three
 witnesses `a ≠ b`, `a ≠ c`, `b ≠ c`, so no separate extraction lemma is
-needed).
+needed); and the "width-1" side itself — that the chain's primal graph
+is a path and so has treewidth `1` — which is a prose observation here,
+not a mechanized theorem (no treewidth computation for `neqChain`
+appears in this file or elsewhere in the library).  Every use of
+"width-1 chain" below is therefore descriptive naming, not a cited
+result.
 
 References: E. Kushilevitz, N. Nisan, *Communication Complexity*, CUP
 1997 (`kushilevitz1997communication`; fooling sets, §1.3); A. Aho,
@@ -81,7 +88,8 @@ open Set
 which every pair of ℕ-successor coordinates must differ.  This is the
 chain of the conjecture "`ρ` vs. width incomparability, other
 direction" (papers/papers/ste-cohomology.tex, ~line 1085): a chain of
-binary disequality constraints, treewidth (as a path) `1`. -/
+binary disequality constraints, whose primal graph is a path and hence
+(by the standard observation, not mechanized here) has treewidth `1`. -/
 def neqChain (n : ℕ) (α : Type*) : Set (Fin n → α) :=
   {f | ∀ i j : Fin n, (i : ℕ) + 1 = (j : ℕ) → f i ≠ f j}
 
@@ -254,9 +262,11 @@ theorem encard_range_chainWitness (hab : a ≠ b) :
 any alphabet with three distinct elements `a, b, c`, the chain of
 length `3*m` has `foolingNumber ≥ 2^m`. This is the fooling-set half of
 the conjecture "`ρ` vs. width incomparability, other direction"
-(papers/papers/ste-cohomology.tex, ~line 1085): a width-1 chain of
+(papers/papers/ste-cohomology.tex, ~line 1085): a chain of
 disequality constraints on `n = 3*m` variables over an alphabet of size
-`k ≥ 3` has `ρ = 2^{Ω(n)}`. -/
+`k ≥ 3` has `ρ = 2^{Ω(n)}`.  (The chain's width-1 status — its primal
+graph is a path — is a prose observation, not mechanized; only the `ρ`
+bound is proved.) -/
 theorem two_pow_le_foolingNumber_neqChain {a b c : α} (hab : a ≠ b)
     (hac : a ≠ c) (hbc : b ≠ c) (m : ℕ) :
     ((2 ^ m : ℕ) : ℕ∞) ≤ foolingNumber (neqChain (3 * m) α) := by
@@ -265,8 +275,8 @@ theorem two_pow_le_foolingNumber_neqChain {a b c : α} (hab : a ≠ b)
 
 /-- **The rectangle-cover number of the disequality chain is
 exponential — the conjecture's fooling-set bound, mechanized**: for any
-alphabet with three distinct elements `a, b, c`, the width-1
-disequality chain of length `n = 3*m` has `ρ(neqChain n α) ≥ 2^m =
+alphabet with three distinct elements `a, b, c`, the (prose-level
+width-1) disequality chain of length `n = 3*m` has `ρ(neqChain n α) ≥ 2^m =
 2^{n/3} = 2^{Ω(n)}`.  This discharges "a fooling-set construction along
 alternating assignments looks plausible" (papers/papers/ste-cohomology.tex,
 ~line 1085 and §"What remains conjectural"): the alternating-assignment

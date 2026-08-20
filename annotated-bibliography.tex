@@ -40,8 +40,11 @@ algorithms (POCS) when $\Xi$ is a Hilbert space and the $S_i$ are closed
 convex. \emph{Mechanization status:} the crisp core (property sets,
 feasibility set, consistent/fair/ideal, monotonicity, invalid-information
 detection) is machine-checked in \texttt{Ste.Basic}; the convex layer in
-\texttt{Ste.Convex}. The fuzzy/graded case and the projection algorithms
-are future work.
+\texttt{Ste.Convex}. The fuzzy/graded case (Eq.~(3) with
+$\Psi_i:\Xi\to[0,1]$) is machine-checked in \texttt{Ste.FuzzyFrame}
+(\texttt{consistencyDegree}, \texttt{cut\_fuzzyFeasibility},
+\texttt{weightedFrame\_gradedHelly\_two}); the projection algorithms
+remain future work.
 
 \paragraph{\citet{carlson2012} --- \emph{Set Theoretic Estimation
 Applied to the Information Content of Ciphers and Decryption}, Ph.D.\
@@ -65,9 +68,16 @@ idempotent to an $S$-cipher; hence all block ciphers are block
 substitution ciphers). \emph{Mechanization status:} the STE-decryption
 skeleton (cipher systems, key property sets, feasible keys, fairness of
 genuine traffic, unicity as ideal information, observation monotonicity)
-is machine-checked in \texttt{Ste.Cipher}; the counting theorems
-(4.1, Lemma~4.1) are the most tractable next targets, the unicity/AEP
-results the deepest.
+is machine-checked in \texttt{Ste.Carlson.Cipher}; the residual-key
+counting of Lemma~4.1 is done
+(\texttt{card\_consistent\_keys}, \texttt{Ste/Carlson/Counting.lean}),
+and the reduction chain Theorem~5.1/5.2/Corollary~5.3 is done
+(\texttt{Ste/Carlson/Reduction.lean}), as is deterministic asymptotic
+unicity (\texttt{asymptoticUnicity\_iff\_unicity},
+\texttt{Ste/Carlson/Asymptotic.lean}). Remaining: Theorem~4.1 (the
+$P$-cipher key count) and the AEP/entropy layer (Theorem~2.3, and the
+almost-sure form of asymptotic unicity, which needs a probability space
+on message streams).
 
 \section*{Foundational}
 

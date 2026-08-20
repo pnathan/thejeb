@@ -51,8 +51,15 @@ solution space is compact, every property set is closed, and every
 finite subcollection of the information is consistent, then the full
 estimation problem is consistent.  This is the finite-intersection-
 property argument specialized to STE; it is the abstract reason STE is
-well posed on the finite solution spaces of Carlson 2012 and on the
-bounded closed convex constraint sets of Combettes 1993. -/
+well posed on the finite (hence compact) solution spaces of Carlson
+2012.
+
+HONEST BOUNDARY: this does NOT cover the setting of Combettes 1993.
+There the solution space is an infinite-dimensional Hilbert space,
+where closed bounded convex sets are not norm-compact and
+`[CompactSpace Ξ]` fails; the corresponding existence results there go
+through WEAK compactness (weak sequential compactness of closed bounded
+convex sets) plus weak closedness, which is not what is proved here. -/
 theorem feasibilitySet_nonempty_of_compact [CompactSpace Ξ]
     {S : I → Set Ξ} (hclosed : ∀ i, IsClosed (S i))
     (hfip : FiniteConsistency S) :

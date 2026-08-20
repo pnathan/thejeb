@@ -6,9 +6,9 @@ Lattices" (2024; ingested at `sources/delsol2024/`), and Shannon's 1953 "The
 Lattice Theory of Information" study the entropic distance `D` on the
 information lattice as a metric-*geometric* object, not merely a metric.  On
 a finite carrier the metric topology of `shannonDist` (built in
-`Ste.InfoDistance` from the combinatorial rank of `Ste.PartitionRank`, the
-metric-free counting shadow of `D`) is discrete: every distinct pair of
-partitions is at distance `≥ 1` (`one_le_shannonDist_of_ne`), so the metric
+`Ste.InfoDistance` from the combinatorial rank of `Ste.PartitionRank`, an
+order-dual counting analogue of `D` rather than `D` itself) is discrete:
+every distinct pair of partitions is at distance `≥ 1` (`one_le_shannonDist_of_ne`), so the metric
 *topology* carries no information beyond the discrete topology.  The
 interesting structure is not topological but metric-geometric: which lattice
 operations are contractions for `shannonDist`, what metric betweenness looks
@@ -94,13 +94,19 @@ theorem shannonDist_add_rank_add_rank (P Q : Setoid α) :
   simp only [shannonDist]
   omega
 
-/-! ## Part 3: join is a contraction (the metric-lattice half) -/
+/-! ## Part 3: `⊔` (common information) is a contraction -/
 
-/-- Counting shadow of Delsol Remark 11, `D(X ∨ Y, X ∨ Z) ≤ D(Y, Z)`: joining
-a fixed partition `R` is a metric contraction for `shannonDist`, so `⊔` is
-uniformly continuous in each argument — half of the "metric lattice"
-property. Contrast with `shannonDist_inf_not_contraction` below, where the
-analogous statement for `⊓` fails. -/
+/-- Dual-side counting analogue of Delsol Remark 11,
+`D(X ∨ Y, X ∨ Z) ≤ D(Y, Z)`: taking `⊔` with a fixed partition `R` is a
+metric contraction for `shannonDist`, so `⊔` is uniformly continuous in each
+argument — half of the "metric lattice" property.
+
+Note the reversal flagged in the module docstring: `⊔` here is the
+*common-information* operator `∧` (Gács–Körner), the one Delsol Prop. 19
+shows is discontinuous in the entropic setting. Remark 11's shape is what is
+reproduced, on the order-dual side, not its content. Contrast with
+`shannonDist_inf_not_contraction` below, where the analogous statement for
+the joint `⊓` fails. -/
 theorem shannonDist_sup_right_le (P Q R : Setoid α) :
     shannonDist (P ⊔ R) (Q ⊔ R) ≤ shannonDist P Q := by
   have hW : (P ⊔ R) ⊔ (Q ⊔ R) = (P ⊔ Q) ⊔ R := by
@@ -122,9 +128,12 @@ theorem shannonDist_sup_right_le (P Q R : Setoid α) :
   simp only [shannonDist, hW]
   omega
 
-/-- Counting shadow of Delsol Prop. 20: `⊔` is jointly 1-Lipschitz for
-`shannonDist` — the positive half of continuity of the lattice operations in
-the metric-lattice structure. -/
+/-- Dual-side counting analogue of Delsol Prop. 20: `⊔` is jointly
+1-Lipschitz for `shannonDist` — the positive half of continuity of the
+lattice operations in the metric-lattice structure. As in
+`shannonDist_sup_right_le`, Prop. 20 is a positive continuity result for the
+joint `∨`, whereas the operator that is 1-Lipschitz here is `⊔`, the
+common-information `∧`. -/
 theorem shannonDist_sup_le_add (P P' Q Q' : Setoid α) :
     shannonDist (P ⊔ Q) (P' ⊔ Q') ≤ shannonDist P P' + shannonDist Q Q' := by
   have hleg1 : shannonDist (P ⊔ Q) (P' ⊔ Q) ≤ shannonDist P P' :=
@@ -140,11 +149,17 @@ theorem shannonDist_sup_le_add (P P' Q Q' : Setoid α) :
 
 /-! ## Part 4: betweenness (extends `shannonDist_chain_add`) -/
 
-/-- Counting shadow of Delsol Prop. 22 (alignment for the Shannon distance
-`D`, i.e. `X`–`Y`–`Z` a Markov chain and `Y ≤ X ∨ Z`): metric betweenness for
-`shannonDist` forces the two lattice conditions `Q ≤ P ⊔ R` (the "function of
-the endpoints" condition) and `Q = (P ⊔ Q) ⊓ (Q ⊔ R)` (the combinatorial
-Markov condition). The converse fails in general because the partition
+/-- Dual-side counting analogue of Delsol Prop. 22 (alignment for the Shannon
+distance `D`, i.e. `X`–`Y`–`Z` a Markov chain and `Y ≤ X ∨ Z`): metric
+betweenness for `shannonDist` forces the two lattice conditions `Q ≤ P ⊔ R`
+(the "function of the endpoints" condition) and `Q = (P ⊔ Q) ⊓ (Q ⊔ R)` (the
+combinatorial Markov condition).
+
+Note on the correspondence: the `∨` in Prop. 22 is the *joint*, which under
+the dictionary of `Ste.InfoDistance` is Mathlib's `⊓`; the conclusion
+mechanized here, `Q ≤ P ⊔ R`, therefore sits on the order-dual side of that
+statement rather than being its transport. Only this one direction is
+proved. The converse fails in general because the partition
 lattice is not modular: equality in submodularity additionally requires
 `(P ⊔ Q, Q ⊔ R)` to be a modular pair. This strictly extends
 `shannonDist_chain_add` (chains satisfy both conditions; see
@@ -210,24 +225,33 @@ theorem rank_top [Nonempty α] : rank (⊤ : Setoid α) = Fintype.card α - 1 :=
   unfold rank
   rw [blockCount_top]
 
-/-- `⊥ ⊔ P = P` (`bot_sup_eq`), so joining with the discrete partition is the
-identity for `shannonDist`. -/
+/-- `⊥ ⊔ P = P` (`bot_sup_eq`), so taking the lattice join `⊔` with the
+discrete partition is the identity for `shannonDist`. -/
 theorem shannonDist_bot (P : Setoid α) : shannonDist ⊥ P = rank P := by
   simp only [shannonDist, bot_sup_eq, rank_bot]
   omega
 
-/-- `⊤ ⊔ P = ⊤` (`top_sup_eq`), so joining with the one-block partition
+/-- `⊤ ⊔ P = ⊤` (`top_sup_eq`), so taking the lattice join `⊔` with the
+one-block partition
 collapses `shannonDist` to the rank gap from `⊤`. -/
 theorem shannonDist_top (P : Setoid α) : shannonDist ⊤ P = rank (⊤ : Setoid α) - rank P := by
   simp only [shannonDist, top_sup_eq]
   have h1 : rank P ≤ rank (⊤ : Setoid α) := rank_le_rank le_top
   omega
 
-/-! ## Part 6: meet is NOT a contraction (Fin 4 counterexample) -/
+/-! ## Part 6: `⊓` (the joint) is NOT a contraction (Fin 4 counterexample) -/
 
-/-- Counting shadow of Delsol Prop. 19 (the common-information operator `∧`
-is discontinuous in the metric lattice — the Gács–Körner phenomenon): meet
-fails to be a contraction for `shannonDist`. On a carrier of size `2k` the
+/-- The joint operator `⊓` fails to be a contraction for `shannonDist`.
+
+This is the reversal recorded in the module docstring: Delsol's negative
+result (Prop. 19, discontinuity, the Gács–Körner phenomenon) is about the
+common-information operator `∧` = Mathlib's `⊔`, which is a contraction here
+(`shannonDist_sup_right_le`); his Prop. 20 / Remark 11 are *positive*
+continuity results for the joint `∨` = Mathlib's `⊓`, which is what fails
+below. The failure is a property of the counting shadow, driven by `rank`
+being a co-entropy, not a mechanization of Prop. 19.
+
+On a carrier of size `2k` the
 gap scales: `d(⊤, {top-half | bottom-half}) = 1` while meeting with the
 perfect-matching partition sends it to `d = k`; so meet admits *no* Lipschitz
 constant uniform in the carrier. We mechanize the `k = 2` instance: the
@@ -390,8 +414,9 @@ private theorem rank_b3 : rank b3 = 1 := by
 private theorem rank_c3 : rank c3 = 1 := by
   unfold rank; rw [blockCount_c3, Fintype.card_fin]
 
-/-- Auxiliary computation for Part 7: any two of the three atoms join to the
-one-block partition, since the atoms pairwise share a point. -/
+/-- Auxiliary computation for Part 7: the lattice join `⊔` of any two of the
+three atoms is the one-block partition, since the atoms pairwise share a
+point. -/
 private theorem a3_sup_b3 : a3 ⊔ b3 = ⊤ := by
   have h01 : a3 0 1 := mergePair_rel (⊥ : Setoid (Fin 3)) 0 1
   have h02 : b3 0 2 := mergePair_rel (⊥ : Setoid (Fin 3)) 0 2

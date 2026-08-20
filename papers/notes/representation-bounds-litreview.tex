@@ -216,8 +216,8 @@ numbers $C^0,C^1$, and the fooling-set and rank lower-bound methods.
 Our $\rho(T)$ is precisely their $C^1$ read on the constraint $T$ as a
 $|V|$-dimensional 0/1 tensor (the book treats $|V|=2$; the rectangle
 and fooling formalism, and our Lean proofs, are arity-uniform). The
-book's Proposition~2.2 --- every cover rectangle contains at most one
-fooling point --- is exactly the statement mechanized as
+fooling-set bound of K\&N, Ch.~1 --- every monochromatic rectangle
+contains at most one fooling point --- is exactly the statement mechanized as
 \ste{IsFoolingSet.encard\_le\_of\_hasRectCover}; the book's
 $\log$-scale accounting ($N^1(f)=\log_2 C^1(f)$) is the part we
 deliberately do not mechanize, since the STE obstruction is counted on
@@ -225,9 +225,12 @@ the linear scale.
 
 \item[\citet{aho1983notions}]
 The paper that introduced rectangle covers and the fooling-set bound in
-the VLSI/communication setting, and posed the question (later resolved
-negatively) of whether cover number and deterministic complexity are
-polynomially related. Historically this is where ``representation size
+the VLSI/communication setting, and itself proved that cover number and
+deterministic complexity \emph{are} polynomially related:
+$D(f)=O(N^0(f)\cdot N^1(f))$, i.e.\ deterministic complexity is bounded
+by the product of the nondeterministic cover numbers for $f$ and its
+complement (one of the classical results underlying $\mathrm{P}^{cc}
+=\mathrm{NP}^{cc}\cap\mathrm{coNP}^{cc}$). Historically this is where ``representation size
 of a relation $=$ number of monochromatic rectangles'' enters the
 literature, which is why we take it as the anchor for the complexity
 reading of ``blow-up''. The fooling-set method appears here in the
@@ -250,9 +253,12 @@ combinatorially independent family in the slack matrix.
 
 \item[\citet{dietzfelbinger1996comparison}]
 Quantifies the looseness of the fooling-set method against the rank
-method: fooling sets can be quadratically smaller than deterministic
-complexity bounds, and (via a counting argument) almost all functions
-have maximal complexity but only polynomial-size fooling sets. Relevant
+method: for almost all Boolean functions the rank method certifies a
+linear lower bound while the largest fooling set is only logarithmic in
+size, so the fooling-set bound can be exponentially smaller than
+deterministic complexity bounds obtained by rank. (In the other
+direction the gap is only a constant factor: fooling-set bounds beat
+rank-based ones by at most a factor of two.) Relevant
 here as a caution: our sandwich
 $\mathrm{fool}(T)\le\rho(T)\le|T|$ pinches to equality on
 $\mathrm{allEqual}$, but the left inequality is in general far from

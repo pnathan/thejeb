@@ -40,8 +40,19 @@ variable {V : Type*} {A : V → Type*} [DecidableEq V]
 /-- **Achievable width.**  The instance `B` *achieves width `w`* if some
 elimination order is complete for `B` (its eliminated variables cover
 every scope) and materializes only bags of at most `w + 1` variables
-when run on `B`.  This is Dechter's induced width of the ordering,
-quantified existentially over orderings. -/
+when run on `B`.  This is Dechter's induced width minus one,
+quantified existentially over orderings: the bags counted here
+exclude the eliminated variable (`bucketHead_fst` erases it), so
+`treewidth_primalGraph_eq` gives `treewidth = inducedTreewidth + 1`,
+i.e. `inducedTreewidth = w* - 1` for Dechter's `w*`.
+
+**Convention (canonical statement).**  Throughout this library
+`inducedTreewidth` is one *less* than the classical induced width
+`w*` of the literature, so that it agrees with treewidth-minus-one
+in the usual `treewidth = w* - 1` sense; any file quoting a
+classical "induced width `k`" target proves `inducedTreewidth + 1 =
+k` here.  Other modules refer back to this docstring rather than
+restating the offset. -/
 def AchievesWidth (B : List (Finset V × Set (∀ v, A v))) (w : ℕ) : Prop :=
   ∃ order : List ((v : V) × A v),
     (∀ q ∈ B, (↑q.1 : Set V) ⊆ eliminated order)
@@ -67,7 +78,12 @@ order is complete for any instance, and every bag it materializes is a
 `Finset` of variables, hence has at most `Fintype.card V` elements:
 every instance achieves width `Fintype.card V`.  (Bags are sets of
 variables, so nothing sharper than the number of variables is needed
-for mere satisfiability.) -/
+for mere satisfiability.)
+
+The slack is deliberate: the same argument gives bags of size at most
+`Fintype.card V`, hence `AchievesWidth B (Fintype.card V - 1)`, but
+the weaker constant avoids the truncated-subtraction side condition
+and is all any downstream use needs. -/
 theorem achievesWidth_card [Fintype V] [∀ v, Nonempty (A v)]
     (B : List (Finset V × Set (∀ v, A v))) :
     AchievesWidth B (Fintype.card V) := by
@@ -107,7 +123,12 @@ theorem inducedTreewidth_le {B : List (Finset V × Set (∀ v, A v))}
   have hw : w ∈ {w' | AchievesWidth B w'} := h
   exact Nat.sInf_le hw
 
-/-- The induced treewidth never exceeds the number of variables. -/
+/-- The induced treewidth never exceeds the number of variables.
+
+Deliberately one weaker than what the proof supplies: `achievesWidth_card`
+bounds bags by `Fintype.card V`, so the sharper `Fintype.card V - 1`
+follows from the very same argument.  The looser constant is kept
+because nothing downstream needs the sharp one. -/
 theorem inducedTreewidth_le_card [Fintype V] [∀ v, Nonempty (A v)]
     (B : List (Finset V × Set (∀ v, A v))) :
     inducedTreewidth B ≤ Fintype.card V :=

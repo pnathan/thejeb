@@ -1141,14 +1141,17 @@ theorem.
 \end{theorem}
 
 \begin{corollary}[Two-sided incomparability of $\rectrho$ and
-treewidth --- both directions machine-checked]
+treewidth --- one direction machine-checked, one by inspection]
 \label{cor:incomparable}
 Neither invariant bounds the other in either direction:
 $\mathrm{allEqual}(n,\alpha)$ has constant $\rectrho = |\alpha|$
-(\path{rectCoverNumber_allEqual}) but maximal treewidth $n-1$
-(\path{treewidth_primalGraph_allEqualInstance}), while the
-disequality chain has width $1$ (a path) but $\rectrho \ge 2^{n/3}$
-(Theorem~\ref{thm:chainrho}).  $\rectrho$ answers ``how many
+(\path{rectCoverNumber_allEqual}) but maximal treewidth $n-1$ for
+$n \ge 3$ (\path{treewidth_primalGraph_allEqualInstance}) --- both
+legs mechanized; while the disequality chain has $\rectrho \ge
+2^{n/3}$ (Theorem~\ref{thm:chainrho}, mechanized) and width $1$ ---
+this last by inspection (its primal graph is a path), not as a named
+Lean theorem, exactly as the honest boundary of
+Theorem~\ref{thm:chainrho} records.  $\rectrho$ answers ``how many
 boxes''; width answers ``how large a bag''; the mechanization shows
 each can be minimal while the other is extremal, so neither is a
 substitute for the other as a compressibility certificate.
@@ -1190,8 +1193,12 @@ In the paper's vocabulary, a key's action on $T$ is a partial
 assignment on the scope $T$ (variables $=$ alphabet symbols, values
 $=$ alphabet symbols), and the count is the number of \emph{global
 witnesses of one local section} --- the fiber of the restriction map
-over $\sigma|_T$.  Unicity (\path{Unicity}) is the statement that
-accumulated observations shrink every such fiber to one point.  This
+over $\sigma|_T$.  Unicity (\path{Unicity}) is a statement about the
+key set rather than about these restriction fibers: it says the
+feasible key set is exactly the singleton $\{k_0\}$
+(\path{feasibleKeys Meaning obs} $= \{k_0\}$), the set-theoretic form
+of Shannon's unicity point; the fiber counts above are what measures
+the residual ambiguity \emph{before} that point is reached.  This
 reading is faithful to the mechanized statement as it stands, and
 its formal restatement through the restriction map used by
 \path{localSections} is itself mechanized
@@ -1259,9 +1266,17 @@ class's keys in another's
 \path{substitution_not_reducible_to_permutation},
 \path{psp_reduces_to_substitution}) --- which is group theory, not
 gluing, and we see no gluing-theoretic content in it.  Second, the
-dissertation's information-theoretic layer (unicity distances,
-entropy of meaningful text) has no mechanized counterpart in this
-project and no sheaf reading we would defend; connecting the
+dissertation's \emph{entropy-based} layer --- unicity distance as a
+numeric quantity, entropy of meaningful text, and the almost-sure
+statements over a source distribution on plaintexts --- has no
+mechanized counterpart in this project and no sheaf reading we would
+defend.  (What \emph{is} mechanized is the deterministic core of the
+asymptotic statement: \path{Ste.Carlson.Asymptotic} defines
+\path{partialKeys} and \path{AsymptoticUnicity} --- the feasible key
+set is eventually $\{k_0\}$ --- and proves that over a finite key
+space this is equivalent to unicity for the whole stream
+(\path{asymptoticUnicity_iff_unicity}).  The measure-theoretic a.s.\
+version is explicitly future work.) connecting the
 obstruction counts of Section~\ref{sec:quant-sub} to
 unicity-distance estimates is \emph{speculation} and is recorded as
 such in Section~\ref{sec:conclusion}.
@@ -1445,16 +1460,23 @@ antitone in $k$, \path{KWiseConsistent.mono}).  The discriminating
 content is the converse, and it splits the world exactly along the
 rectangularity line.
 
-\begin{theorem}[Frame corpora have Helly number $2$;
+\begin{theorem}[Frame corpora have consistency number at most $2$;
 \textbf{mechanized}, \path{frame_hasHelly_two} in
 \path{Ste.HellyConsistency}]
 \label{thm:helly2}
-For every frame corpus (property sets \path{frameConstraint},
-Section~\ref{sec:empirical}), pairwise consistency implies global
+For every \emph{finite} frame corpus (property sets
+\path{frameConstraint}, Section~\ref{sec:empirical}; the Lean
+statement assumes finitely many authors and variables and a
+decidable, inhabited value type --- \path{[Fintype A]},
+\path{[DecidableEq A]}, \path{[Fintype V]}, \path{[DecidableEq W]},
+\path{[Inhabited W]}), pairwise consistency implies global
 consistency: if every pair of authors is jointly satisfiable, the
 whole corpus is.  Feasibility of a frame family is an entirely
 $2$-local property --- the complete feasibility test inspects pairs
-and nothing larger.
+and nothing larger.  The mechanized content is the implication
+\path{HasHelly}$\,(\ldots)\,2$, i.e.\ the consistency number is
+\emph{at most} $2$; nothing here refutes consistency number $1$, so
+``$2$'' is an upper bound and not a proved exact Helly number.
 \end{theorem}
 
 \begin{proposition}[The general subset lattice is not Helly-$2$;
@@ -1605,8 +1627,13 @@ over rectangular families while genuine coupling makes it strictly
 superadditive'' --- is now a theorem, in a form that also corrects
 its original wording.  Fix a group partition $\Gamma$ of the claim
 carrier and let $P$ be any reading.  Restricting $P$ to the groups
-is exactly the meet $P \sqcap \Gamma$, whose rank is the sum of the
-per-group ranks.  Rank is monotone in refinement, and strictly
+is exactly the meet $P \sqcap \Gamma$.  (Informally its rank is the
+sum of the per-group ranks; this summation identity is an
+\emph{unmechanized sketch} --- no such lemma exists in
+\path{Ste.CouplingRank} or \path{Ste.PartitionRank}, which carry no
+$\sum$ at all.  Per the bright line of Section~\ref{sec:intro} it is
+stated here for intuition only and is used nowhere below.)  Rank is
+monotone in refinement, and strictly
 monotone under strict refinement, so:
 \begin{theorem}[Coupling dichotomy for the partition rank;
 \textbf{mechanized}, module \path{Ste.CouplingRank}]
@@ -1635,8 +1662,10 @@ coupled reading with excess $> 0$
 \end{theorem}
 The correction is that the excess sits on the \emph{true} coupled
 reading $P$, not on a ``join of per-group must-partitions'': that
-join \emph{is} $P \sqcap \Gamma$, whose rank equals the sum of the
-per-group ranks exactly and never exceeds it.  Additivity for
+join \emph{is} $P \sqcap \Gamma$, and $r(P \sqcap \Gamma) \le
+r(P)$ is what is actually proved (\path{rank_inf_le_left}); the
+reading of $r(P \sqcap \Gamma)$ as a sum of per-group ranks remains
+the unmechanized sketch flagged above.  Additivity for
 rectangular families and strict superadditivity under coupling are
 then the two sides of one monotonicity fact.
 
@@ -1928,7 +1957,10 @@ Whether the twisted $\Hech^1$ (carried as the submodule pair
 \path{twistedCoboundaries1} $\le \ker$ \path{twistedD1}, with
 triviality expressed as \path{TwistedH1Trivial}; the literal
 quotient type is blocked by a typeclass diamond, documented in the
-file) vanishes for pairwise-disjoint covers is stated as \emph{open}
+file --- note this is specific to the \emph{twisted} instance stack:
+the untwisted quotient \path{cechH1} elaborates without difficulty in
+\path{Ste.CechComplex}, where $\Hech^1$ and $\Hech^2$ are genuine
+quotient modules) vanishes for pairwise-disjoint covers is stated as \emph{open}
 in the source and remains open here.  It is the first stepping stone
 toward exactness guarantees for bag-local linear relaxations ---
 signed/affine analogues of the $k$-consistency hierarchy, cousins of
