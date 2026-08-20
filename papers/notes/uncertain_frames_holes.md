@@ -2,7 +2,7 @@
 
 Assuming an extracted frame is always precisely identified is a brittle assumption. Often, NLP extraction yields an ambiguous entity—we know a frame exists, but it could be one of several plausible canonical frames.
 
-This requires us to upgrade our mathematical space from a simple graph to a **Simplicial Complex** (or Hypergraph), allowing uncertainty to manifest as literal, computable "holes" in the topology.
+This suggests upgrading our mathematical space from a simple graph to a **Simplicial Complex** (or Hypergraph). Be warned up front that the "holes" in what follows are a *metaphor*: as §2 corrects, an ambiguity set modeled as a simplex is contractible and has no homology. What is literal and computable is the branching of plural feasible sets; the topological language is a label for it.
 
 ## 1. Frames as Regions, Not Points
 Instead of an extracted claim mapping to a precise vertex $f \in F$, it maps to a subset of plausible frames $U \subseteq F$. 
@@ -28,5 +28,5 @@ Our Set Theoretic Estimation (STE) math using **Hyperopinions** and **Plural Fea
 ## Conclusion
 By treating uncertain frames as subsets (simplices) rather than exact points, the coreference engine becomes a lazy-evaluation topology. 
 * "Holes" are just unresolved sets of plural feasible sets — an informal label, not a homology claim (see the correction above).
-* New documents do **not** act as boundary operators — boundary operators are the *fixed* maps $\partial_n$ of a chain complex, not runtime updates. What actually happens is intersection/restriction: each new document refines the cover (or, equivalently, passes to a subcomplex), zeroing out the incorrect branches via $\emptyset$ intersections.
+* New documents do **not** act as boundary operators — boundary operators are the *fixed* maps $\partial_n$ of a chain complex, not runtime updates. What actually happens is intersection/restriction: each new document intersects the surviving branches, zeroing out the incorrect ones via $\emptyset$ intersections. (Refining a cover and passing to a subcomplex are *not* equivalent operations — one adds patches, the other discards cells — and neither is literally what happens here.)
 * The system never makes a brittle, premature guess. It algebraically carries the uncertainty forward until the data necessitates a collapse. The branching plural-feasible-sets mechanism itself is correct and is mechanized in `lean/Ste/PluralFeasibility.lean`.

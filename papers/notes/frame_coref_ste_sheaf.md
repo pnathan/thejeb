@@ -15,7 +15,13 @@ We map multiple documents to a **Sheaf** over this graph:
 * **Local Sections**: Each document provides a local view of coreference (its positive and negative edges).
 * **Global Sections**: Resolving the coref is finding a universal partition (equivalence relation) that aligns with all local document constraints.
 
-If Document A links $f_1 = f_2$, B links $f_2 = f_3$, but Discourse extracts $f_1 \neq f_3$, this creates an unresolvable graph cycle. Precisely, this manifests as a **failure of local sections to glue**: there is no global section, i.e. an $H^0$-level emptiness. For presheaves of *sets* (as here), $H^1$ is not even defined — a genuine $H^1$ class requires abelian-group or torsor coefficients (Abramsky–Brandenburger). In the singleton-cover instance mechanized in `Ste.CechObstruction`, this gluing failure IS counted by a concrete obstruction number; and the mechanized criterion for infeasibility is simply "a negative edge inside a positive connected component" (`multidocFeasibility_nonempty_iff` in `Ste/FrameCoref.lean`).
+If Document A links $f_1 = f_2$, B links $f_2 = f_3$, but Discourse extracts $f_1 \neq f_3$, the documents cannot be merged. This manifests as a **failure of local sections to glue**: there is no global section, i.e. an $H^0$-level emptiness. For presheaves of *sets* (as here), $H^1$ is not even defined — a genuine $H^1$ class requires abelian-group or torsor coefficients (Abramsky–Mansfield–Barbosa).
+
+Two clarifications, since earlier drafts blurred them.
+
+*It is not a cycle.* The mechanized criterion for infeasibility is "a negative edge inside a positive connected component" (`multidocFeasibility_nonempty_iff` in `Ste/FrameCoref.lean`). The example above happens to close a triangle, but the triangle is incidental: a negative edge joining any two frames already forced together by a chain of positive edges is enough, of any length. There is no cycle condition, and nothing here detects cycles.
+
+*It is not what `CechObstruction` counts.* That module's count lives in a different setting: a two-bit product hypothesis space under the singleton cover, where the gluing defect is the number of compatible-but-non-gluing families. The setting here is `Setoid F` — equivalence relations constrained by per-document positive and negative edges — and infeasibility is plain emptiness of an intersection, with no analogous count mechanized. The two are the same *shape* of failure (local data that does not assemble), not the same invariant.
 
 ## 3. Set Theoretic Estimation (STE) Formulation
 This topological problem perfectly instantiates a Set Theoretic Estimation.
