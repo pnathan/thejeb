@@ -1,8 +1,9 @@
 /-
 Metric-lattice geometry of the combinatorial Shannon distance.
 
-Delsol, Rioul, Béguinot, Rabiet, Souloumiac, "Towards a Theory of Information
-Lattices" (2024; ingested at `sources/delsol2024/`), and Shannon's 1953 "The
+Delsol, Rioul, Béguinot, Rabiet, Souloumiac, "An Information Theoretic
+Condition for Perfect Reconstruction" (Entropy 26(1):86, 2024; ingested at
+`sources/delsol2024/`), and Shannon's 1953 "The
 Lattice Theory of Information" study the entropic distance `D` on the
 information lattice as a metric-*geometric* object, not merely a metric.  On
 a finite carrier the metric topology of `shannonDist` (built in
