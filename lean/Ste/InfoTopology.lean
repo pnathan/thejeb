@@ -8,8 +8,8 @@ information lattice as a metric-*geometric* object, not merely a metric.  On
 a finite carrier the metric topology of `shannonDist` (built in
 `Ste.InfoDistance` from the combinatorial rank of `Ste.PartitionRank`, an
 order-dual counting analogue of `D` rather than `D` itself) is discrete:
-every distinct pair of partitions is at distance `≥ 1` (`one_le_shannonDist_of_ne`), so the metric
-*topology* carries no information beyond the discrete topology.  The
+every distinct pair of partitions is at distance `≥ 1`
+(`one_le_shannonDist_of_ne`), so the metric *topology* carries no information beyond the discrete topology.  The
 interesting structure is not topological but metric-geometric: which lattice
 operations are contractions for `shannonDist`, what metric betweenness looks
 like on the partition lattice, and whether the resulting finite metric space

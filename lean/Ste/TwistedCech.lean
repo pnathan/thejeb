@@ -39,8 +39,8 @@ restriction, over an arbitrary cover `U : J → Set V`.
 
 **The main results.**
 
-1. *The AMB per-section obstruction DEGENERATES in STE — a structural
-   false negative* (`amb_extension_always`).  AMB define, for a single
+1. *The AMB per-section EXTENSION CONDITION degenerates in STE*
+   (`amb_extension_always`).  AMB define, for a single
    section `s₁` over a context `C₁`, a class `γ(s₁) ∈ Ȟ¹(U, F_C̃₁)` of
    the relative presheaf, and prove (Prop. 4.2 of
    `abramsky2012cohomology`) that `γ(s₁) = 0` iff `s₁` extends to a
@@ -48,13 +48,15 @@ restriction, over an arbitrary cover `U : J → Set V`.
    this extension condition holds for EVERY section of EVERY
    constraint over EVERY cover: `localSections` only contains
    restrictions of global solutions, so the point masses of a global
-   extension provide the compatible family.  Hence the vanishing
-   condition characterizing `γ(s₁) = 0` is identically satisfied: the
-   `Ȟ¹`-graded per-section obstruction of the AMB program cannot
-   detect the STE coupling — not because the coupling is invisible,
-   but because STE's section presheaf bakes global extendability into
-   its stalks.  (We prove the extension condition itself; the LES
-   construction of `γ` is not mechanized.)
+   extension provide the compatible family.  So the condition is
+   identically satisfied and carries no information about the STE
+   coupling.  Whether this IMPLIES `γ(s₁) = 0` for this presheaf is
+   NOT established here: AMB Prop. 4.2 is proved for their relative
+   coefficient presheaf `F_C̃₁`, which we do not construct, and neither
+   the LES nor the connecting map `γ` is mechanized.  What is proved
+   is the degeneracy of the extension condition, and the reason for it
+   — STE's section presheaf bakes global extendability into its
+   stalks.
 
 2. *The obstruction that DOES fire lives one degree down, in the
    cokernel of `F_R(V) → Ȟ⁰(U, F_R)`*
@@ -71,11 +73,15 @@ restriction, over an arbitrary cover `U : J → Set V`.
    commutative ring (`mixedFamily_not_linearlyGlues`): no `R`-linear
    combination of the two diagonal global sections — negative and
    mixed coefficients allowed — restricts to the mixed point masses.
-   This is strictly stronger than the set-level failure
+   This is stronger than the set-level failure
    `diagonal_gluing_fails` (`Ste.VariablePresheaf`): even "negative
-   probabilities" cannot resolve the STE coupling, in contrast with
-   the AMB world where every no-signalling model has a global section
-   over the signed reals (`abramsky2011sheaf`).  Rectangular
+   probabilities" cannot resolve the STE coupling.  The contrast with
+   the AMB signed-measure results — where every no-signalling model
+   admits a signed global section — comes NOT from signed
+   coefficients but from RESTRICTING the globals to `T`: over the
+   ambient event sheaf (no constraint) the mixed family has an honest
+   global section `(false, true)`; it is the demand that the lift come
+   from `↥T` that makes the class fire.  Rectangular
    constraints glue linearly over every cover
    (`rectangular_linearlyGlues`), and set-level gluing always implies
    linear gluing (`GluesCover.linearlyGlues`), so nonmembership is a
@@ -85,8 +91,10 @@ restriction, over an arbitrary cover `U : J → Set V`.
 
 **Honest boundary.**  What is NOT here: the relative presheaf
 `F_C̃₁`, the long exact sequence, and the literal connecting map `γ` —
-result 1 mechanizes the extension condition that AMB Prop. 4.2 proves
-EQUIVALENT to `γ(s₁) = 0`, not the class itself.  Whether the twisted
+result 1 mechanizes the degeneracy of the extension condition, for
+THIS presheaf; AMB Prop. 4.2 relates that condition to `γ(s₁) = 0` for
+their relative presheaf `F_C̃₁`, and neither that presheaf nor the
+transfer of the conclusion to ours is mechanized.  Whether the twisted
 `Ȟ¹ = ker d¹ ⧸ im d⁰` — carried here by the submodule pair, see
 `TwistedH1Trivial` — vanishes for pairwise-disjoint covers (which
 would make the degeneracy of result 1 an instance of a blanket
@@ -284,7 +292,12 @@ because `Submodule` quotients over the submodule-coercion
 concrete `Finsupp`/`Pi` coefficient modules — a diamond on the
 derived `AddCommGroup`/`Module` instances, verified by CI diagnostics;
 the submodule-level formulation is mathematically equivalent and
-diamond-free.  Whether this triviality holds for pairwise-disjoint
+diamond-free.  ASYMMETRY WORTH NOTING: the structurally identical
+constant-coefficient quotient `cechH1` in `Ste.CechComplex` DOES
+elaborate as a literal quotient type; only the twisted version, over
+`Finsupp` coefficient modules with derived instances, trips the
+diamond.  So the difference is an elaboration artifact of the
+coefficient modules, not a mathematical one.  Whether this triviality holds for pairwise-disjoint
 covers (as its constant-coefficient shadow `cechH1_subsingleton`
 does) is left OPEN here. -/
 def TwistedH1Trivial : Prop := twistedCoboundaries1 R T U = ⊤
@@ -358,9 +371,10 @@ theorem twistedGlobal_mem_twistedH0 (φ : ↥T →₀ R) :
 sections lifts along `F_R(V) → Ȟ⁰(U, F_R)` — some formal `R`-linear
 combination of GLOBAL solutions restricts to exactly the family's
 point masses in every context.  Set-level gluing is the special case
-of a single point mass; negative and mixed coefficients make this a
-strictly weaker requirement in general — this is precisely the slack
-that produces the AMB false negatives. -/
+of a single point mass; negative and mixed coefficients make this in
+general a weaker requirement.  No instance separating the two is
+mechanized here, so "strictly weaker" is not claimed — only that
+set-level gluing implies it (`GluesCover.linearlyGlues`). -/
 def LinearlyGlues {s : ∀ j, ∀ v : (U j), A v}
     (hsec : ∀ j, s j ∈ localSections T (U j)) : Prop :=
   familyCochain R T U hsec ∈ LinearMap.range (twistedGlobal R T U)
@@ -383,15 +397,18 @@ STE** — the structural false negative.  For any constraint `T`, any
 cover `U`, any context `j₁`, and any local section `s₁` over `U j₁`,
 there is a twisted 0-cocycle `r` (a compatible family of the
 LINEARIZED presheaf) whose `j₁`-component is exactly the point mass of
-`s₁`.  By Prop. 4.2 of `abramsky2012cohomology` this extension
-condition is equivalent to the vanishing of the relative-cohomology
-obstruction `γ(s₁) ∈ Ȟ¹(U, F_C̃₁)`; since STE's `localSections` only
-contains restrictions of GLOBAL solutions, the extension always exists
-— take the point masses of any global witness — and the per-section
-cohomological obstruction of the AMB program is identically zero on
-STE section presheaves.  The `Ȟ¹`-graded obstruction cannot locate the
-coupling; contrast `mixedFamily_not_linearlyGlues`, where the
-family-level `Ȟ⁰`-cokernel class fires. -/
+`s₁`.  Since STE's `localSections` only contains restrictions of
+GLOBAL solutions, the extension always exists — take the point masses
+of any global witness — so the AMB extension condition is identically
+satisfied here and detects nothing.
+
+AMB (Prop. 4.2 of `abramsky2012cohomology`) prove this condition
+equivalent to vanishing of `γ(s₁) ∈ Ȟ¹(U, F_C̃₁)` for their RELATIVE
+coefficient presheaf, which is not the presheaf used here and is not
+constructed in this file.  Whether the degeneracy proved below implies
+`γ = 0` for this presheaf is therefore NOT established here.  Contrast
+`mixedFamily_not_linearlyGlues`, where the family-level
+`Ȟ⁰`-cokernel class does fire. -/
 theorem amb_extension_always (j₁ : J) (s₁ : ↥(localSections T (U j₁))) :
     ∃ r ∈ twistedH0 R T U, r j₁ = Finsupp.single s₁ 1 := by
   obtain ⟨g, hg, hgs⟩ := s₁.2
