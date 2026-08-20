@@ -67,3 +67,4 @@ import Ste.LocalGluing
 import Ste.FuzzyFrame
 import Ste.InfoTopology
 import Ste.MeetScaling
+import Ste.PluralFeasibility
