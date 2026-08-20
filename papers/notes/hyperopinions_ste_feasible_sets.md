@@ -4,6 +4,8 @@ When we move from rigid, binary constraints to **Hyperopinions**, we fundamental
 
 As noted, a hyperopinion is not a strict binary assertion, nor is it a probabilistic (Dirichlet) mass distribution. In the Set Theoretic Estimation (STE) framework, a hyperopinion maps to uncertainty over the exact constraint, meaning a document does not yield a single property set, but rather a *collection* of possible property sets.
 
+This is precisely the **crisp / possibilistic specialization** of Jøsang's hyperopinions (Jøsang, 2016, *Subjective Logic*): belief mass is concentrated entirely on a small number of subsets (here, the $S_{d,i}$) with a vacuous base rate, rather than spread continuously over the full opinion simplex.
+
 ## 1. The Mathematical Definition of a Hyperopinion
 In standard STE, document $d$ provides a single property set $S_d \subseteq \Xi$ (the set of valid global equivalence relations).
 
@@ -25,6 +27,8 @@ Instead of a single feasibility set $\Phi$, our system naturally collapses into 
 $$ \mathbf{\Phi} = \{ \Phi_1, \Phi_2, \dots, \Phi_m \} $$
 where each $\Phi_i$ represents a valid global hypothesis for frame coreference.
 
+Worth flagging: the number of branches is $\prod_d |\mathcal{H}_d|$, which blows up combinatorially in the number of documents — connecting to the repo's `RepresentationBounds`/`CouplingRank` line on how tightly coupled constraints inflate representation size.
+
 ## 3. The Implicit Resolution of Contradictions
 Notice that **we no longer need explicit binary contradictions**. 
 
@@ -42,4 +46,4 @@ This formulation preserves our commutative requirements perfectly.
 When we insert a new document $d_{new}$ with hyperopinion $\mathcal{H}_{new}$, we simply distribute it across our existing plural feasible sets:
 $$ \mathbf{\Phi}_{updated} = \{ \Phi_i \cap S_j \mid \Phi_i \in \mathbf{\Phi}_{old}, S_j \in \mathcal{H}_{new} \} \setminus \{ \emptyset \} $$
 
-You can insert or remove documents in any order. The underlying algebra is entirely set-theoretic, non-probabilistic, and beautifully deterministic. It maintains a branching universe of valid coreference states until enough information is gathered to collapse the plural feasible sets down to a single truth.
+*Correction:* the update rule (intersect, then discard $\emptyset$ branches) is non-injective, so this does not invert cleanly — **removal** of a document requires recomputation from the surviving documents, not an "any order" replay. Only **insertion** is order-independent. The underlying algebra is entirely set-theoretic, non-probabilistic, and — for insertion — deterministic. It maintains a branching universe of valid coreference states until the surviving branches shrink to at most a singleton, if the data suffices; note that surviving branches may overlap rather than partition $\Xi$. See `lean/Ste/PluralFeasibility.lean` for the mechanized distributivity identity underlying this expansion, given in choice-function form (which needs the Axiom of Choice in general).
