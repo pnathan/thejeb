@@ -9,11 +9,10 @@ Instead of an extracted claim mapping to a precise vertex $f \in F$, it maps to 
 * In a graph, $U$ is not a point; it is a **region** or a **simplex**.
 * A coreference link between two uncertain claims is no longer an edge between two points, but an edge between two *regions*.
 
-## 2. The Topological "Hole"
-In algebraic topology, when you have a set of plausible states connected by relationships, but you don't know the exact "interior" truth, you have a **topological hole** (specifically, non-trivial Homology $H_n \neq 0$).
+## 2. The Topological "Hole" (a metaphor, not a homology claim)
+*Correction:* an ambiguity set modeled as a simplex is **contractible** — it has zero holes, not non-trivial homology. Nontrivial homology of a nerve complex detects **non-bounding overlap cycles** among regions, which is a different and unrelated phenomenon from an unresolved disjunction sitting inside a single simplex. Calling unresolved ambiguity a "topological hole" ($H_n \neq 0$) is not proven here and should be read as an evocative label, not a theorem — in the spirit of the honest-boundary disclaimers in `lean/Ste/CechObstruction.lean`.
 
-You don't need to force a decision. You can "run the computation with holes." 
-The holes simply persist in the algebra as uncollapsed simplices. They act as placeholders in the multidocument merge.
+What *is* true, and is what this section is really about: you don't need to force a decision. You can "run the computation with holes" in the informal sense — the uncollapsed simplex persists in the algebra as a placeholder in the multidocument merge, without any topological-hole machinery backing the metaphor.
 
 ## 3. How the STE Hyperopinions Handle Holes
 Our Set Theoretic Estimation (STE) math using **Hyperopinions** and **Plural Feasible Sets** is practically built for this:
@@ -28,6 +27,6 @@ Our Set Theoretic Estimation (STE) math using **Hyperopinions** and **Plural Fea
 
 ## Conclusion
 By treating uncertain frames as subsets (simplices) rather than exact points, the coreference engine becomes a lazy-evaluation topology. 
-* "Holes" are just unresolved sets of plural feasible sets.
-* New documents act as boundary operators that "fill" the holes by zeroing out the incorrect branches via $\emptyset$ intersections.
-* The system never makes a brittle, premature guess. It algebraically carries the uncertainty forward until the data necessitates a collapse.
+* "Holes" are just unresolved sets of plural feasible sets — an informal label, not a homology claim (see the correction above).
+* New documents do **not** act as boundary operators — boundary operators are the *fixed* maps $\partial_n$ of a chain complex, not runtime updates. What actually happens is intersection/restriction: each new document refines the cover (or, equivalently, passes to a subcomplex), zeroing out the incorrect branches via $\emptyset$ intersections.
+* The system never makes a brittle, premature guess. It algebraically carries the uncertainty forward until the data necessitates a collapse. The branching plural-feasible-sets mechanism itself is correct and is mechanized in `lean/Ste/PluralFeasibility.lean`.

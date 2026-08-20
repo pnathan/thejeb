@@ -62,6 +62,7 @@ import Ste.InfoDistance
 import Ste.SetValuedFrame
 import Ste.Carlson.SetOfSets
 import Ste.Coreference
+import Ste.FrameCoref
 import Ste.LocalGluing
 import Ste.FuzzyFrame
 import Ste.InfoTopology

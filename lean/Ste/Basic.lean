@@ -21,6 +21,8 @@ property set is an ordinary subset of `Ξ`; the fuzzy/graded case
 (`Ψᵢ : Ξ → [0,1]`) is a natural generalization left as future work.
 -/
 import Mathlib.Data.Set.Lattice
+import Mathlib.Data.Set.Card
+import Mathlib.Order.Filter.AtTopBot.Basic
 
 namespace STE
 
@@ -135,5 +137,31 @@ theorem ideal_iff_fair_and_subsingleton {S : I → Set Ξ} {h : Ξ} :
   · rintro ⟨hf, huniq⟩
     apply Set.eq_singleton_iff_unique_mem.mpr
     exact ⟨fair_iff_mem_feasibilitySet.mp hf, huniq⟩
+
+/-- **Stabilization of a shrinking sequence of sets over a finite space**:
+an antitone sequence of subsets of a finite type is eventually equal to
+its total intersection.  This is the order-theoretic content behind
+"finitely many observations already suffice": in a finite solution space
+information monotonicity cannot keep shrinking forever. -/
+theorem antitone_eventually_eq_iInter {Ξ : Type*} [Finite Ξ] {f : ℕ → Set Ξ}
+    (hf : Antitone f) : ∀ᶠ n in Filter.atTop, f n = ⋂ i, f i := by
+  -- pick an index whose cardinality is minimal
+  have hne : (Set.range fun n => (f n).ncard).Nonempty := ⟨_, ⟨0, rfl⟩⟩
+  obtain ⟨N, hN⟩ : ∃ N, (f N).ncard = sInf (Set.range fun n => (f n).ncard) :=
+    Nat.sInf_mem hne
+  have hmin : ∀ m, (f N).ncard ≤ (f m).ncard := by
+    intro m
+    rw [hN]
+    exact Nat.sInf_le ⟨m, rfl⟩
+  have hstab : ∀ m, N ≤ m → f m = f N := fun m hm =>
+    Set.eq_of_subset_of_ncard_le (hf hm) (hmin m) (Set.toFinite _)
+  have hiInter : ⋂ i, f i = f N := by
+    apply Set.Subset.antisymm (Set.iInter_subset _ N)
+    refine Set.subset_iInter fun i => ?_
+    rcases le_total N i with h | h
+    · rw [hstab i h]
+    · exact hf h
+  filter_upwards [Filter.eventually_ge_atTop N] with n hn
+  rw [hstab n hn, hiInter]
 
 end STE
