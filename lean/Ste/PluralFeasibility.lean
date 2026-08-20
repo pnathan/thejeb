@@ -45,7 +45,7 @@ an empty alternative contributes nothing to the union. -/
 theorem iUnion_sdiff_empty (A : Set (Set Ξ)) :
     ⋃ S ∈ (A \ {∅} : Set (Set Ξ)), S = ⋃ S ∈ A, S := by
   ext a
-  simp only [Set.mem_iUnion, Set.mem_diff, Set.mem_singleton_iff, exists_prop]
+  simp only [Set.mem_iUnion, Set.mem_sdiff, Set.mem_singleton_iff, exists_prop]
   constructor
   · rintro ⟨S, ⟨hSA, -⟩, haS⟩
     exact ⟨S, hSA, haS⟩

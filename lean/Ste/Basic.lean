@@ -23,6 +23,7 @@ property set is an ordinary subset of `Ξ`; the fuzzy/graded case
 import Mathlib.Data.Set.Lattice
 import Mathlib.Data.Set.Card
 import Mathlib.Order.Filter.AtTopBot.Basic
+import Mathlib.Order.Lattice.Nat
 
 namespace STE
 
