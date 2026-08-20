@@ -18,7 +18,9 @@ where `h` is the true object (estimandum).
 
 We mechanize the crisp case, where each `Ψᵢ` is `{0,1}`-valued so the
 property set is an ordinary subset of `Ξ`; the fuzzy/graded case
-(`Ψᵢ : Ξ → [0,1]`) is a natural generalization left as future work.
+(`Ψᵢ : Ξ → [0,1]`) is mechanized in `Ste.FuzzyFrame`
+(`consistencyDegree`, `cut_fuzzyFeasibility`,
+`weightedFrame_gradedHelly_two`).
 -/
 import Mathlib.Data.Set.Lattice
 import Mathlib.Data.Set.Card

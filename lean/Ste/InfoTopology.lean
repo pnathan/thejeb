@@ -15,28 +15,48 @@ operations are contractions for `shannonDist`, what metric betweenness looks
 like on the partition lattice, and whether the resulting finite metric space
 embeds in `ℓ1` / is a median space.
 
-Positive results (counting shadows of Delsol Prop. 20 / Remark 11, the
-contraction/1-Lipschitz property of the information join, and Delsol
-Prop. 22, alignment for `D`): `⊔` is a metric contraction, jointly
-1-Lipschitz; metric betweenness `d(P,Q) + d(Q,R) = d(P,R)` forces the two
-combinatorial conditions `Q ≤ P ⊔ R` and `Q = (P ⊔ Q) ⊓ (Q ⊔ R)` (a Markov
-condition), strictly extending the chain case `shannonDist_chain_add`.
+## Which operator is which (see `Ste.InfoDistance` for the full dictionary)
 
-Negative results (counting shadow of Delsol Prop. 19, discontinuity of the
-common-information operator `∧`, the Gács–Körner phenomenon; and the
-pentagonal inequality of Deza–Laurent, "Geometry of Cuts and Metrics"):
-`⊓` is *not* a contraction, already on a carrier of size 4, and already for
-`|α| = 3` the partition metric space violates the pentagonal inequality —
-its covering graph on the three atoms plus `⊥, ⊤` is `K_{2,3}` — hence
-`shannonDist` is neither `ℓ1`-embeddable nor a median metric.
+The dictionary is stated once in the header of `Ste.InfoDistance` and is used
+here without restatement.  In brief: in Mathlib's `Setoid α`, `⊓` is
+intersection of relations = the common refinement = the **joint** source
+`∨` of Shannon/Delsol; `⊔` is the coarsest common coarsening = the
+**common-information** operator `∧`, the Gács–Körner operator; and `rank` is
+a co-entropy, monotone under coarsening where `H` is monotone under
+refinement.
 
-Throughout, note that Mathlib's `Setoid` order (`s ≤ t` iff `s`-classes
-refine `t`-classes, `⊥` discrete, `⊤` one block) is the reverse of Delsol's
-information order, so Delsol's join `∨` (more information) corresponds
-*formally* to our `⊔` (coarser partition): `shannonDist` is built from `⊔`
-exactly as `D` is built from `∨`, so the "join is a contraction" statements
-below are the direct counting shadows of the cited results even though the
-underlying order is reversed.
+## The counting shadow REVERSES the Delsol dichotomy
+
+Delsol's metric-lattice picture is: the joint `∨` is well behaved (Prop. 20 /
+Remark 11 give continuity and contraction statements for `∨`), while the
+common information `∧` is badly behaved (Prop. 19: `∧` is discontinuous, the
+Gács–Körner phenomenon).  What this file *proves* is the exact opposite
+pairing:
+
+* `⊔` — the common-information operator `∧` — **is** a metric contraction
+  and jointly 1-Lipschitz for `shannonDist`
+  (`shannonDist_sup_right_le`, `shannonDist_sup_le_add`).
+* `⊓` — the **joint** `∨` — is **not** a contraction, already on a carrier
+  of size 4 (`shannonDist_inf_not_contraction`), with no uniform Lipschitz
+  constant at all (`Ste.MeetScaling.meet_not_lipschitz`).
+
+This is a reversal of Delsol's dichotomy, not a reproduction of it, and it
+should be read as a fact about the shadow rather than as evidence for the
+entropic statements.  The mechanism is the co-entropy: `rank` is
+anti-monotone in information, so passing from `H` to `rank` passes to the
+order-dual lattice and exchanges the roles of the two operators.  A
+contraction result for `⊔` in the counting shadow is therefore the dual-side
+analogue of Delsol's `∨` results, and carries no direct implication for
+Delsol's `∧`; likewise the failure below is a counting-shadow failure for
+`⊓`, not a mechanization of Prop. 19.  Cited proposition numbers below mark
+the *source of the shape* of each statement, never a claim that the
+entropic result has been transported.
+
+Further negative result, independent of the above (the pentagonal inequality
+of Deza–Laurent, "Geometry of Cuts and Metrics"): already for `|α| = 3` the
+partition metric space violates the pentagonal inequality — its covering
+graph on the three atoms plus `⊥, ⊤` is `K_{2,3}` — hence `shannonDist` is
+neither `ℓ1`-embeddable nor a median metric.
 -/
 import Ste.InfoDistance
 import Mathlib.Tactic.FinCases

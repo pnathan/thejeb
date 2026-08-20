@@ -90,7 +90,7 @@ Two further mechanized structures answer, metric-freely, what a
 feasible family of subsets has that an infeasible one lacks: frame
 corpora have Helly number~$2$ --- pairwise consistency already
 certifies global consistency, provably false for general subset
-families (\path{Ste.HellyConsistency}) --- and the forced-coreference
+families (\path{Ste.HellyConsistency}) --- and the must-coreference
 reading of a corpus carries a submodular partition-lattice rank ---
 Shannon's lattice of information with counting rank in place of
 entropy (\path{Ste.PartitionRank}).
@@ -163,7 +163,7 @@ distances.
   (\path{frame_hasHelly_two}), provably false for general subset
   families (\path{exists_not_hasHelly_two}), with the property sets
   generating a mechanized closure system (\path{cl},
-  \path{isClClosed_iInter}) --- and the forced-coreference reading
+  \path{isClClosed_iInter}) --- and the must-coreference reading
   of a corpus is a lattice meet (\path{mustSetoid_eq_sInf}) carrying
   a submodular partition-lattice rank (\path{rank_submodular}), the
   counting shadow of Shannon's information lattice.
@@ -1528,7 +1528,7 @@ feasible normalization hypothesis $h$ induces one, packaged as an
 element \path{frameSetoid}$\,h$ of Mathlib's complete lattice of
 setoids (namespace \path{STE.DynamicFrame.Model}, module
 \path{Ste.PartitionRank}).  Readings are ordered by refinement, and
-the corpus's \emph{forced-identity} (must-coreference) relation
+the corpus's \emph{must-coreference} relation
 sits at a distinguished lattice position:
 
 \begin{theorem}[Must-coreference is the lattice meet;
@@ -1544,6 +1544,19 @@ feasible reading, and grows monotonically with evidence: adding
 documents only adds forced identifications
 (\path{rank_mustSetoid_mono} below is its rank shadow).
 \end{theorem}
+
+Two dual closures should not be confused.  On the meet side,
+\path{mustSetoid} is the \emph{must}-coreference relation: the
+$\mathrm{sInf}$ of the feasible readings, what every surviving
+hypothesis identifies.  On the join side, \path{forcedCoref}
+(module \path{Ste.Coreference}) is the \emph{corpus-forced}
+coreference: the $\mathrm{sSup}$ of the active documents' local
+coreference decisions with the equivalence closure of the asserted
+cross-document links, i.e.\ the smallest partition consistent with
+all the evidence (\path{forcedCoref_eq_sInf} records exactly this
+universal property).  Where this monograph says
+``must-coreference'' it always means the meet-side
+\path{mustSetoid}.
 
 The invariant the feasible family carries is the \emph{rank} of
 these partitions (namespace \path{STE.PartitionRank}): for a finite
@@ -1705,7 +1718,7 @@ with \v{C}ech vanishing as
 generate a mechanized closure system whose closed sets form a Moore
 family (\path{cl_extensive}, \path{cl_monotone},
 \path{cl_idempotent}, \path{isClClosed_iInter}); and on the corpus
-axis the forced-coreference partition is the lattice meet of the
+axis the must-coreference partition is the lattice meet of the
 feasible readings (\path{mustSetoid_eq_sInf}), with a partition
 rank that is exactly computed on covering steps
 (\path{blockCount_mergePair}), submodular

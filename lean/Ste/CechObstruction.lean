@@ -1,15 +1,18 @@
 /-
-The concrete Čech obstruction for the singleton cover of a product
+The concrete gluing-defect count for the singleton cover of a product
 hypothesis space, computed sorry-free on the two-variable Boolean
 instance.
 
 Following Abramsky–Brandenburger (*The sheaf-theoretic structure of
 non-locality and contextuality*, 2011, `abramsky2011sheaf`), the failure
-to glue compatible local sections into a global one is measured by a
-Čech cohomology class of the cover of contexts; it vanishes exactly when
-gluing succeeds.  This file mechanizes the SMALLEST honest instance of
-that picture in the STE setting — it does NOT build the general Čech
-`Ȟ¹` functor.
+to glue compatible local sections into a global one is the failure of
+the sheaf condition for the section presheaf of the contexts.  The
+COHOMOLOGICAL grading of that failure is due to Abramsky–Mansfield–
+Barbosa (`abramsky2012cohomology`) and ABKLM (`abramsky2015paradox`);
+the 2011 paper is sheaf-level only.  This file mechanizes the SMALLEST
+honest instance of the sheaf-level picture in the STE setting — it does
+NOT build the general Čech `Ȟ¹` functor, and nothing here is an `Ȟ¹`
+computation.
 
 **The instance.**  Variables `V` with value types `A v`, constraint
 `T ⊆ ∀ v, A v`; the cover of `V` is by the singleton contexts `{v}`
@@ -25,10 +28,18 @@ the singleton cover this holds iff the family, read as an assignment,
 lies in `T` (`glues_iff_mem`, `gluedFamilies_eq`).
 
 **The invariant.**  `cechObstruction T` is the (extended-natural) count
-`|compatible families| - |glued families|`.  This is the concrete `Ȟ¹`
-obstruction number for this cover: it is `0` iff no compatible family is
-stuck (in the finite case), and each stuck family is a nontrivial
-cocycle in the Abramsky–Brandenburger sense.
+`|compatible families| - |glued families|`: a GLUING-DEFECT COUNT at the
+`Ȟ⁰`/sheaf-condition level.  It is `0` iff no compatible family is stuck
+(in the finite case), and each stuck family is a *stuck compatible
+family*, not a cocycle.
+
+*This is not `Ȟ¹`.*  For the singleton cover all overlaps are empty
+(`singletonCover_overlap_empty`), so the genuine Čech `Ȟ¹` of this cover
+is identically zero: there is no nontrivial cocycle data to carry.  The
+repo's own linearized complex says the same — `cechH1_subsingleton`
+(`Ste.CechComplex`) and `amb_extension_always` (`Ste.TwistedCech`).  The
+count below therefore measures failure of the sheaf condition for the
+image presheaf, one degree lower than any cohomology class.
 
 **Results (all machine-checked, no `sorry`).**
 
@@ -39,35 +50,43 @@ cocycle in the Abramsky–Brandenburger sense.
   (`gluedFamilies_diagonal_encard`, reusing `diagonal_encard`):
   `cechObstruction diagonal = 2 ≠ 0` (`diagonal_cechObstruction`,
   `diagonal_cechObstruction_ne_zero`).  The mixed family
-  `x ↦ false, y ↦ true` is an explicit compatible-but-stuck cocycle
+  `x ↦ false, y ↦ true` is an explicit compatible-but-stuck family
   (`diagonal_mixed_compatible_not_glues`).
 
 * *Vanishing on rectangular constraints.*  For any product constraint
   `univ.pi P`, every compatible family glues
   (`rectangular_cechVanishes`, `compatibleFamilies_pi`), so
   `cechObstruction (univ.pi P) = 0` (`rectangular_cechObstruction`) —
-  the `Ȟ¹ = 0` case.
+  the zero-defect case.
 
 * *Bridge to the representation obstruction.*  Vanishing forces the
   constraint to BE a rectangle (`rectangular_of_cechVanishes`), so
   `diagonal_not_rectangular` (`Ste.Sheaf`) yields nonvanishing a second
-  way (`diagonal_not_cechVanishes`): the Čech obstruction of this cover
+  way (`diagonal_not_cechVanishes`): the gluing defect of this cover
   and the rectangular-representation obstruction are the same
   phenomenon.
 
-**Honest boundary.**  What is proven here is exactly the obstruction for
-the SINGLETON cover on a product space, with the two-variable Boolean
-diagonal as the computed nonvanishing witness.  The general cohomological
-theory — arbitrary covers with nonempty overlaps, genuine cochain
-complexes and the full `Ȟ¹` functor, relative cohomology with local
-coefficients, and the quantitative claim "obstruction size = forced
-representation blow-up" for general constraint families — is the cited
-Abramsky–Brandenburger framework and OUTLOOK; it is not claimed, and not
-mechanized, in this file.
+**Honest boundary.**  What is proven here is exactly the gluing defect
+for the SINGLETON cover on a product space, with the two-variable Boolean
+diagonal as the computed nonvanishing witness.  It is weaker than
+Abramsky-style contextuality: with disjoint contexts the compatibility
+condition is vacuous, and over the underlying event sheaf the stuck
+family `(false, true)` IS a global section — it is excluded only by the
+constraint `T`.  The general cohomological theory — arbitrary covers with
+nonempty overlaps, genuine cochain complexes and the full `Ȟ¹` functor,
+relative cohomology with local coefficients, and the quantitative claim
+"obstruction size = forced representation blow-up" for general constraint
+families — is the Abramsky–Mansfield–Barbosa framework and OUTLOOK; it is
+not claimed, and not mechanized, in this file.
 
-Reference: S. Abramsky, A. Brandenburger, *The sheaf-theoretic structure
+References: S. Abramsky, A. Brandenburger, *The sheaf-theoretic structure
 of non-locality and contextuality*, New J. Phys. 13 (2011) 113036
-(`abramsky2011sheaf`).
+(`abramsky2011sheaf`) for the sheaf-level story; S. Abramsky, S.
+Mansfield, R. S. Barbosa, *The cohomology of non-locality and
+contextuality*, EPTCS 95 (2012) 1–14 (`abramsky2012cohomology`), and
+S. Abramsky, R. S. Barbosa, K. Kishida, R. Lal, S. Mansfield,
+*Contextuality, cohomology and paradox*, CSL 2015
+(`abramsky2015paradox`), for the cohomological grading.
 -/
 import Mathlib.Data.Set.Card
 import Mathlib.Data.ENat.Basic
@@ -83,7 +102,7 @@ variable {V : Type*} {A : V → Type*}
 /-! ### The singleton cover and its (empty) overlaps -/
 
 /-- The singleton contexts `{v}` cover the variable set: this is the
-cover whose Čech obstruction we compute. -/
+cover whose gluing defect we compute. -/
 theorem singletonCover_cover : ⋃ v : V, ({v} : Set V) = Set.univ :=
   Set.iUnion_of_singleton V
 
@@ -147,12 +166,13 @@ theorem gluedFamilies_eq (T : Set (∀ v, A v)) : gluedFamilies T = T := by
 
 /-! ### The obstruction invariant -/
 
-/-- **The concrete Čech obstruction number** of the constraint `T` for
-the singleton cover: how many compatible families of local sections fail
-to glue to a global section, as the difference of extended-natural
-counts.  In the Abramsky–Brandenburger picture this is the size of the
-nontrivial part of `Ȟ¹` for this cover; `0` means every compatible
-family glues (the sheaf condition holds). -/
+/-- **The gluing-defect count** of the constraint `T` for the singleton
+cover: how many compatible families of local sections fail to glue to a
+global section, as the difference of extended-natural counts.  This is
+an `Ȟ⁰`-level (sheaf-condition) defect count, NOT a cohomology class:
+the overlaps of this cover are empty, so its genuine Čech `Ȟ¹` is
+identically zero.  `0` means every compatible family glues (the sheaf
+condition holds for the image presheaf). -/
 noncomputable def cechObstruction (T : Set (∀ v, A v)) : ℕ∞ :=
   (compatibleFamilies T).encard - (gluedFamilies T).encard
 
@@ -177,7 +197,7 @@ theorem rectangular_of_cechVanishes {T : Set (∀ v, A v)}
     (h : CechVanishes T) : ∃ t : ∀ v, Set (A v), T = Set.univ.pi t :=
   ⟨contextSections T, ((cechVanishes_iff T).mp h).symm⟩
 
-/-! ### Vanishing for rectangular constraints (the `Ȟ¹ = 0` case) -/
+/-! ### Vanishing for rectangular constraints (zero gluing defect) -/
 
 /-- Projections of a rectangle are contained in its sides. -/
 theorem contextSections_pi_subset (P : ∀ v, Set (A v)) (v : V) :
@@ -208,7 +228,7 @@ theorem rectangular_glued_encard_eq_compatible (P : ∀ v, Set (A v)) :
       = (compatibleFamilies (Set.univ.pi P)).encard := by
   rw [gluedFamilies_eq, compatibleFamilies_pi]
 
-/-- **`Ȟ¹ = 0` for rectangles**: the Čech obstruction number of any
+/-- **Zero defect for rectangles**: the gluing-defect count of any
 rectangular (variable-separable) constraint is zero. -/
 theorem rectangular_cechObstruction (P : ∀ v, Set (A v)) :
     cechObstruction (Set.univ.pi P) = 0 := by
@@ -245,9 +265,11 @@ theorem gluedFamilies_diagonal_encard :
     (gluedFamilies diagonal).encard = 2 := by
   rw [gluedFamilies_eq, diagonal_encard]
 
-/-- The explicit stuck cocycle: the mixed family `x ↦ false, y ↦ true`
-is a compatible family of local sections that is the restriction of no
-global section of the diagonal. -/
+/-- The explicit stuck compatible family: the mixed family
+`x ↦ false, y ↦ true` is a compatible family of local sections that is
+the restriction of no global section of the diagonal.  (It is not a
+cocycle: with empty overlaps there is no degree-1 data to be a cocycle
+in.) -/
 theorem diagonal_mixed_compatible_not_glues :
     (fun v : Fin 2 => decide (v = 1)) ∈ compatibleFamilies diagonal ∧
       ¬Glues diagonal (fun v : Fin 2 => decide (v = 1)) := by
@@ -279,7 +301,7 @@ theorem diagonal_compatible_encard_ne_glued_encard :
 
 /-- **The computed obstruction of the diagonal is `2`**: of the `4`
 compatible families, exactly the `2` mixed ones are stuck.  This is the
-minimal nonvanishing Čech obstruction realized in the STE setting. -/
+minimal nonvanishing gluing defect realized in the STE setting. -/
 theorem diagonal_cechObstruction : cechObstruction diagonal = 2 := by
   unfold cechObstruction
   rw [compatibleFamilies_diagonal_encard, gluedFamilies_diagonal_encard]
@@ -288,7 +310,7 @@ theorem diagonal_cechObstruction : cechObstruction diagonal = 2 := by
   | decide
   | norm_num [← ENat.coe_sub]
 
-/-- **Nonvanishing, numerically**: the Čech obstruction number of the
+/-- **Nonvanishing, numerically**: the gluing-defect count of the
 coupling constraint is nonzero. -/
 theorem diagonal_cechObstruction_ne_zero :
     cechObstruction diagonal ≠ 0 := by

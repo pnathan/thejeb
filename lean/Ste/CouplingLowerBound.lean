@@ -1,13 +1,14 @@
 /-
 The hard side of the tractability dichotomy: unbounded coupling forces
-an exponential representation gap.
+an exponential obstruction (margin) gap.
 
 `Ste.CechObstruction` computes the concrete Čech obstruction of the
 singleton cover — the count of compatible-but-stuck families of local
 sections — and shows it vanishes on rectangles and is `2` on the
 two-variable Boolean `diagonal`.  This file scales that witness to `n`
-variables and closes the quantitative lower-bound side of the
-dichotomy that `Ste.JunctionTree` leaves as outlook.
+variables, quantifying the singleton-cover obstruction for `allEqual`.
+The width-`w` representation lower bound that `Ste.JunctionTree`
+leaves as outlook remains outlook.
 
 **The characterization.**  First, the singleton-cover half of the
 presheaf gluing conjecture is closed as an iff
@@ -38,7 +39,9 @@ the junction-tree representation is faithful and of total size
 `≤ n * k^(w+1)` — LINEAR in `n` for fixed width (Dechter 2003, bucket
 elimination / junction trees).  `allEqual n α` sits at the opposite
 extreme: its (primal) constraint graph is the complete graph — every
-pair of variables interacts — so its width is maximal (`n - 1`), and
+pair of variables interacts — so its width is maximal (`n - 1`, now a
+Lean theorem: `Ste.CliqueTreewidth.le_treewidth_of_isClique` and
+`treewidth_primalGraph_allEqualInstance`), and
 this file proves the price: the compatible/glued gap of the singleton
 cover is `≥ 2^n - 2`.  Any procedure that reasons from the
 per-variable margins alone must entertain exponentially many phantom
@@ -46,10 +49,11 @@ assignments that the coupling then kills.
 
 **Honest boundary.**  What is mechanized is exactly: (i) the iff for
 the SINGLETON cover on a product space, and (ii) the exact and
-asymptotic obstruction counts for the `allEqual` family.  NOT claimed
-or mechanized: that width `n - 1` is minimal for `allEqual` in the
-formal `Ste.Treewidth` sense (the complete-graph width computation is
-prose, not Lean); the general statement "every width-`w` bounded
+asymptotic obstruction counts for the `allEqual` family.  The width
+`n - 1` claim IS mechanized, in `Ste.CliqueTreewidth`
+(`le_treewidth_of_isClique`, `treewidth_primalGraph_allEqualInstance`,
+`inducedTreewidth_allEqualInstance`).  NOT claimed or mechanized: the
+general statement "every width-`w` bounded
 representation of `allEqual` has size `≥ 2^n`" quantified over all
 representation schemes; and the full cohomological `Ȟ¹` picture for
 covers with nonempty overlaps (Abramsky–Brandenburger 2011), which
@@ -169,17 +173,21 @@ theorem two_pow_sub_two_le {k : ℕ} (hk : 2 ≤ k) (hn : 1 ≤ n) :
         Nat.mul_le_mul hk (Nat.sub_le_sub_right (Nat.pow_le_pow_left hk m) 1)
     _ = k ^ (1 + m) - k := by rw [Nat.mul_sub, mul_one, pow_add, pow_one]
 
-/-- **The exponential representation gap — the hard side of the
+/-- **The exponential obstruction (margin) gap — the hard side of the
 dichotomy.**  For any alphabet with at least two symbols, the Čech
 obstruction of the n-fold all-equal coupling is at least `2^n - 2`:
 exponentially many compatible families of local sections are stuck,
 while the feasible set keeps only `|α|` points (`allEqual_encard`).
+This is a gap between the singleton-cover margin picture and the
+feasible set — NOT a representation gap: the rectangle-cover
+representation of `allEqual` is constant-size,
+`Ste.RepresentationBounds.rectCoverNumber_allEqual = |α|`.
 
 Contrast `Ste.JunctionTree.junctionTree_size_linear`: at bounded
 induced width `w`, the faithful junction-tree representation has size
 `≤ n * k^(w+1)` — linear in `n` (Dechter 2003).  `allEqual n α` has
-the complete graph as its constraint graph (width `n - 1`, prose
-observation), and here the margin-based picture provably overshoots
+the complete graph as its constraint graph (width `n - 1`, mechanized
+in `Ste.CliqueTreewidth`), and here the margin-based picture provably overshoots
 the feasible set by `≥ 2^n - 2`: unbounded coupling forces an
 exponential gap that no per-variable (singleton-cover) account can
 close. -/
