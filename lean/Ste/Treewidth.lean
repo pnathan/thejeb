@@ -25,7 +25,7 @@ The two accounting facts behind treewidth:
 The quantitative bag bound — a `σ`-supported table has at most
 `∏ v ∈ σ, |A v|` rows, so an elimination order of width `w` never
 materializes a table larger than `a^{w+1}` — is developed on top of
-`HasSupport` (see `bag_encard_le` / outlook in the notes).
+`HasSupport` (see `table_encard_le` / `table_encard_le_pow` below).
 
 Reference: R. Dechter, *Constraint Processing*, 2003 (bucket elimination,
 induced width); N. Robertson, P. D. Seymour, treewidth.

@@ -12,6 +12,12 @@ question.
   feasible sets (`feasibilitySet_eq_iInter_cover`).  So the presheaf
   `J ↦ feas(J)` takes colimits of constraints to limits of feasible sets
   — it is a sheaf for union-coverage, and no obstruction lives here.
+  Note this sheaf condition is DEGENERATE: every value is a subset of
+  the one ambient set `Ξ` and every restriction map is an inclusion, so
+  the condition collapses to `lowerPolar_iUnion` — an intersection
+  identity, holding for formal reasons.  That is precisely why no
+  obstruction can live at this level; the content is elsewhere (the
+  rectangularity/gluing-defect story below).
 
 * **Tractable upper bound (rectangular constraints).**  Model the
   hypothesis space as a product `Ξ = ∀ v, A v` (variables/claims).  If
@@ -25,10 +31,14 @@ question.
   the diagonal `{f | f 0 = f 1}` on two binary variables — is provably
   NOT rectangular (`diagonal_not_rectangular`).  Hence no per-variable
   representation exists: variable coupling is the exact source of
-  intractability.  This non-rectangularity is the elementary shape of
-  Abramsky-style contextuality / a nonzero Čech gluing obstruction, and
-  the same shape as `Ste.DynamicFrame.Counterexample` (non-transitive
-  possible-coreference).
+  intractability.  This non-rectangularity is failure of the sheaf
+  condition for the IMAGE presheaf (the projections of `T`), counted in
+  `Ste.CechObstruction`, and the same shape as
+  `Ste.DynamicFrame.Counterexample` (non-transitive possible-coreference).
+  It is weaker than Abramsky-style contextuality: the singleton contexts
+  are disjoint, so compatibility is vacuous, and over the underlying
+  event sheaf the offending family `(false, true)` is a perfectly good
+  global section — it fails only against `T`.
 
 References: S. Abramsky, A. Brandenburger, *The sheaf-theoretic structure
 of non-locality and contextuality*, 2011; B. Ganter, R. Wille, *Formal

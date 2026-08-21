@@ -17,9 +17,14 @@ positions; a position permutation `ρ : Perm (Fin n)` induces the value
 permutation `coperm ρ`.
 
 Carlson's claims and their formal counterparts:
-  * **Thm 5.2** — a permutation cipher reduces to a substitution cipher:
-    `coperm ρ` is a permutation of the value space, i.e. a substitution
-    key (`permutation_reduces_to_substitution`).
+  * **Thm 5.2** — a permutation cipher reduces to a substitution cipher.
+    Formally: `coperm` acts by relabelling coordinates
+    (`coperm_apply : coperm ρ f x = f (ρ.symm x)`), it is a group
+    homomorphism into the value-space symmetric group (`coperm_mul`,
+    packaged as `copermHom`), and it is *injective*
+    (`coperm_injective`).  The injective homomorphism is the content:
+    permutation-cipher keys embed as a subgroup of the substitution-cipher
+    keys (`permutation_reduces_to_substitution`).
   * **Lemma 5.1 / Cor 5.2** — a substitution cipher does not necessarily
     reduce to a permutation cipher: there are strictly more substitution
     keys than permutation keys on an `n`-bit block once `n ≥ 2`
@@ -27,9 +32,21 @@ Carlson's claims and their formal counterparts:
     of permutation keys into substitution keys is onto
     (`substitution_not_reducible_to_permutation`).
   * **Cor 5.3** — a boundary-aligned PSP cipher is a single substitution
-    cipher; every block cipher is a block substitution cipher, because
-    the value-space symmetric group is closed under composition
-    (`psp_reduces_to_substitution`).
+    cipher; every block cipher is a block substitution cipher.  Formally:
+    the PSP composite acts by `s` conjugated with two independent
+    coordinate relabellings (`psp_apply`), and the set of keys realized by
+    the PSP construction is *exactly* the whole value-space symmetric
+    group (`psp_reduces_to_substitution`) — closure and exhaustiveness at
+    once.
+
+Numbering note: the theorem/lemma numbers above follow the numbering of
+the reduction chain in Chapter 5 of Carlson's dissertation as used
+consistently throughout this project (Thm 5.2 for P → S, Lemma 5.1 /
+Cor 5.2 for the failure of S → P, Cor 5.3 for PSP → S).  The copy of the
+dissertation in `sources/` is a scanned PDF whose body text is not
+machine-readable, so the numbers could not be re-verified mechanically;
+they are used here only as attribution labels, and every statement below
+stands on its own Lean proof.
 -/
 import Mathlib.GroupTheory.Perm.Basic
 import Mathlib.Data.Fintype.Perm
@@ -47,12 +64,37 @@ value space `Fin n → Bool`). -/
 def coperm {n : ℕ} (ρ : Equiv.Perm (Fin n)) : Equiv.Perm (Fin n → Bool) :=
   ρ.arrowCongr (Equiv.refl Bool)
 
-/-- **Carlson, Theorem 5.2** (P reduces to S).  Every permutation-cipher
-key is a substitution-cipher key: `coperm ρ` is a permutation of the
-value space. -/
-theorem permutation_reduces_to_substitution {n : ℕ} (ρ : Equiv.Perm (Fin n)) :
-    ∃ s : Equiv.Perm (Fin n → Bool), s = coperm ρ :=
-  ⟨coperm ρ, rfl⟩
+/-- **How a permutation key acts as a substitution key.**  `coperm ρ`
+relabels the coordinates of an `n`-bit value: the bit that the input `f`
+carries at position `ρ.symm x` is the bit the output carries at position
+`x`.  This pins down the content of the reduction — a permutation cipher
+*is* the substitution `f ↦ f ∘ ρ.symm` on the value space. -/
+theorem coperm_apply {n : ℕ} (ρ : Equiv.Perm (Fin n)) (f : Fin n → Bool)
+    (x : Fin n) : coperm ρ f x = f (ρ.symm x) := rfl
+
+/-- `coperm` sends the identity position permutation to the identity
+substitution key. -/
+theorem coperm_one {n : ℕ} : coperm (1 : Equiv.Perm (Fin n)) = 1 := by
+  ext f x
+  rfl
+
+/-- **`coperm` is a group homomorphism** (covariant: composing position
+permutations composes the induced value permutations in the same order).
+Together with `coperm_injective` this upgrades Carlson's Theorem 5.2 from
+"each permutation key is some substitution key" to "the permutation keys
+form a subgroup of the substitution keys". -/
+theorem coperm_mul {n : ℕ} (ρ₁ ρ₂ : Equiv.Perm (Fin n)) :
+    coperm (ρ₁ * ρ₂) = coperm ρ₁ * coperm ρ₂ := by
+  ext f x
+  rfl
+
+/-- The realization of permutation-cipher keys as substitution-cipher
+keys, packaged as a monoid (hence group) homomorphism from the position
+symmetric group to the value symmetric group. -/
+def copermHom {n : ℕ} : Equiv.Perm (Fin n) →* Equiv.Perm (Fin n → Bool) where
+  toFun := coperm
+  map_one' := coperm_one
+  map_mul' := coperm_mul
 
 /-- **Carlson, Theorem 5.2, sharpened.**  The realization `coperm` of
 permutation-cipher keys as substitution-cipher keys is injective:
@@ -81,6 +123,17 @@ theorem coperm_injective {n : ℕ} : Function.Injective (coperm (n := n)) := by
     _ = ρ₂.symm.symm := by rw [hs]
     _ = ρ₂ := ρ₂.symm_symm
 
+/-- **Carlson, Theorem 5.2** (P reduces to S), stated with content.  The
+permutation-cipher keys on an `n`-bit block embed into the
+substitution-cipher keys: `copermHom` is an injective group homomorphism
+`Perm (Fin n) →* Perm (Fin n → Bool)`, so the permutation keys form a
+subgroup of the substitution keys, acting by `f ↦ f ∘ ρ.symm`
+(`coperm_apply`).  Injectivity — not the mere existence of an image — is
+the reduction's content. -/
+theorem permutation_reduces_to_substitution {n : ℕ} :
+    Function.Injective (copermHom (n := n)) :=
+  coperm_injective
+
 /-- On an `n`-bit block with `2 ≤ n`, there are strictly more
 substitution-cipher keys (`(2^n)!` permutations of the value space) than
 permutation-cipher keys could ever be (`n!` permutations of the bit
@@ -106,14 +159,34 @@ theorem substitution_not_reducible_to_permutation {n : ℕ} (hn : 2 ≤ n)
   have h := Fintype.card_of_bijective ⟨hinj, hsurj⟩
   exact absurd h (Nat.ne_of_lt (card_permutation_lt_card_substitution hn))
 
+/-- The set of substitution keys realized by the
+permutation–substitution–permutation construction with two *independent*
+position permutations. -/
+def pspKeys (n : ℕ) : Set (Equiv.Perm (Fin n → Bool)) :=
+  {t | ∃ (ρ₁ ρ₂ : Equiv.Perm (Fin n)) (s : Equiv.Perm (Fin n → Bool)),
+        coperm ρ₁ * s * coperm ρ₂ = t}
+
+/-- **How a PSP key acts.**  The composite
+`coperm ρ₁ * s * coperm ρ₂` first relabels the input coordinates by `ρ₂`,
+then applies the substitution `s`, then reads off the result at the
+coordinate relabelled by `ρ₁`.  Explicitly computing the action is what
+makes the closure statement below non-vacuous. -/
+theorem psp_apply {n : ℕ} (ρ₁ ρ₂ : Equiv.Perm (Fin n))
+    (s : Equiv.Perm (Fin n → Bool)) (f : Fin n → Bool) (x : Fin n) :
+    (coperm ρ₁ * s * coperm ρ₂) f x = s (fun y => f (ρ₂.symm y)) (ρ₁.symm x) :=
+  rfl
+
 /-- **Carlson, Corollary 5.3** (PSP reduces to S; every block cipher is a
-block substitution cipher).  A permutation–substitution–permutation
-composition is again a single permutation of the value space, hence a
-substitution key: the value-space symmetric group is closed under
-composition. -/
-theorem psp_reduces_to_substitution {n : ℕ} (ρ : Equiv.Perm (Fin n))
-    (s : Equiv.Perm (Fin n → Bool)) :
-    ∃ t : Equiv.Perm (Fin n → Bool), coperm ρ * s * coperm ρ = t :=
-  ⟨_, rfl⟩
+block substitution cipher).  The keys realized by the
+permutation–substitution–permutation construction with two independent
+position permutations are *exactly* the substitution keys: `pspKeys n` is
+all of `Perm (Fin n → Bool)`.  The `⊆` direction is closure — a PSP
+cipher is a single substitution cipher, acting as in `psp_apply`; the `⊇`
+direction (take `ρ₁ = ρ₂ = 1`) says the construction gains nothing, so
+the reduction is an equality of key spaces, not just an inclusion. -/
+theorem psp_reduces_to_substitution {n : ℕ} : pspKeys n = Set.univ := by
+  ext t
+  simp only [pspKeys, Set.mem_setOf_eq, Set.mem_univ, iff_true]
+  exact ⟨1, 1, t, by simp [coperm_one]⟩
 
 end STE.Carlson

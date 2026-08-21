@@ -4,12 +4,40 @@ Combinatorial Shannon distance on the partition lattice.
 Delsol, Rioul, Béguinot, Rabiet, and Souloumiac (2024) revisit Shannon's 1953
 information lattice and show the (extended) entropic distance
 `D(X, Y) = H(X|Y) + H(Y|X) = 2 H(X, Y) - H(X) - H(Y)` is a genuine metric on
-the lattice of partitions/sources.  This module mechanizes the finite,
-metric-free "shadow" of that fact: with Shannon entropy replaced by the
-combinatorial rank `STE.PartitionRank.rank` already built and shown
-submodular in `Ste.PartitionRank`, the same distance formula is a metric on
-the partition lattice of any finite carrier — no entropy is needed, only
-`rank`'s monotonicity and submodularity.
+the lattice of partitions/sources.  This module mechanizes a finite,
+metric-free counting "shadow" of that fact: with Shannon entropy replaced by
+the combinatorial rank `STE.PartitionRank.rank` already built and shown
+submodular in `Ste.PartitionRank`, the same *shape* of distance formula is a
+metric on the partition lattice of any finite carrier — no entropy is
+needed, only `rank`'s monotonicity and submodularity.
+
+## Dictionary (stated once here; other modules refer back to this block)
+
+Mathlib's `Setoid α` order is `s ≤ t` iff the relation of `s` is contained
+in that of `t`: `⊥` is the discrete partition, `⊤` the one-block partition,
+so `≤` is "coarser", the *reverse* of the information order.  Concretely:
+
+* `⊓` is intersection of relations = the common refinement = Shannon's and
+  Delsol's **joint** source `∨`, i.e. `H(X, Y)` is carried by `P ⊓ Q`.
+* `⊔` is the coarsest common coarsening = the **common information** `∧` of
+  Shannon/Delsol, the Gács–Körner operator (communication classes).
+* `rank P = |α| − #blocks P` is a **co-entropy**: entropy is monotone under
+  refinement, `rank` is monotone under coarsening, with `rank ⊥ = 0` and
+  `rank ⊤ = |α| − 1`.  So `rank` moves opposite to `H` along the
+  information order, while satisfying submodularity of the same shape
+  (`rank_submodular`).
+
+Consequently `shannonDist P Q = 2 · rank (P ⊔ Q) − rank P − rank Q` matches
+Delsol's formula `2 H(X ∨ Y) − H(X) − H(Y)` only after passing to the
+**order-dual** lattice: it is built from the *common-information* operator
+`⊔`, not from the joint `⊓`.  It is therefore numerically a different
+quantity from the joint-based count.  Example on `Fin 4` with
+`P = {01|23}` and `Q = {02|13}`: `P ⊔ Q = ⊤`, so `shannonDist P Q = 2·3 − 2 −
+2 = 2`, whereas the joint-based entropy-direction count (using the
+block-counting entropy analogue `e(P) = #blocks P − 1`, for which
+`P ⊓ Q = ⊥` has `e = 3`) gives `2·3 − 1 − 1 = 4`.  Both are legitimate
+counting shadows; they are not the same function, and results proved for one
+must not be quoted as results about the other.
 -/
 import Ste.PartitionRank
 
@@ -22,9 +50,13 @@ noncomputable section
 open scoped Classical
 
 /-- Combinatorial Shannon distance on the partition lattice: the counting
-shadow of `D(X,Y) = H(X|Y) + H(Y|X)`.  Each summand `rank (P ⊔ Q) - rank P`
-is a genuine (non-truncated) `ℕ` difference because `rank` is monotone and
-`P ≤ P ⊔ Q`. -/
+shadow of `D(X,Y) = H(X|Y) + H(Y|X)` taken on the **order-dual** lattice, per
+the dictionary in this module's header.  It is built from `⊔`, the
+common-information (Gács–Körner) operator, with the co-entropy `rank` in
+place of `H` — not from the joint `⊓` — so it is a different numerical
+quantity from the joint-based count, not a re-encoding of it.  Each summand
+`rank (P ⊔ Q) - rank P` is a genuine (non-truncated) `ℕ` difference because
+`rank` is monotone and `P ≤ P ⊔ Q`. -/
 def shannonDist (P Q : Setoid α) : ℕ :=
   (rank (P ⊔ Q) - rank P) + (rank (P ⊔ Q) - rank Q)
 

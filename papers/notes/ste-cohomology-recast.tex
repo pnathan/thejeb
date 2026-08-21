@@ -184,9 +184,13 @@ global commitments.  The gluing axiom is precisely the promise
 ``local agreement implies a global answer'' --- which is the promise
 STE wishes it could make.  Whether a given presheaf keeps that promise,
 and by how much it breaks it, is what cohomology measures: the failures
-of gluing are, in the standard framework, classes in a group called
-$H^1$, and ``every compatible family glues'' is the statement
-$H^1 = 0$.
+of gluing are, in the standard framework of
+\citet{abramsky2012cohomology}, graded into classes in a group called
+$H^1$.  Careful, though: ``every compatible family glues'' is the
+\emph{sheaf condition}, a statement in degree $0$; $H^1$ enters only
+once one linearizes into coefficient modules over a cover with genuinely
+overlapping patches.  What this note mechanizes is the degree-$0$
+statement.  See the closing section.
 \end{quote}
 
 \section{The STE presheaf, and its building blocks}
@@ -255,13 +259,15 @@ to each window).  The question is the converse:
 \end{quote}
 When the answer is \emph{yes} for a constraint $T$ and a cover, we say
 \textbf{$T$ glues over that cover} --- its presheaf of local sections
-behaves like a sheaf for that cover, and its \emph{\v{C}ech
-obstruction vanishes} ($H^1 = 0$, in the language of the moral above).
-Local agreement then \emph{is} global solvability.  When the answer is
-\emph{no}, some compatible family is locally perfect but globally
-impossible --- the constraint has the bounded-functions disease --- and
-the number of such stuck families is the size of the obstruction, a
-nonzero $H^1$ class.
+behaves like a sheaf for that cover, and its \emph{gluing defect
+vanishes} (the sheaf condition holds).  Local agreement then \emph{is}
+global solvability.  When the answer is \emph{no}, some compatible
+family is locally perfect but globally impossible --- the constraint has
+the bounded-functions disease --- and the number of such stuck families
+is the size of the defect.  That count is a \emph{cardinality gap in
+degree $0$}, not an $H^1$ class: for the singleton cover used
+throughout, all overlaps are empty and the honest \v{C}ech $H^1$ is
+identically zero.
 
 \section{A dictionary}
 \begin{center}
@@ -280,8 +286,8 @@ Extendable partial answer & Local section of $T$ & a locally-valid piece\\
 Overlaps match & Cocycle / gluing hypothesis & pieces agree where they share\\
 One answer fits all pieces & Global section / gluing & a genuine global solution\\
 Local determines global & Locality (separation) axiom & no invisible global data\\
-Local agreement $\Rightarrow$ global & Gluing axiom / $H^1=0$ & the obstruction vanishes\\
-Stuck locally-fine families & Nonzero $H^1$ class & the coupling obstruction\\
+Local agreement $\Rightarrow$ global & Gluing axiom (degree $0$) & the sheaf condition holds\\
+Stuck locally-fine families & Gluing defect (a count) & the coupling obstruction\\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -330,9 +336,10 @@ sides are theorems:
   of its own per-variable projections
   (\code{rectangular\_of\_cechVanishes}, module
   \code{Ste.CechObstruction}).
-\item \textbf{The witness.}  The diagonal's obstruction is computed to
-  be exactly $2$, a genuinely nonzero class
-  (\code{diagonal\_cechObstruction}, module \code{Ste.CechObstruction}).
+\item \textbf{The witness.}  The diagonal's gluing defect is computed
+  to be exactly $2$ --- two stuck compatible families, not two
+  cohomology classes (\code{diagonal\_cechObstruction}, module
+  \code{Ste.CechObstruction}).
 \end{itemize}
 So, in this setting, \emph{gluable = rectangular = uncoupled} are one
 and the same, and the obstruction is a sharp detector of coupling.
@@ -358,10 +365,16 @@ Why it matters for solving problems:
   global price only there.  Substitution-cipher key spaces (Carlson's
   setting, \citealp{carlson2012}) are the coupled extreme: they are not
   rectangular, so the obstruction is essential and local reasoning
-  cannot finish the job.
+  cannot finish the job.  \emph{(Intuition, not a theorem here: no
+  result in this development shows substitution key spaces are
+  non-rectangular in general.  The closest mechanized fact is
+  \code{bijKeys\_not\_rectangular} (module
+  \code{Ste.Carlson.SheafBridge}), which shows the set of
+  \emph{bijective} key maps is not a rectangle --- a statement about
+  bijectivity, not about substitution ciphers at large.)}
 \end{enumerate}
 
-In one line: \textbf{the \v{C}ech obstruction is a computable measure of
+In one line: \textbf{the gluing defect is a computable measure of
 how far an STE problem is from being solvable window-by-window},
 zero exactly when it factors into independent pieces.
 
@@ -393,18 +406,20 @@ commits to.  Then
 $H(X\mid Y)+H(Y\mid X)$ --- is a true distance: it is zero exactly when
 $P$ and $Q$ are the same reading, it is symmetric, and it satisfies the
 triangle inequality.  Crucially, the triangle inequality is not a
-separate miracle: it falls straight out of the same \emph{submodularity}
-of the rank that governs the coupling story (larger overlaps cost less),
-so the metric and the obstruction spring from one structural fact.  All
+separate miracle: it falls straight out of \emph{submodularity} of the
+rank (larger overlaps cost less).  Submodularity here rhymes with the
+diminishing cost of overlap in the coupling story, but that is a
+rhetorical parallel, not a theorem: nothing in this development derives
+the gluing defect from rank submodularity or vice versa.  All
 of this is machine-checked (module \code{Ste.InfoDistance}); the
 entropy-valued distance itself --- with genuine $\log$s and
 probabilities --- is the content of \citet{delsol2024} and is cited, not
 reproved.
 
 So the feasible structure is not merely a set or an order.  It is a
-metric space, and the same submodular rank that makes the \v{C}ech
-obstruction vanish for uncoupled problems is what makes the reading
-lattice metric.  ``Lighter than a metric space'' was the wrong worry:
+metric space, made so by a submodular rank --- the same shape of
+argument that makes overlap cheap on the gluing side, without any proved
+link between the two.  ``Lighter than a metric space'' was the wrong worry:
 the metric was there all along.
 
 \section{What is actually machine-checked}
@@ -420,9 +435,10 @@ branch):
 \item rectangles glue over every cover:
   \code{rectangular\_cechVanishesCover} in \code{Ste.CechCover};
 \item vanishing forces rectangularity
-  (\code{rectangular\_of\_cechVanishes}) and the diagonal's obstruction
-  is $2$ (\code{diagonal\_cechObstruction}), both in
-  \code{Ste.CechObstruction};
+  (\code{rectangular\_of\_cechVanishes}) and the diagonal's gluing
+  defect is $2$ (\code{diagonal\_cechObstruction}, an
+  $\mathbb{N}_\infty$ cardinality gap, not a cohomological rank), both
+  in \code{Ste.CechObstruction};
 \item the support-cover form --- vanishing is equivalent to the
   constraint being generated by pieces whose scopes fit the cover:\\
   \code{cechVanishesCover\_iff\_exists\_scopedGeneration} in
@@ -442,11 +458,13 @@ functions, bounded functions) are standard textbook material, used for
 intuition only.  And the word ``cohomology'' as the \emph{full}
 \v{C}ech $H^1$ machinery --- a cochain complex with a coboundary map
 and $H^1 = \ker/\operatorname{im}$ over a coefficient module --- is the
-\citet{abramsky2011sheaf,abramsky2012cohomology} sheaf-theoretic
-framework the project draws on.  This note uses the $H^1 = 0$ /
-obstruction-vanishing \emph{level}, which is what is mechanized; the
-graded cochain-complex construction in full generality is cited, not
-reproved here.
+\citet{abramsky2012cohomology} cohomological framework (the
+\citeauthor{abramsky2011sheaf} 2011 paper supplies the \emph{sheaf}
+picture and contains no cohomology).  What this note uses, and what is
+mechanized, is the degree-$0$ sheaf-condition level: whether every
+compatible family glues, and how many fail.  That is \emph{not} an
+$H^1$ computation, and for the covers used here the honest $H^1$ is
+zero; the graded cochain-complex construction is cited, not reproved.
 
 \section*{The recast, restated}
 STE asks whether many sources share a common answer.  A constraint
@@ -456,12 +474,40 @@ variables.  ``Every window is fine and the overlaps match'' is the
 hypothesis of the sheaf gluing axiom, and is cheap to check.  Whether
 that local agreement assembles into one global answer is exactly the
 question of whether this presheaf glues --- and the failure, when it
-fails, is a single computable obstruction.  It vanishes exactly for the
+fails, is a single computable count.  It vanishes exactly for the
 uncoupled (rectangular) problems, and then STE is a local computation;
 it is nonzero exactly when the problem is genuinely coupled, and then
 it measures and locates the coupling, as boundedness haunts the bounded
-functions.  That obstruction is the cohomology, and that equivalence is
-the recast.
+functions.  That count is the degree-$0$ shadow of the cohomological
+picture --- not the cohomology itself --- and that correspondence is the
+recast.
+
+\section*{What the cohomological reading actually is}
+The honest final position, stated once, plainly.  The gluing failure
+this note computes lives in \emph{degree $0$}: it is the failure of the
+sheaf condition for the image presheaf of a constraint, and the number
+attached to it is a cardinality gap between compatible families and
+glued ones (\code{cechObstruction}, \code{coverCechObstruction}) ---
+truncated subtraction in $\mathbb{N}_\infty$, not the rank of any
+cohomology group.  Genuine \v{C}ech $H^1$ would need two things this
+setting does not supply: a cover with genuinely overlapping patches, and
+abelian coefficients over which cocycles modulo coboundaries can be
+nonzero.  On the mechanized side the project has, in degree $0$, real
+theorems: rectangles glue over every cover, vanishing forces
+rectangularity, the support--cover characterization, and the computed
+defect $2$ at the diagonal.  On the cohomological side it has the
+complex itself and its \emph{vanishing}: constant coefficients on the
+full nerve give $H^1 = H^2 = 0$ (\code{cechH1\_subsingleton}), the
+linearized embedding of global sections is faithful but cohomologically
+inert (\code{cechD0\_const}), and in the twisted, section-presheaf-valued
+complex the AMB per-section extension condition degenerates to always
+true (\code{amb\_extension\_always}).  What does fire there sits one
+degree down: a cokernel class of $F_R(V)\to H^0$
+(\code{mixedFamily\_not\_linearlyGlues}).  What remains open is
+therefore the honest residue: build the relative presheaf and the
+connecting map $\gamma$, exhibit a constraint and an overlapping cover
+whose twisted $H^1$ is genuinely nonzero, and relate any such rank to
+the representation blow-up.  None of that is claimed here.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs}

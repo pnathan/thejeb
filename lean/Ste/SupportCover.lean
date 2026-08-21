@@ -29,9 +29,10 @@ genuine local sections over `U j`. Each cylinder has support `U j`
 
 Combined: `cechVanishesCover_iff_exists_scopedGeneration` —
 `CechVanishesCover T U` iff `T` admits a per-context scoped generating
-family. This mechanizes the "support–cover gluing" proposition of the
-cohomology exploration note (`papers/notes/ste-cohomology-exploration.tex`),
-which was stated there only as a conjecture-with-proof-sketch. The upshot:
+family. This is the support–cover gluing theorem of the cohomology paper
+(`papers/papers/ste-cohomology.tex`, §"The support--cover gluing theorem",
+`thm:supportcover`), where it is stated as a theorem with this
+mechanization cited. The upshot:
 the gluing layer of STE is governed entirely by whether the constraint's
 generators fit the cover — all remaining difficulty lives in *computing the
 local sections*, never in gluing them.

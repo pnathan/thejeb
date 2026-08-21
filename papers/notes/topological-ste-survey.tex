@@ -110,11 +110,13 @@ our Lean path.
   \texttt{Ste.Convex}, reusing Mathlib projection theory and the
   Krasnosel'ski\v{\i}--Mann formalization. \emph{Highest value: turns our
   static feasibility geometry into a verified solver.}
-\item \textbf{Carlson cipher counting} (Lemma~4.1, Theorem~4.1) over
-  \texttt{Fin} alphabets --- self-contained finite combinatorics, no
-  analysis; good parallel track.
-\item \textbf{Cipher reduction} (Theorem~5.2, Corollary~5.3): every block
-  cipher is a block substitution cipher --- algebra of keyed permutations.
+\item \textbf{Carlson cipher counting} --- Lemma~4.1 \emph{done}
+  (2026-07-19): \texttt{card\_consistent\_keys} in
+  \texttt{Ste/Carlson/Counting.lean}. Theorem~4.1 (the $P$-cipher key
+  count) remains open.
+\item \textbf{Cipher reduction} (Theorem~5.1/5.2, Corollary~5.3): every
+  block cipher is a block substitution cipher --- \emph{done}
+  (2026-07-19) in \texttt{Ste/Carlson/Reduction.lean}.
 \item \textbf{Regularity-based results} and Douglas--Rachford
   \citep{lindstrom2021}: reach for these only after POCS, as they need
   linear/super-regularity infrastructure not yet in Mathlib.

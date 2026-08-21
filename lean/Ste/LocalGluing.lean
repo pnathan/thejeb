@@ -16,7 +16,9 @@ interpolant `GluesLocallyAt T U k` says every compatible family glues over
 every subfamily of size `≤ k`; `GluesCover`/`CechVanishesCover` sit at the
 top of the hierarchy (`k = |J|`,
 `cechVanishesCover_iff_gluesLocallyAt_card`), and level `1` is UNIVERSAL in
-STE (`gluesLocallyAt_one`) -- because `localSections` are by definition
+STE for a nonempty context index (`gluesLocallyAt_one`, which carries a
+`[Nonempty J]` hypothesis -- it is what supplies the witness in the empty
+subfamily case) -- because `localSections` are by definition
 extendable to a global witness, "all vertices are present" is free
 (`CompatibleFamily.gluesOn_singleton`), the cover-level avatar of the
 always-total ambient extension of `Ste.TwistedCech`.
@@ -36,9 +38,11 @@ of the 1-simplex, `∂Δ¹` -- the minimal local-but-not-tight complex
 
 **The Helly bridge.**  `GluesOn T U s K` is nonemptiness of the
 intersection `T ∩ ⋂ j ∈ K, {f | ...}` of "gluing fibers"
-(`gluesOn_iff_nonempty_inter`), so `k`-local gluing is exactly `k`-wise
+(`gluesOn_iff_nonempty_inter`), so `k`-local gluing IMPLIES `k`-wise
 consistency (`Ste.HellyConsistency`'s `KWiseConsistent`) of the family of
-fibers (`GluesLocallyAt.kWiseConsistent_gluingFiber`).  This makes the
+fibers (`GluesLocallyAt.kWiseConsistent_gluingFiber`).  Only this
+direction is mechanized; the converse is immediate from
+`gluesOn_iff_nonempty_inter` but is not stated as a theorem here.  This makes the
 local-to-tight gap a HELLY NUMBER: if the fiber family additionally has
 Helly number `k` (`HasHelly`), `k`-local gluing upgrades all the way to
 tight gluing (`cechVanishesCover_of_hasHelly_gluingFiber`) -- the first
@@ -156,9 +160,10 @@ theorem GluesLocallyAt.mono {T : Set (∀ v, A v)} {U : J → Set V}
 
 /-- **Level `1` of the hierarchy is universal in STE.**  Every compatible
 family glues over every context subfamily of size `≤ 1`: the empty case
-pulls a witness from any single context's compatibility (`CompatibleFamily`
-requires `Nonempty J`), and the singleton case is
-`CompatibleFamily.gluesOn_singleton`. -/
+pulls a witness from any single context's compatibility -- note
+`CompatibleFamily` itself imposes NO nonemptiness on `J`; the arbitrary
+index comes from this theorem's own `[Nonempty J]` instance -- and the
+singleton case is `CompatibleFamily.gluesOn_singleton`. -/
 theorem gluesLocallyAt_one [Nonempty J] (T : Set (∀ v, A v)) (U : J → Set V) :
     GluesLocallyAt T U 1 := by
   intro s hs K hK
@@ -226,7 +231,8 @@ theorem gluesOn_iff_nonempty_inter {T : Set (∀ v, A v)} {U : J → Set V}
   · rintro ⟨f, hf, hres⟩
     exact ⟨f, hf, Set.mem_iInter₂.mp hres⟩
 
-/-- **`k`-local gluing is `k`-wise consistency of the gluing fibers.**
+/-- **`k`-local gluing implies `k`-wise consistency of the gluing
+fibers.**
 For any subfamily of size `≤ k`, the `GluesOn` witness lies in every
 fiber's restriction condition -- exactly `KWiseConsistent`
 (`Ste.HellyConsistency`) of the family `gluingFiber T U s`. -/
@@ -239,8 +245,9 @@ theorem GluesLocallyAt.kWiseConsistent_gluingFiber {T : Set (∀ v, A v)}
   exact ⟨f, Set.mem_iInter₂.mpr fun j hj => ⟨hf, hres j (Finset.mem_coe.mpr hj)⟩⟩
 
 /-- **The Helly punchline.**  `k`-local gluing upgrades to tight gluing
-exactly when the gluing-fiber family of every compatible family has Helly
-number `k`: `k`-wise consistency (from `GluesLocallyAt`) plus `HasHelly`
+WHENEVER the gluing-fiber family of every compatible family has Helly
+number `k` (sufficiency only; no converse is claimed or mechanized):
+`k`-wise consistency (from `GluesLocallyAt`) plus `HasHelly`
 gives a point of the fibers' feasibility set, which is precisely a global
 glue.  The first family-level bridge between the Čech modules
 (`Ste.CechCover`) and `Ste.HellyConsistency`. -/

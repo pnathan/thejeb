@@ -8,8 +8,10 @@ single witness to a *scaling* family: for every candidate Lipschitz constant
 `C` there is a carrier `Fin (2 * (C + 1))` and partitions `P, Q, R` on it with
 `shannonDist P Q = 1` but `shannonDist (P ⊓ R) (Q ⊓ R) = C + 1`, so no
 constant `C` can uniformly bound the distortion `⊓` introduces. This is the
-quantitative form of the Gács–Körner discontinuity already flagged (but only
-instantiated at `k = 2`) in `Ste.InfoTopology`.
+scaling form of the counting-shadow failure for the joint `⊓` (Mathlib's `⊓`
+on `Setoid` is the joint `∨`, not the Gács–Körner common information — see
+the dictionary in `Ste.InfoDistance` and the reversal note in
+`Ste.InfoTopology`), already instantiated at `k = 2` there.
 
 The witness, for `k := C + 1` and `n := 2 * k`, on `Fin n`:
 * `P := ⊤` (one block);
@@ -172,9 +174,10 @@ distance. For every candidate constant `C` there is a finite carrier and
 partitions `P, Q, R` on it — `P = ⊤`, `Q` the two-halves partition, `R` the
 perfect matching, on `Fin (2 * (C + 1))` — with `shannonDist P Q = 1` but
 `shannonDist (P ⊓ R) (Q ⊓ R) = C + 1 > C`, so `C` fails as a Lipschitz bound
-for `⊓`. This is the quantitative form of the Gács–Körner discontinuity
-(Delsol Prop. 19) already witnessed at `k = 2` by
-`shannonDist_inf_not_contraction`. -/
+for `⊓`. This is the scaling form of the counting-shadow failure for the
+joint `⊓` — not Delsol Prop. 19, which concerns the common information
+`∧` = `⊔` (a contraction in this shadow; see `Ste.InfoTopology`) — already
+witnessed at `k = 2` by `shannonDist_inf_not_contraction`. -/
 theorem meet_not_lipschitz :
     ∀ C : ℕ, ∃ (n : ℕ) (P Q R : Setoid (Fin n)),
       C * shannonDist P Q < shannonDist (P ⊓ R) (Q ⊓ R) := by

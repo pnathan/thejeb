@@ -41,4 +41,4 @@ In computer science, this is a **circular dependency** or an unsolvable Constrai
 ## Summary for the Engineer
 * **Sheaf**: The data structure tracking local beliefs (documents) and the rules for comparing them (coreference links).
 * **Global Section**: A valid, contradiction-free merge of all documents.
-* **Sheaf Cohomology ($H^1$)**: An algorithmic check that detects circular contradictions across documents that prevent a clean merge.
+* **Detecting the clash**: The check that finds contradictions preventing a clean merge is *not* sheaf cohomology. For set-valued data like this, $H^1$ is not available at all (it needs abelian coefficients), and the worked example above is decided by union-find plus one negative-edge check. The honest summary: **no global section exists** — an $H^0$-level statement. "Sheaf cohomology" is the analogy, not the algorithm.

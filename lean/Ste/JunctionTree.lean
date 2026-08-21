@@ -7,8 +7,10 @@ attains the minimum elimination width (`inducedTreewidth`,
 `bucketEliminate_treewidth_bound`).  This file packages the OUTPUT of
 such a run as a data structure — the **junction-tree representation**:
 the list of per-bag projected tables, one `table` per materialized
-bucket — and proves it is a *faithful*, *polynomial-size*
-representation of the instance at bounded treewidth.
+bucket — and proves it is of *polynomial size* at bounded treewidth,
+that each materialized constraint is faithfully recovered from its own
+bag table, and that the run decides feasibility.  (Reconstructing the
+whole instance globally from the tables is not mechanized.)
 
 Main results:
 
@@ -326,9 +328,9 @@ theorem achievesWidthNodup_junctionWidth [Fintype V]
   exact h
 
 /-- Duplicate-free orders are in particular orders: the induced
-treewidth is at most the junction width.  (That the two coincide —
-repeated eliminations only add empty bags — is not mechanized;
-outlook.) -/
+treewidth is at most the junction width.  The two in fact coincide —
+repeated eliminations only add empty bags — see
+`junctionWidth_eq_inducedTreewidth` below. -/
 theorem inducedTreewidth_le_junctionWidth [Fintype V]
     [∀ v, Nonempty (A v)] (B : List (Finset V × Set (∀ v, A v))) :
     inducedTreewidth B ≤ junctionWidth B := by

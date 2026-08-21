@@ -29,8 +29,9 @@ taxonomy, information monotonicity, an inconsistency-based
 invalid-information detector, closedness and compactness-based existence
 of estimates on topological spaces, convexity of the feasibility set,
 a skeleton of Carlson's STE-decryption reduction, and --- new in this
-revision --- Carlson's key-counting Lemma~4.1 and the cipher-reduction
-chain (Theorem~5.2, Lemma~5.1, Corollary~5.3). Every theorem
+revision --- Carlson's key-counting Lemma~4.1, the cipher-reduction
+chain (Theorem~5.2, Lemma~5.1 / Corollary~5.2, Corollary~5.3) and a
+deterministic form of asymptotic unicity. Every theorem
 stated here is verified by continuous integration on each push; nothing
 is asserted proven otherwise.
 \end{abstract}
@@ -148,9 +149,21 @@ on $T$; Carlson's Lemma~4.1 counts the keys equivalent to the true key.
 For a substitution cipher with true key $\sigma$ over $A$ and observed
 symbol set $T$,
 \[ \#\{\tau\in\mathrm{Perm}\,A : \forall a\in T,\ \tau a=\sigma a\}
-   = (|A|-|T|)!, \]
-the size of the STE feasible key set after one observation.
+   = (|A|-|T|)!. \]
 \end{theorem}
+\noindent \texttt{Ste/Carlson/Counting.lean} is deliberately independent
+of the \texttt{CipherSystem} layer, so on its own this is a permutation
+count, not yet a statement about \texttt{feasibleKeys}. The bridge is
+made in \texttt{Ste/Carlson/SheafBridge.lean}, which imports both:
+\texttt{STE.Carlson.mem\_keyPropertySet\_iff\_decConstraint} identifies
+Carlson's STE property set on keys with the decryption constraint read
+through the inverse key, and
+\texttt{STE.Carlson.card\_restrict\_fiber} identifies the count above
+with the cardinality of a fiber of the restriction map to the observed
+symbols (the map defining
+\texttt{Ste.VariablePresheaf.localSections}). Read through those two
+lemmas, $(|A|-|T|)!$ is the residual STE key ambiguity after one
+observation.
 \noindent The proof reduces, by left-translating the constraint by
 $\sigma^{-1}$ (an explicit bijection), to the fixing-set count
 \texttt{STE.Carlson.card\_perm\_fixing}: the permutations fixing $T$
@@ -160,19 +173,26 @@ pointwise number $(|A|-|T|)!$, via
 \texttt{STE.Carlson.card\_substitution\_keys}: $\#\mathrm{Perm}\,A=|A|!$.
 
 \paragraph{Cipher reduction (Carlson, Theorem~5.2 / Lemma~5.1 /
-Corollary~5.3; new).}
+Corollary~5.2 / Corollary~5.3; new).}
 Model an $n$-bit permutation cipher by $\mathrm{Perm}(\mathrm{Fin}\,n)$
 acting on the value space $\mathrm{Fin}\,n\to\mathrm{Bool}$: a position
 permutation $\rho$ induces the value permutation
 $\mathrm{coperm}\,\rho$, acting by
 $(\mathrm{coperm}\,\rho)\,f\,x=f(\rho^{-1}x)$.
-\begin{theorem}[\texttt{STE.Carlson.permutation\_reduces\_to\_substitution},
-\texttt{STE.Carlson.coperm\_injective}]
-Every permutation-cipher key is a substitution-cipher key, and the
-realization $\mathrm{coperm}$ is \emph{injective}: distinct position
-permutations induce distinct value permutations. This upgrades
-Theorem~5.2 to a genuine embedding of permutation ciphers into
-substitution ciphers.
+\begin{theorem}[\texttt{STE.Carlson.coperm\_apply},
+\texttt{STE.Carlson.coperm\_mul},
+\texttt{STE.Carlson.coperm\_injective},
+\texttt{STE.Carlson.permutation\_reduces\_to\_substitution}]
+$\mathrm{coperm}$ acts by relabelling coordinates,
+$(\mathrm{coperm}\,\rho)\,f\,x=f(\rho^{-1}x)$; it is a group
+homomorphism, $\mathrm{coperm}(\rho_1\rho_2)=
+\mathrm{coperm}\,\rho_1\cdot\mathrm{coperm}\,\rho_2$ (packaged as
+\texttt{copermHom}); and it is \emph{injective}. Hence the
+permutation-cipher keys form a subgroup of the substitution-cipher keys
+(Theorem~5.2). The Lean statement of
+\texttt{permutation\_reduces\_to\_substitution} is the injectivity of
+\texttt{copermHom}: injectivity of an explicit homomorphism, not the
+existence of an image, is the reduction's content.
 \end{theorem}
 \begin{theorem}[\texttt{STE.Carlson.card\_permutation\_lt\_card\_substitution},
 \texttt{STE.Carlson.substitution\_not\_reducible\_to\_permutation}]
@@ -183,11 +203,78 @@ substitution cipher is not a permutation cipher (Lemma~5.1 /
 Corollary~5.2). The non-surjectivity is quantified over every faithful
 embedding, so it does not depend on a particular construction.
 \end{theorem}
-\begin{theorem}[\texttt{STE.Carlson.psp\_reduces\_to\_substitution}]
-A permutation--substitution--permutation composition is again a single
-value permutation: every block cipher is a block substitution cipher
-(Corollary~5.3).
+\begin{theorem}[\texttt{STE.Carlson.psp\_apply},
+\texttt{STE.Carlson.psp\_reduces\_to\_substitution}]
+For \emph{independent} position permutations $\rho_1,\rho_2$ and a
+substitution key $s$, the composite
+$\mathrm{coperm}\,\rho_1\cdot s\cdot\mathrm{coperm}\,\rho_2$ acts by
+$f\mapsto \bigl(x\mapsto s(f\circ\rho_2^{-1})(\rho_1^{-1}x)\bigr)$, and
+the set $\mathrm{pspKeys}\,n$ of keys so realized is \emph{exactly}
+$\mathrm{Perm}(\mathrm{Fin}\,n\to\mathrm{Bool})$. The inclusion
+$\subseteq$ is closure (a PSP cipher is a single substitution cipher);
+the reverse inclusion, taking $\rho_1=\rho_2=1$, says the PSP
+construction gains no keys, so the reduction is an equality of key
+spaces (Corollary~5.3).
 \end{theorem}
+\noindent Throughout, the numbers 5.1/5.2/5.3 are used as attribution
+labels for Carlson's Chapter~5 reduction chain (Theorem~5.2 for
+$P\Rightarrow S$; Lemma~5.1 / Corollary~5.2 for the failure of
+$S\Rightarrow P$; Corollary~5.3 for $PSP\Rightarrow S$), applied
+consistently here and in the Lean sources. The copy of the dissertation
+we hold is a scanned PDF whose body text is not machine-readable, so the
+numbering could not be re-verified mechanically; each Lean statement
+stands on its own proof regardless.
+
+\paragraph{Asymptotic unicity (\texttt{Ste/Carlson/Asymptotic.lean}).}
+Carlson's asymptotic claim is that, as intercepted ciphertexts
+accumulate, the feasible key set collapses onto the true key. The file
+mechanizes the deterministic core. Write
+$\mathrm{partialKeys}\,n$ for the partial STE feasibility set of the key
+property sets induced by the first $n$ ciphertexts of a stream
+$\mathrm{obs}:\mathbb N\to C$, and define
+$\mathrm{AsymptoticUnicity}$ to hold for $k_0$ when
+$\mathrm{partialKeys}\,n=\{k_0\}$ eventually along
+$\mathrm{atTop}$.
+\begin{theorem}[\texttt{STE.Carlson.CipherSystem.partialKeys\_antitone},
+\texttt{...asymptoticUnicity\_iff\_tendsto},
+\texttt{...iInter\_partialKeys}]
+$n\mapsto\mathrm{partialKeys}\,n$ is antitone (more traffic can only
+narrow the key search); asymptotic unicity is exactly convergence of
+$\mathrm{partialKeys}$ to $\{k_0\}$ in the discrete topology on
+$\mathcal P(K)$; and $\bigcap_n \mathrm{partialKeys}\,n$ is the feasible
+key set of the whole stream.
+\end{theorem}
+\begin{theorem}[\texttt{...asymptoticUnicity\_iff},
+\texttt{...asymptoticUnicity\_iff\_unicity}]
+For a finite key space, asymptotic unicity for $k_0$ is equivalent to
+$\bigcap_n\mathrm{partialKeys}\,n=\{k_0\}$, hence to
+$\mathrm{Unicity}$ for the entire observation stream. The proof rests on
+\texttt{STE.antitone\_eventually\_eq\_iInter}: over a finite space an
+antitone sequence of sets is eventually equal to its intersection.
+\end{theorem}
+\noindent Scope note, stated honestly: Carlson's dissertation asserts the
+asymptotic result \emph{almost surely} with respect to a source
+distribution on plaintexts. Nothing measure-theoretic is attempted here;
+everything above is deterministic, and the a.s.\ version remains future
+work (it needs a probability space on message streams from
+\texttt{Mathlib.MeasureTheory}).
+
+\paragraph{Module inventory.}
+The Carlson development is \texttt{Ste/Carlson/}:
+\texttt{Cipher.lean} (STE decryption skeleton),
+\texttt{Counting.lean} (Lemma~4.1),
+\texttt{Reduction.lean} (the Chapter~5 chain),
+\texttt{Asymptotic.lean} (above),
+\texttt{SheafBridge.lean} (the bridge to the support / variable-presheaf
+layer), and \texttt{SetOfSets.lean} (second-order sources contributing a
+set of candidate possibility sets). All six are imported by the umbrella
+module \texttt{Ste/Carlson.lean}. Adjacent to it,
+\texttt{Ste/PluralFeasibility.lean} treats J\o sang-style hyper sources
+in the crisp STE setting: a source offering a family $H_i$ of
+alternative property sets carries the information $\bigcup_{S\in H_i}S$,
+and the resulting plural feasibility set decomposes as the union, over
+all selections of one branch per source, of the ordinary feasibility
+sets.
 
 \section{Verification method}
 The environment used to author this work cannot download a Lean toolchain
@@ -199,9 +286,14 @@ operationalizes the project's rule to distrust results that are not
 machine proven.
 
 \section{Future work}
-With Lemma~4.1 and the reduction chain (Theorems~5.2, Lemma~5.1,
-Corollary~5.3) now discharged, the remaining targets, in increasing
-depth, are: Carlson's general counting Theorem~4.1 (the
+With Lemma~4.1, the reduction chain (Theorem~5.2, Lemma~5.1 /
+Corollary~5.2, Corollary~5.3) and the deterministic asymptotic-unicity
+core now discharged, the remaining targets, in increasing
+depth, are: the almost-sure form of asymptotic unicity, requiring a
+probability space on plaintext streams
+(\texttt{Mathlib.MeasureTheory}) --- the one gap explicitly flagged in
+\texttt{Ste/Carlson/Asymptotic.lean}; Carlson's general counting
+Theorem~4.1 (the
 $\binom{|S_t|}{C}(|B|-|S_t|)!$ count with a chosen-symbol constraint);
 POCS convergence over Hilbert spaces; and Theorem~2.3, that property
 sets are AEP typical sets, placing information theory under STE. Targets

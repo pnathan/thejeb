@@ -3,10 +3,13 @@ The linearized Čech cochain complex, with cohomology `Ȟ¹ = ker/im`.
 
 `Ste.CechCover` mechanized the SET-level gluing story: compatible
 families of local sections over an arbitrary cover, the sheaf
-condition, and its failure at the coupling.  The Abramsky–Brandenburger
-framework grades that obstruction COHOMOLOGICALLY: one linearizes the
-section presheaf into modules and reads the failure of gluing off a
-Čech cochain complex.  This file builds that linearized complex as
+condition, and its failure at the coupling.  Grading that obstruction
+COHOMOLOGICALLY — linearizing the section presheaf into modules and
+reading the failure of gluing off a Čech cochain complex — is due to
+Abramsky–Mansfield–Barbosa (`abramsky2012cohomology`) and ABKLM
+(`abramsky2015paradox`); Abramsky–Brandenburger
+(`abramsky2011sheaf`) supplies the sheaf-level story only, with no
+cohomology.  This file builds that linearized complex as
 honest `R`-modules and `R`-linear maps — no `sorry`, no axioms.
 
 **The complex.**  Fix a commutative ring `R` and an `R`-module `M`
@@ -53,18 +56,21 @@ each a genuine `R`-linear map (`cechD0`, `cechD1`, `cechD2`).
   `GluesCover.exists_cechH0`, `CompatibleFamily.exists_cechH0`,
   `globalZeroCochain_glue_unique`, `globalZeroCochain_injective`):
   linearizing global sections into the free module `(∀ v, A v) →₀ R`,
-  every global section `f` of a constraint yields the constant Čech
+  every global section `f` of a constraint yields the CONSTANT Čech
   0-cochain `j ↦ single f 1`, which is a 0-cocycle, i.e. an element of
-  the linearized `Ȟ⁰`.  Hence every set-level compatible family that
-  glues (`Ste.CechCover`) — in particular EVERY compatible family when
-  the cover-level obstruction vanishes — is seen by the linearized
-  `Ȟ⁰`; over a genuine cover its cocycle is unique (via
-  `glueCover_unique`), and distinct global sections give distinct
-  cocycles (`single` is injective for `1 ≠ 0`).
+  the linearized `Ȟ⁰`.  The embedding is FAITHFUL — distinct global
+  sections give distinct cochains (`single` is injective for `1 ≠ 0`),
+  and over a genuine cover the cochain of a glued family is unique (via
+  `glueCover_unique`) — but it is COHOMOLOGICALLY INERT: the cochain is
+  constant, hence a 0-cocycle for ANY input whatsoever
+  (`cechD0_const`), gluing or not.  So `Ȟ⁰` here does NOT see the
+  gluing; membership in `cechH0` is not a test and carries no
+  information about whether the family glues.  The gluing content stays
+  at the set level (`Ste.CechCover`).
 
 **Honest boundary.**  The vanishing `Ȟ¹ = 0` here is for CONSTANT
 coefficients on the FULL nerve — the acyclic simplex.  The
-contextuality of Abramsky–Brandenburger lives in the RELATIVE
+contextuality of Abramsky–Mansfield–Barbosa lives in the RELATIVE
 cohomology of the support presheaf with LOCAL coefficients over the
 actual (partial) nerve of the measurement cover; building that
 presheaf-coefficient complex over the set-level `localSections`, and
@@ -73,9 +79,14 @@ blow-up" (e.g. an inequality between a cohomological rank and the
 rectangular-cover number of a coupling), remain OUTLOOK — they are not
 claimed, and not mechanized, here.
 
-Reference: S. Abramsky, A. Brandenburger, *The sheaf-theoretic
-structure of non-locality and contextuality*, New J. Phys. 13 (2011)
-113036 (`abramsky2011sheaf`).
+References: S. Abramsky, S. Mansfield, R. S. Barbosa, *The cohomology
+of non-locality and contextuality*, EPTCS 95 (2012) 1–14
+(`abramsky2012cohomology`), and S. Abramsky, R. S. Barbosa, K. Kishida,
+R. Lal, S. Mansfield, *Contextuality, cohomology and paradox*, CSL 2015
+(`abramsky2015paradox`), for the cohomological grading; S. Abramsky,
+A. Brandenburger, *The sheaf-theoretic structure of non-locality and
+contextuality*, New J. Phys. 13 (2011) 113036 (`abramsky2011sheaf`),
+for the sheaf-level story.
 -/
 import Mathlib.Algebra.Module.Submodule.Range
 import Mathlib.LinearAlgebra.Quotient.Basic
@@ -204,8 +215,8 @@ def cechCoboundaries1 : Submodule R (LinearMap.ker (cechD1 R ι M)) :=
 
 /-- **Čech `Ȟ¹ = ker d¹ / im d⁰`**, an honest quotient `R`-module: the
 1-cocycles modulo the 1-coboundaries.  This is the linearized
-first-cohomology obstruction group of the Abramsky–Brandenburger
-framework (`abramsky2011sheaf`). -/
+first-cohomology obstruction group of the Abramsky–Mansfield–Barbosa
+framework (`abramsky2012cohomology`). -/
 abbrev cechH1 :=
   LinearMap.ker (cechD1 R ι M) ⧸ cechCoboundaries1 R ι M
 
@@ -361,23 +372,28 @@ section Bridge
 variable {V : Type*} {A : V → Type*} {J : Type*}
 variable (R : Type*) [CommRing R]
 
-/-- **Linearization of a global section**: a global assignment
-`f : ∀ v, A v` becomes the constant Čech 0-cochain `j ↦ single f 1`
-with coefficients in the free `R`-module on global assignments.  This
-is the object-level piece of the Abramsky–Brandenburger linearization
-functor applied to the section presheaf of `Ste.VariablePresheaf`. -/
+/-- **Linearization of a global assignment**: an assignment
+`f : ∀ v, A v` becomes the constant Čech 0-cochain `j ↦ single f 1`.
+The coefficient module is the FREE `R`-module on ALL global
+assignments `(∀ v, A v) →₀ R` — constant coefficients, not the section
+presheaf of `Ste.VariablePresheaf`, whose local values vary with the
+context.  (For a genuinely presheaf-valued coefficient system see
+`Ste.TwistedCech`.) -/
 noncomputable def globalZeroCochain (f : ∀ v, A v) : cechC0 J ((∀ v, A v) →₀ R) :=
   fun _ => Finsupp.single f 1
 
-/-- The linearization of a global section is a 0-cocycle: constant
-cochains have no overlap discrepancy.  Every global section is seen by
-the linearized `Ȟ⁰`. -/
+/-- The linearization of any assignment is a 0-cocycle: constant
+cochains have no overlap discrepancy (`cechD0_const`).  Note this holds
+for EVERY `f`, in `T` or not — the embedding is faithful but
+cohomologically inert, so this membership tests nothing. -/
 theorem globalZeroCochain_mem_cechH0 (f : ∀ v, A v) :
     globalZeroCochain (J := J) R f ∈ cechH0 R J ((∀ v, A v) →₀ R) :=
   LinearMap.mem_ker.mpr (cechD0_const R J _ (Finsupp.single f 1))
 
-/-- Distinct global sections have distinct `Ȟ⁰` cocycles: the
-linearization loses nothing (`single` is injective since `1 ≠ 0`). -/
+/-- Distinct assignments have distinct 0-cochains: the linearization
+loses nothing (`single` is injective since `1 ≠ 0`).  Faithfulness is
+what the embedding does buy; see `cechD0_const` for what it does
+not. -/
 theorem globalZeroCochain_injective [Nontrivial R] [Nonempty J] :
     Function.Injective
       (fun f : ∀ v, A v => globalZeroCochain (J := J) R f) := by
@@ -385,11 +401,14 @@ theorem globalZeroCochain_injective [Nontrivial R] [Nonempty J] :
   obtain ⟨j⟩ := ‹Nonempty J›
   exact Finsupp.single_left_injective one_ne_zero (congrFun h j)
 
-/-- **Set-level gluing lands in the linearized `Ȟ⁰`**: a compatible
+/-- **Set-level gluing embeds into the linearized `Ȟ⁰`**: a compatible
 family over a cover that glues (`Ste.CechCover`) is realized by a
-global section of the constraint whose linearization is a genuine
-0-cocycle.  The set-level sheaf story embeds in the module-level
-cochain complex. -/
+global section of the constraint whose linearization is a 0-cocycle.
+The set-level sheaf story embeds in the module-level cochain complex —
+faithfully, but inertly: the 0-cocycle conclusion is `cechD0_const` and
+would hold for a non-gluing `f` too.  The real content of this
+statement is the `f ∈ T` and restriction clauses, not the cocycle
+clause. -/
 theorem GluesCover.exists_cechH0 {T : Set (∀ v, A v)} {U : J → Set V}
     {s : ∀ j, ∀ v : (U j), A v} (h : GluesCover T U s) :
     ∃ f ∈ T, (∀ j, (U j).restrict f = s j) ∧
@@ -397,10 +416,9 @@ theorem GluesCover.exists_cechH0 {T : Set (∀ v, A v)} {U : J → Set V}
   obtain ⟨f, hfT, hres⟩ := h
   exact ⟨f, hfT, hres, globalZeroCochain_mem_cechH0 R f⟩
 
-/-- When the cover-level Čech obstruction vanishes, EVERY compatible
-family of local sections is seen by the linearized `Ȟ⁰`: it glues to a
-global section whose linearization is a 0-cocycle restricting to the
-family.  In particular this holds for every compatible family of a
+/-- When the cover-level gluing defect vanishes, EVERY compatible
+family of local sections glues to a global section, whose linearization
+is (inertly) a 0-cocycle restricting to the family.  In particular this holds for every compatible family of a
 rectangular constraint over any cover
 (`rectangular_cechVanishesCover`). -/
 theorem CompatibleFamily.exists_cechH0 {T : Set (∀ v, A v)}

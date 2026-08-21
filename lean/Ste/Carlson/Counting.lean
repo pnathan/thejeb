@@ -17,9 +17,17 @@ Def. 2.3, "isomorphic keys").  Carlson's Lemma 4.1 counts them:
   `(|A| - |T|)!` keys equivalent to the true key, where `T` is the set
   of distinct symbols in `M`.
 
-We prove this as `card_consistent_keys`.  It is exactly the size of the
-STE feasible key set after one observation, i.e. the residual key
-ambiguity.
+We prove this as `card_consistent_keys`: the number of keys agreeing
+with the true key `σ` on `T`.  This file is deliberately independent of
+`Ste.Carlson.Cipher` — it does not itself connect the count to
+`CipherSystem.feasibleKeys` / `CipherSystem.keyPropertySet`.  That bridge
+is made in `Ste.Carlson.SheafBridge`, which imports both:
+`STE.Carlson.mem_keyPropertySet_iff_decConstraint` identifies the STE
+property set on keys with the decryption constraint, and
+`STE.Carlson.card_restrict_fiber` identifies the count below with the
+cardinality of a fiber of the restriction map to the observed symbols.
+Read through those two lemmas, the count is the residual key ambiguity
+after one observation; on its own it is a permutation count.
 -/
 import Mathlib.GroupTheory.Perm.Basic
 import Mathlib.Data.Fintype.Perm
@@ -62,9 +70,10 @@ theorem card_perm_fixing (T : Finset A) :
 /-- **Carlson, Lemma 4.1.**  For a substitution cipher with true key
 `σ`, the keys equivalent to `σ` on a message whose symbol set is `T`
 number `(|A| - |T|)!`.  Two keys are equivalent on the message exactly
-when they agree on `T` (Carlson, Def. 2.3), so this counts the residual
-key ambiguity — the size of the STE feasible key set after observing one
-message. -/
+when they agree on `T` (Carlson, Def. 2.3).  For the identification of
+this count with the STE feasible key set after one observation, see
+`Ste.Carlson.SheafBridge`
+(`mem_keyPropertySet_iff_decConstraint`, `card_restrict_fiber`). -/
 theorem card_consistent_keys (σ : Equiv.Perm A) (T : Finset A) :
     Fintype.card {τ : Equiv.Perm A // ∀ a ∈ T, τ a = σ a}
       = (Fintype.card A - T.card)! := by
