@@ -100,10 +100,25 @@ def partialParses (G : Grammar Parse Rule) (R : Set Rule) : Set Parse :=
     {p : Parse} : p ∈ partialParses G R ↔ ∀ r ∈ R, p ∈ G.accepts r := by
   simp [partialParses, STE.partialFeasibilitySet]
 
-/-- Adding hard rules can only remove candidate parses. -/
+/-- The information frame of a grammar: accumulated evidence is the rule
+set itself, so activation is the identity (`STE.InfoFrame.ofProperties`)
+and each rule is interpreted by the parses it accepts. -/
+def toInfoFrame (G : Grammar Parse Rule) : STE.InfoFrame Rule Rule Parse :=
+  STE.InfoFrame.ofProperties G.accepts
+
+/-- Partial parsing is the feasible set of the grammar's information
+frame — the bridge routing `partialParses_antitone` through
+`STE.InfoFrame.feasible_antitone`. -/
+@[simp] theorem partialParses_eq_infoFrame_feasible (G : Grammar Parse Rule)
+    (R : Set Rule) : partialParses G R = (toInfoFrame G).feasible R :=
+  rfl
+
+/-- Adding hard rules can only remove candidate parses.
+
+An instance of `STE.InfoFrame.feasible_antitone`. -/
 theorem partialParses_antitone (G : Grammar Parse Rule) {R T : Set Rule}
     (hRT : R ⊆ T) : partialParses G T ⊆ partialParses G R :=
-  STE.partialFeasibilitySet_antitone G.accepts hRT
+  (toInfoFrame G).feasible_antitone hRT
 
 /-- Keeping only a restricted rule set is grammar restriction. -/
 def restrict (G : Grammar Parse Rule) (R : Set Rule) : Grammar Parse R :=
