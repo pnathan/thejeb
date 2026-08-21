@@ -68,3 +68,5 @@ import Ste.FuzzyFrame
 import Ste.InfoTopology
 import Ste.MeetScaling
 import Ste.PluralFeasibility
+import Ste.HyperCoref
+import Ste.InfoFrame

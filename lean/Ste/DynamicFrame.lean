@@ -6,7 +6,7 @@ normalization hypotheses remain ordinary partitions (equivalence relations),
 while `MustSame`, `MaySame`, and `MaySeparate` summarize the whole feasible
 set without forcing an ambiguous point estimate.
 -/
-import Ste.Basic
+import Ste.InfoFrame
 
 namespace STE.DynamicFrame
 
@@ -73,12 +73,31 @@ theorem mem_feasible {D : Set Document} {h : Hypothesis} :
       ∀ k, M.support k ⊆ D → M.satisfies h k := by
   simp [feasible, activeConstraints, propertySet, partialFeasibilitySet]
 
+/-- The information frame of a dynamic-frame model: documents activate
+provenance-supported constraints (`activeConstraints`), and each
+constraint denotes its property set of hypotheses.  This is the
+motivating non-degenerate instance of `STE.InfoFrame` — unlike
+`Ste.Algebra` and `Ste.ConstraintGrammar`, activation is genuinely not
+the identity. -/
+def toInfoFrame : STE.InfoFrame Document Constraint Hypothesis where
+  act := M.activeConstraints
+  act_mono := fun _ _ hDE => M.activeConstraints_mono hDE
+  prop := M.propertySet
+
+/-- Feasibility of the model is the feasible set of its information
+frame — the bridge routing `feasible_antitone` through
+`STE.InfoFrame.feasible_antitone`. -/
+@[simp] theorem feasible_eq_infoFrame_feasible (D : Set Document) :
+    M.feasible D = M.toInfoFrame.feasible D :=
+  rfl
+
 /-- Adding documents activates constraints and can only remove normalization
-hypotheses.  Read in reverse, document removal can restore hypotheses. -/
+hypotheses.  Read in reverse, document removal can restore hypotheses.
+
+An instance of `STE.InfoFrame.feasible_antitone`. -/
 theorem feasible_antitone {D E : Set Document} (hDE : D ⊆ E) :
     M.feasible E ⊆ M.feasible D :=
-  partialFeasibilitySet_antitone M.propertySet
-    (M.activeConstraints_mono hDE)
+  M.toInfoFrame.feasible_antitone hDE
 
 /-- The active corpus is consistent when at least one exact normalization
 hypothesis survives. -/

@@ -6,7 +6,7 @@ solutions.  For each problem instance, each criterion denotes a property set of
 solutions, and solving means taking the meet (intersection) of all those
 property sets.  Nonempty meet is solvability; singleton meet is identification.
 -/
-import Ste.Basic
+import Ste.InfoFrame
 
 namespace STE
 
@@ -77,12 +77,30 @@ def Algebra.partialFeasibleSet (A : Algebra Problem Solution Criterion)
     x ∈ A.partialFeasibleSet p C ↔ ∀ c ∈ C, x ∈ A.propertySet p c := by
   simp [Algebra.partialFeasibleSet, STE.partialFeasibilitySet, Algebra.criteria]
 
-/-- Adding criteria is antitone: more criteria can only shrink the solution set. -/
+/-- The information frame of a problem instance: here the accumulated
+"evidence" *is* the criterion set, so activation is the identity and the
+frame is the tautological one (`STE.InfoFrame.ofProperties`). -/
+def Algebra.toInfoFrame (A : Algebra Problem Solution Criterion) (p : Problem) :
+    STE.InfoFrame Criterion Criterion Solution :=
+  STE.InfoFrame.ofProperties (A.criteria p)
+
+/-- Partial feasibility of a problem instance is the feasible set of its
+information frame.  This is the bridge that makes
+`Algebra.partialFeasibleSet_antitone` an instance of the single
+antitone-descent theorem `STE.InfoFrame.feasible_antitone`. -/
+@[simp] theorem Algebra.partialFeasibleSet_eq_infoFrame_feasible
+    (A : Algebra Problem Solution Criterion) (p : Problem) (C : Set Criterion) :
+    A.partialFeasibleSet p C = (A.toInfoFrame p).feasible C :=
+  rfl
+
+/-- Adding criteria is antitone: more criteria can only shrink the solution set.
+
+An instance of `STE.InfoFrame.feasible_antitone`. -/
 theorem Algebra.partialFeasibleSet_antitone
     (A : Algebra Problem Solution Criterion) (p : Problem)
     {C D : Set Criterion} (hCD : C ⊆ D) :
     A.partialFeasibleSet p D ⊆ A.partialFeasibleSet p C :=
-  STE.partialFeasibilitySet_antitone (A.criteria p) hCD
+  (A.toInfoFrame p).feasible_antitone hCD
 
 /-- An abstract STE algebra is equivalently just its curried interpretation map
 from problem instances and criteria into the powerset lattice of solutions. -/

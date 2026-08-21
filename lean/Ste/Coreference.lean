@@ -110,7 +110,20 @@ link: the join over "what's given" equals the infimum over "what's
 adequate." This is the dual of `mustSetoid_eq_sInf`: there `sInf` reads off
 the meet of the feasible partitions (the "must" reading, true in every
 surviving hypothesis); here `sInf` reads off the universal property of the
-join (the smallest partition consistent with all the evidence). -/
+join (the smallest partition consistent with all the evidence).
+
+**Pattern note (U4).** The proof below and
+`STE.FrameCoref.posSetoid_eq_sInf` are the same argument: the constructed
+relation is the *least* element of the set of "adequate" setoids
+(adequacy being an upward-closed predicate in the complete lattice
+`Setoid _`), and a least element of a set is its `sInf`.  The general
+fact is already Mathlib's `IsLeast.isGLB` composed with `IsGLB.sInf_eq`;
+the `le_antisymm` / `le_sInf` / `sInf_le` proof below is that composition
+inlined, so no STE-specific abstraction of it is offered.
+`STE.DynamicFrame.Model.mustSetoid_eq_sInf` looks similar but is a
+*different* fact: an `sInf` of an image family unfolded pointwise by
+`Setoid.sInf_iff`, not a least-element characterization.  See the module
+docstring of `Ste.InfoFrame`. -/
 theorem forcedCoref_eq_sInf (loc : ∀ d, Setoid (Local d))
     (Link : Mention Local → Mention Local → Prop) (S : Set Doc) :
     forcedCoref loc Link S =

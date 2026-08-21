@@ -45,7 +45,20 @@ def frameSetoid (h : Hypothesis) : Setoid Claim :=
 partitions, in Mathlib's complete lattice `Setoid Claim`.  This is Shannon's
 lattice reading of "the STE consensus source": `mustSetoid` is the common
 information forced by every surviving hypothesis, i.e. the infimum of their
-partitions under Mathlib's `Setoid` order. -/
+partitions under Mathlib's `Setoid` order.
+
+**Pattern note (U4).** Three results characterize a forced
+coreference relation as an `sInf` in `Setoid _`: this one,
+`STE.Coreference.forcedCoref_eq_sInf`, and
+`STE.FrameCoref.posSetoid_eq_sInf`.  Only the latter two share a common
+shape — a *least* element of an upward-closed set of "adequate"
+relations, i.e. Mathlib's `IsLeast.isGLB` / `IsGLB.sInf_eq`.  The
+theorem below is a different fact: `mustSetoid` is the `sInf` of an
+*image* family, and the proof is the pointwise unfolding
+`Setoid.sInf_iff` plus `Set.forall_mem_image`, with no antisymmetry
+argument at all.  The three are therefore not instances of one lemma,
+and no abstraction of them is offered; see the module docstring of
+`Ste.InfoFrame`. -/
 theorem mustSetoid_eq_sInf (D : Set Document) :
     M.mustSetoid D = sInf (M.frameSetoid '' M.feasible D) := by
   apply Setoid.ext

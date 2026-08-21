@@ -183,7 +183,19 @@ def fuzzyPartialFeasibility (S : ι → FuzzyFrame Ξ) (J : Finset ι) : FuzzyFr
 lower (never raise) possibility -- the graded analogue of
 `Ste.Basic.partialFeasibilitySet_antitone`: there, acquiring more information
 shrinks the feasibility set; here, acquiring more information shrinks each
-hypothesis's compatibility degree. -/
+hypothesis's compatibility degree.
+
+This is *not* an instance of `STE.InfoFrame.feasible_antitone`, and
+deliberately so.  An `InfoFrame` carves the hypothesis space by an
+intersection of crisp property sets (`Set Ξ`); here the value is a
+`unitInterval`-valued degree obtained by `Finset.inf`, so the underlying
+order-theoretic fact is `Finset.inf_mono` in `unitInterval` rather than
+antitonicity of an intersection in `Set Ξ`.  The crisp theorem is
+recovered only level-by-level, through the cut correspondence: for each
+`α`, `FuzzyFrame.cut α` of the graded partial feasibility is a genuine
+crisp partial feasibility set (`cut_fuzzyFeasibility`), and *that* is an
+`InfoFrame`.  Forcing the graded statement into the crisp frame would
+change what it says. -/
 theorem fuzzyPartialFeasibility_antitone (S : ι → FuzzyFrame Ξ) {J K : Finset ι}
     (hJK : J ⊆ K) (a : Ξ) :
     fuzzyPartialFeasibility S K a ≤ fuzzyPartialFeasibility S J a :=
