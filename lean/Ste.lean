@@ -76,5 +76,6 @@ import Ste.AcyclicConverse
 import Ste.JoinTreeEquiv
 import Ste.StuckState
 import Ste.ConverseFull
+import Ste.Dirac
 import Ste.WidthLowerBound
 import Ste.TwistedNonvanishing
