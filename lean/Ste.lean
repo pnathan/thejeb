@@ -75,5 +75,6 @@ import Ste.SemijoinEnforcement
 import Ste.AcyclicConverse
 import Ste.JoinTreeEquiv
 import Ste.StuckState
+import Ste.ConverseFull
 import Ste.WidthLowerBound
 import Ste.TwistedNonvanishing

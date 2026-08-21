@@ -17,6 +17,18 @@ vertex lies in at least two live edges, the live traces form an
 antichain, and distinct live edges have private live vertices.  There is
 no `sorry` in this file.
 
+**Honest scope — `Stuck` is vacuous on its own.**  `NoEar` and
+`NoContract` quantify over *live* edges, so `Stuck E S ∅` holds for
+every nonempty `S`: with no live edges neither step can apply.
+`exists_stuck_of_not_gyoReducible` is therefore true but carries no
+information about `E` — the pair `(univ, ∅)` always witnesses it.  What
+the greedy reduction actually maintains is the extra invariant that
+every dead edge's live trace is dominated by a live one; `StuckReduced`
+in `Ste.ConverseFull` adds exactly that and re-proves halting, and it is
+that strengthened form, not the one here, that the extraction consumes.
+The theorems below are stated for `Stuck` because they hold at that
+generality; they are applied at `StuckReduced`.
+
 References: Beeri–Fagin–Maier–Yannakakis, *On the desirability of acyclic
 database schemes*, JACM 30(3):479–513, 1983 (`beeri1983acyclic`); Fagin,
 *Degrees of acyclicity for hypergraphs and relational database schemes*,
