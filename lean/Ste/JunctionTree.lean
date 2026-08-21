@@ -404,8 +404,16 @@ the obstruction shape.  The fully coupled `diagonal` constraint
 represents it.  And its scope cannot be shrunk at all
 (`diagonal_support_full`, `Ste.Support`): every support contains both
 variables, so any faithful bag must contain the full coupled scope.
-Scaling this to a quantitative lower bound (an `n`-variable coupled
-instance whose every width-`w` table family has size `≥ 2^Ω(n)`) is
-the un-mechanized lower-bound side of the treewidth story; outlook. -/
+The quantitative lower-bound side is now settled in
+`Ste.WidthLowerBound`, with a corrected witness: `allEqual` does NOT
+scale this phenomenon — it has a faithful width-1 representation by
+the equality chain (`allEqual_isWidthRep_one`), so no exponential
+width-`w` lower bound holds for it.  The true statement is the
+product law `rectCoverNumber T ≤ (k^(w+1))^R` for any faithful
+width-`w` family of `R` constraints, which on the disequality chain
+gives `2^m ≤ (3^(w+1))^R` (`two_pow_le_of_isWidthRep_neqChain`):
+narrow representations of `neqChain` need `Ω(m/w)` constraints, and
+small width-`w` families do not exist at all
+(`not_isWidthRep_neqChain_of_small`). -/
 
 end STE

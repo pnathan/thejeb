@@ -70,3 +70,6 @@ import Ste.MeetScaling
 import Ste.PluralFeasibility
 import Ste.HyperCoref
 import Ste.InfoFrame
+import Ste.AcyclicSolvability
+import Ste.WidthLowerBound
+import Ste.TwistedNonvanishing
