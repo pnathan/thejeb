@@ -71,5 +71,11 @@ import Ste.PluralFeasibility
 import Ste.HyperCoref
 import Ste.InfoFrame
 import Ste.AcyclicSolvability
+import Ste.SemijoinEnforcement
+import Ste.AcyclicConverse
+import Ste.JoinTreeEquiv
+import Ste.StuckState
+import Ste.ConverseFull
+import Ste.Dirac
 import Ste.WidthLowerBound
 import Ste.TwistedNonvanishing
